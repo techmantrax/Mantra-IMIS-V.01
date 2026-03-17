@@ -2848,9 +2848,20 @@ select:focus:not(:focus-visible) { outline: none; }
         }
 
         // ── Publish ──────────────────────────────────────────────────
-        function meb2Publish() {
+        async function meb2Publish() {
           const prog = meb2Prog; if (!prog) return;
-          // Flatten groups → individual rows for the reporting engine
+
+          // ── DB mode: save indicators to Supabase ─────────────────
+          if (meb2DbMode && meb2DbGrant) {
+            const btn = document.getElementById('meb2-publish-btn') || document.getElementById('builder-publish-btn');
+            const origTxt = btn ? btn.textContent : '';
+            if (btn) { btn.textContent = '⏳ Saving…'; btn.disabled = true; }
+            const ok = await meb2PublishToDB();
+            if (btn) { btn.textContent = origTxt; btn.disabled = false; }
+            if (!ok) return;
+          }
+
+          // ── Flatten groups → rows for in-memory reporting engine ──
           let idSeq = Date.now();
           const rows = [];
           meb2Groups.forEach(g => {
@@ -2860,7 +2871,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 id: idSeq++,
                 fy: g.fy || '2025-26', prog: g.prog || prog,
                 intv: g.intv, stk: g.stk, env: g.env, child: g.child,
-                name: ind.name || g.sourceStmt, // fallback to source stmt if no indicator name
+                name: ind.name || g.sourceStmt,
                 type: g.sourceType === 'activity' ? 'Output' : 'Outcome',
                 sourceType: g.sourceType, sourceCode: g.sourceCode,
                 unit: ind.unit, freq: ind.freq, active: ind.active !== false,
@@ -2892,8 +2903,8 @@ select:focus:not(:focus-visible) { outline: none; }
             const p = banner.querySelector('#pub-banner-msg');
             if (p) p.textContent = `${rows.length} indicators for ${prog} are now live in Monthly Reporting.`;
           }
-          toast('Published '+rows.length+' indicators for '+prog);
-          // Refresh the prog selector cards so status dot turns green immediately
+          if (!meb2DbMode) toast('Published '+rows.length+' indicators for '+prog);
+          // Refresh selector cards so status dot turns green
           if (typeof renderMEProgSelector === 'function') renderMEProgSelector();
         }
 
@@ -3022,8 +3033,9 @@ select:focus:not(:focus-visible) { outline: none; }
           document.getElementById('me-back-to-progs')?.addEventListener('click', ()=>{
             document.getElementById('me-builder-content').classList.add('hidden');
             document.getElementById('me-prog-selector').classList.remove('hidden');
-            document.getElementById('crumb-title').textContent = 'Select Program';
+            document.getElementById('crumb-title').textContent = 'Select Grant';
             meb2Groups = []; meb2Prog = null;
+            meb2DbMode = false; meb2DbGrant = null;
             renderMEProgSelector();
           });
           document.getElementById('builder-export-btn')?.addEventListener('click', ()=>{
@@ -4819,8 +4831,11 @@ select:focus:not(:focus-visible) { outline: none; }
               <div id="bt-gop-config-view" style="display:none;">
                 <!-- Back banner -->
                 <div class="bt-gop-config-hd">
-                  <span>🔧 Configuring indicator commitments for this donor</span>
+                  <span>🔒 Outcome commitments were configured during Grant Setup and are now locked</span>
                   <button class="bt-gop-back-btn" onclick="btGopShowProgress()">← Back to Progress</button>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:12px;background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--r-lg);font-size:12.5px;color:var(--ink-3);">
+                  ⚠️ <strong>Read-only.</strong> Indicator commitments and targets were declared during Grant Setup and agreed upon in the MOU. Contact your programme manager to raise a formal amendment.
                 </div>
                 <!-- Search + filter row -->
                 <div class="bt-gop-search-row">
@@ -5153,6 +5168,50 @@ select:focus:not(:focus-visible) { outline: none; }
       .gs-kv .v.mono{font-family:var(--mono);}
       .gs-kv .v.ok{color:var(--ok);}
 
+      /* ── Step 7: Outcomes & MOU (gs-oc-* / gs-mou-*) ── */
+      .gs-oc-search{flex:1;min-width:180px;padding:7px 11px;border-radius:var(--r);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);outline:none;font-size:13px;font-family:var(--sans);transition:border-color .12s;box-shadow:var(--shadow-xs);}
+      .gs-oc-search:focus{border-color:var(--purple);}
+      .gs-oc-filter{padding:7px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);outline:none;font-size:12.5px;font-family:var(--sans);cursor:pointer;box-shadow:var(--shadow-xs);}
+      .gs-oc-filter:focus{border-color:var(--purple);}
+      .gs-oc-count-badge{font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);font-family:var(--mono);white-space:nowrap;margin-left:auto;}
+      .gs-oc-list{border:1px solid var(--mist-2);border-radius:var(--r-lg);overflow:hidden;margin-top:4px;}
+      .gs-oc-row{display:grid;grid-template-columns:36px 1fr auto;gap:0;border-bottom:1px solid var(--mist-3);transition:background .12s;}
+      .gs-oc-row:last-child{border-bottom:none;}
+      .gs-oc-row.committed{background:var(--purple-bg);}
+      .gs-oc-row:hover{background:var(--mist-3);}
+      .gs-oc-row.committed:hover{background:#ede9fe;}
+      .gs-oc-chk-col{display:flex;align-items:flex-start;justify-content:center;padding:13px 0 0 10px;}
+      .gs-oc-chk{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--mist);background:var(--white);cursor:pointer;transition:all .12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;}
+      .gs-oc-row.committed .gs-oc-chk{background:var(--purple);border-color:var(--purple);color:#fff;}
+      .gs-oc-info{padding:10px 14px 10px 8px;}
+      .gs-oc-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;}
+      .gs-oc-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
+      .gs-oc-pill{font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;}
+      .gs-oc-pill.output {background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-border);}
+      .gs-oc-pill.outcome{background:#ecfeff;color:#0891b2;border:1px solid #a5f3fc;}
+      .gs-oc-pill.process{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
+      .gs-oc-pill.impact {background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);}
+      .gs-oc-unit{font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--mist-3);color:var(--slate);border:1px solid var(--mist-2);}
+      .gs-oc-key{font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+      .gs-oc-target-col{display:flex;align-items:flex-start;padding:10px 12px 0 0;gap:6px;}
+      .gs-oc-commit-form{display:none;margin-top:8px;padding:10px 12px;background:var(--white);border:1px solid var(--purple-border);border-radius:var(--r);gap:10px;flex-wrap:wrap;align-items:flex-end;}
+      .gs-oc-row.committed .gs-oc-commit-form{display:flex;}
+      .gs-oc-cf{display:flex;flex-direction:column;gap:4px;min-width:130px;}
+      .gs-oc-cf label{font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.3px;}
+      .gs-oc-cf input,.gs-oc-cf select{padding:5px 9px;border-radius:var(--r-sm);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);outline:none;font-size:12.5px;font-family:var(--sans);transition:border-color .12s;}
+      .gs-oc-cf input:focus,.gs-oc-cf select:focus{border-color:var(--purple);}
+      .gs-oc-empty{text-align:center;padding:36px 20px;color:var(--slate);font-size:13px;}
+      /* MOU upload */
+      .gs-mou-box{border:2px dashed var(--mist-2);border-radius:var(--r-xl);padding:32px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--canvas);}
+      .gs-mou-box:hover{border-color:var(--blue);background:var(--blue-dim);}
+      .gs-mou-box.has-file{border-color:var(--ok);border-style:solid;background:var(--ok-bg);}
+      .gs-mou-icon{font-size:32px;margin-bottom:8px;}
+      .gs-mou-lbl{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+      .gs-mou-hint{font-size:11.5px;color:var(--slate);}
+      .gs-mou-file-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--ok-bg);border:1px solid var(--ok-border);border-radius:var(--r-lg);margin-top:10px;}
+      .gs-mou-file-name{font-size:13px;font-weight:600;color:var(--ok);flex:1;}
+      .gs-locked-note{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);background:var(--warn-bg);border:1px solid var(--warn-border);font-size:12px;color:var(--ink-3);margin-top:8px;}
+
       /* Footer nav */
       .gs-footer{display:flex;align-items:center;gap:12px;padding:16px 0;border-top:1px solid var(--mist-2);margin-top:20px;}
       .gs-footer-right{margin-left:auto;display:flex;gap:10px;}
@@ -5218,9 +5277,11 @@ select:focus:not(:focus-visible) { outline: none; }
               <input id="gs-d-name" type="text" placeholder="e.g. Tata Trusts, USAID, Azim Premji Foundation" />
             </div>
             <div class="gs-field">
-              <label>Donor Code <span class="req">*</span></label>
-              <input id="gs-d-code" type="text" placeholder="e.g. TATA-01" maxlength="20" style="font-family:var(--mono);text-transform:uppercase;" />
-              <div class="gs-hint">Unique short code — used in grant IDs and reports</div>
+              <label>Donor Code</label>
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--canvas);border:1.5px solid var(--mist-2);border-radius:var(--r);font-family:var(--mono);font-size:12.5px;color:var(--slate);">
+                🤖 Auto-assigned · format: DNR-001
+              </div>
+              <div class="gs-hint">System-generated · fully locked · no manual entry</div>
             </div>
             <div class="gs-field">
               <label>Donor Type <span class="req">*</span></label>
@@ -5258,8 +5319,11 @@ select:focus:not(:focus-visible) { outline: none; }
               <input id="gs-g-name" type="text" placeholder="e.g. Tata Trusts Education Quality Initiative FY25-26" />
             </div>
             <div class="gs-field">
-              <label>Grant Code <span class="req">*</span></label>
-              <input id="gs-g-code" type="text" placeholder="e.g. TATA-01-GR25" style="font-family:var(--mono);text-transform:uppercase;" />
+              <label>Grant Code</label>
+              <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--canvas);border:1.5px solid var(--mist-2);border-radius:var(--r);font-family:var(--mono);font-size:12.5px;color:var(--slate);">
+                🤖 Auto-assigned · format: GRT-2526-001
+              </div>
+              <div class="gs-hint">System-generated from FY · fully locked</div>
             </div>
             <div class="gs-field">
               <label>Status <span class="req">*</span></label>
@@ -5458,8 +5522,70 @@ select:focus:not(:focus-visible) { outline: none; }
         </div>
       </div>
 
-      <!-- ── STEP 7: REVIEW ── -->
+      <!-- ── STEP 7: OUTCOMES & MOU ── -->
       <div class="gs-panel" id="gs-p7">
+        <!-- Outcome Commitments card -->
+        <div class="gs-card">
+          <div class="gs-card-hd">
+            <div class="gs-card-icon purple">🎯</div>
+            <div><div class="gs-card-title">Outcome Commitments</div><div class="gs-card-sub">Select indicators this grant commits to — locked after activation</div></div>
+            <span class="gs-oc-count-badge" id="gs-oc-count-badge">0 selected</span>
+          </div>
+          <!-- Search + filter row -->
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+            <input class="gs-oc-search" id="gs-oc-search" type="text" placeholder="Search indicators…" oninput="gsOcFilter()" />
+            <select class="gs-oc-filter" id="gs-oc-type-filter" onchange="gsOcFilter()">
+              <option value="">All types</option>
+              <option value="Output">Output</option>
+              <option value="Outcome">Outcome</option>
+              <option value="Process">Process</option>
+              <option value="Impact">Impact</option>
+            </select>
+            <select class="gs-oc-filter" id="gs-oc-intv-filter" onchange="gsOcFilter()">
+              <option value="">All interventions</option>
+            </select>
+          </div>
+          <!-- Indicator list -->
+          <div class="gs-oc-list" id="gs-oc-list">
+            <div class="gs-oc-empty">
+              <div style="font-size:28px;margin-bottom:8px;">🎯</div>
+              <div>Loading indicators from your framework…</div>
+            </div>
+          </div>
+          <div class="gs-banner" style="margin-top:14px;">
+            <div class="gbi">🔒</div>
+            <div class="gbt"><strong>Locked after activation.</strong> Committed indicators and targets cannot be changed once the grant is activated. Ensure both parties agree before proceeding.</div>
+          </div>
+        </div>
+
+        <!-- MOU Upload card -->
+        <div class="gs-card">
+          <div class="gs-card-hd">
+            <div class="gs-card-icon teal">📎</div>
+            <div><div class="gs-card-title">MOU / Grant Agreement</div><div class="gs-card-sub">Upload the signed Memorandum of Understanding (recommended)</div></div>
+          </div>
+          <div class="gs-mou-box" id="gs-mou-box" onclick="document.getElementById('gs-mou-file').click()"
+               ondragover="event.preventDefault();this.style.borderColor='var(--blue)'"
+               ondragleave="this.style.borderColor=''"
+               ondrop="event.preventDefault();gsMouFileDrop(event)">
+            <div class="gs-mou-icon">📄</div>
+            <div class="gs-mou-lbl" id="gs-mou-lbl">Drop MOU / grant agreement here, or click to browse</div>
+            <div class="gs-mou-hint">PDF, DOCX, JPG · max 10 MB</div>
+            <input type="file" id="gs-mou-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none;" onchange="gsMouFileSelect(this)" />
+          </div>
+          <div class="gs-mou-file-row" id="gs-mou-file-row" style="display:none;">
+            <span style="font-size:18px;">📎</span>
+            <span class="gs-mou-file-name" id="gs-mou-file-name">—</span>
+            <button class="gs-del-btn" onclick="gsMouClear()" title="Remove file">✕</button>
+          </div>
+          <div class="gs-locked-note" style="margin-top:12px;">
+            ⚠️ By uploading and proceeding, you confirm both parties have agreed to the terms in this MOU.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STEP 8: REVIEW ── -->
+      <div class="gs-panel" id="gs-p8">
         <div class="gs-card-hd" style="margin-bottom:4px;">
           <div style="font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.4px;">Review &amp; Activate Grant</div>
         </div>
@@ -5489,7 +5615,11 @@ select:focus:not(:focus-visible) { outline: none; }
           <div class="gs-review-hd"><span style="font-size:15px;">📊</span><h4>Reporting</h4><span class="gs-review-edit" onclick="gsGoStep(6)">Edit →</span></div>
           <div class="gs-kv-grid" id="gs-rv-reports"></div>
         </div>
-        <div class="gs-banner"><div class="gbi">🚀</div><div class="gbt"><strong>What happens next:</strong> Donor, grant, scope, budget lines, disbursement and reporting schedule all save to Supabase in one transaction. Grant Management updates immediately.</div></div>
+        <div class="gs-review-sec">
+          <div class="gs-review-hd"><span style="font-size:15px;">🎯</span><h4>Outcomes &amp; MOU</h4><span class="gs-review-edit" onclick="gsGoStep(7)">Edit →</span></div>
+          <div class="gs-kv-grid" id="gs-rv-outcomes"></div>
+        </div>
+        <div class="gs-banner"><div class="gbi">🚀</div><div class="gbt"><strong>What happens next:</strong> Donor, grant, scope, budget lines, disbursements, reporting schedule, outcome commitments and MOU all save to Supabase in one transaction. Outcome targets are <strong>locked</strong> after activation.</div></div>
       </div>
 
       <!-- ── SUCCESS ── -->
@@ -5529,20 +5659,60 @@ select:focus:not(:focus-visible) { outline: none; }
 const gsFmt = n => '₹' + (parseFloat(n)||0).toLocaleString('en-IN', {maximumFractionDigits:0});
 const gsV   = id => ($(id)?.value || '').trim();
 
+// ── Supabase config (shared across all gs* functions) ──────────
+const GS_SB_URL = 'https://mqdcdkecvzekjsbdeobs.supabase.co';
+const GS_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZGNka2Vjdnpla2pzYmRlb2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDY0ODAsImV4cCI6MjA4ODM4MjQ4MH0.ys-Nx9GU0D4wyP9xkXMqDnkitHOgpOGWWOe-uP-NMOw';
+const GS_SB_HDR = { 'apikey': GS_SB_KEY, 'Authorization': 'Bearer ' + GS_SB_KEY, 'Content-Type': 'application/json' };
+
+// ── Supabase helpers ────────────────────────────────────────────
+const gsSbFetch = async (table, params = '') => {
+  try {
+    const r = await fetch(`${GS_SB_URL}/rest/v1/${table}?${params}`, { headers: GS_SB_HDR });
+    return r.ok ? await r.json() : [];
+  } catch(e) { console.warn('[gs] fetch error', table, e); return []; }
+};
+
+const gsSbInsert = async (table, payload) => {
+  const res = await fetch(`${GS_SB_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: { ...GS_SB_HDR, 'Prefer': 'return=representation' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message || JSON.stringify(data));
+  return Array.isArray(data) ? data[0] : data;
+};
+
+const gsSbQuery = async (table, params = '') => {
+  const r = await fetch(`${GS_SB_URL}/rest/v1/${table}?${params}`, { headers: GS_SB_HDR });
+  return r.ok ? await r.json() : [];
+};
+
 // ── State ──────────────────────────────────────────────────────
 const gsState = {
   step:       1,
-  totalSteps: 6,
-  selectedFYs:   new Set(['FY2526']),
+  totalSteps: 7,
+  selectedFYs:   new Set(),
   selectedIntvs: new Set(),
   budgetLines:   [],
   disbRows:      [],
   reportRows:    [],
   blSeq: 1, disbSeq: 1, repSeq: 1,
+  committedOutcomes: [],  // [{ indicatorId, name, targetValue, frequency, isKeyOutcome }]
+  mouFile:     null,      // File object
+  mouFileName: '',        // display name
+  dbIndicators:[],        // full indicator list from DB/builder
+  // DB-loaded reference data
+  dbPrograms:      [],
+  dbFinancialYears:[],
+  dbInterventions: [],
+  dbActivities:    {},   // keyed by intervention_id → array of {id, name}
+  selectedProgram: null, // full program object from DB
+  selectedFYId:    null, // primary financial_year_id
 };
 
-// ── Seed data ─────────────────────────────────────────────────
-const GS_INTERVENTIONS = [
+// ── Fallback seed data (used only when DB returns empty) ───────
+let GS_INTERVENTIONS = [
   { id:'i1', name:'Teacher Capacity Building',    code:'TCB' },
   { id:'i2', name:'School Leadership Development', code:'SLD' },
   { id:'i3', name:'Community Engagement',          code:'CE'  },
@@ -5551,7 +5721,7 @@ const GS_INTERVENTIONS = [
   { id:'i6', name:'Foundational Literacy & Numeracy', code:'FLN' },
 ];
 
-const GS_ACTIVITIES = {
+let GS_ACTIVITIES = {
   i1:['Training workshops','Classroom observations','Peer learning circles','Resource material distribution'],
   i2:['Leadership orientation','SMC capacity building','School improvement planning'],
   i3:['Parent meetings','Village education committee activation','Community awareness camps'],
@@ -5567,21 +5737,98 @@ const GS_STEP_META = [
   { label:'Budget Lines',           desc:'Detailed framework' },
   { label:'Disbursement Schedule',  desc:'Installment plan' },
   { label:'Reporting Schedule',     desc:'Report obligations' },
+  { label:'Outcomes & MOU',         desc:'Declare commitments · upload MOU' },
 ];
 
 const GS_NEXT_LABELS = [
   'Grant Details','Program Scope','Budget Lines',
-  'Disbursements','Reporting Schedule','Review & Activate'
+  'Disbursements','Reporting Schedule','Outcomes & MOU','Review & Activate'
 ];
 
 // ── Entry point — called by showPage('grant-setup') ───────────
-function gsInit() {
+async function gsInit() {
   gsState.step = 1;
   gsRenderRail();
   gsUpdateProgress();
-  gsRenderFYChips();
-  gsRenderIntvChips();
   gsShowPanel(1);
+  await gsLoadFromDB(); // load live DB data then re-render dynamic parts
+}
+
+// ── Load all reference data from Supabase ─────────────────────
+async function gsLoadFromDB() {
+  try {
+    // 1. Financial Years
+    const fys = await gsSbFetch('financial_year', 'order=start_date.asc&select=financial_year_id,fy_name,start_date,end_date,is_current');
+    if (fys.length) {
+      gsState.dbFinancialYears = fys;
+      // Populate FY select dropdown dynamically
+      const fysel = document.getElementById('gs-g-fy');
+      if (fysel) {
+        fysel.innerHTML = '<option value="">— Select FY —</option>' +
+          fys.map(f => `<option value="${f.financial_year_id}"${f.is_current ? ' selected' : ''}>${esc(f.fy_name)}</option>`).join('');
+        // Set default selectedFYId to current FY
+        const cur = fys.find(f => f.is_current) || fys[0];
+        if (cur) { gsState.selectedFYId = cur.financial_year_id; gsState.selectedFYs = new Set([cur.financial_year_id]); }
+      }
+      gsRenderFYChips();
+    }
+
+    // 2. Programs (active, non-frozen)
+    const progs = await gsSbFetch('program', 'is_frozen=eq.false&select=program_id,program_name,program_code,program_level,financial_year_id,state_id&order=program_name.asc');
+    if (progs.length) {
+      gsState.dbPrograms = progs;
+      gsState.selectedProgram = progs[0];
+      const nameEl = document.getElementById('gs-scope-prog-name');
+      const subEl  = nameEl?.nextElementSibling;
+      if (nameEl) nameEl.textContent = progs[0].program_name;
+      if (subEl)  subEl.textContent  = `${progs[0].program_level || 'Program'} · ${progs[0].program_code || ''}`;
+    }
+
+    // 3. Interventions (active)
+    const intvs = await gsSbFetch('intervention', 'is_active=eq.true&select=intervention_id,intervention_name,intervention_code,program_id&order=intervention_name.asc');
+    if (intvs.length) {
+      gsState.dbInterventions = intvs;
+      GS_INTERVENTIONS = intvs.map(iv => ({
+        id:   iv.intervention_id,
+        name: iv.intervention_name,
+        code: iv.intervention_code || ''
+      }));
+    }
+
+    // 4. Activities (active) — keyed by intervention via ISTM
+    const acts = await gsSbFetch('activity', 'is_active=eq.true&select=activity_id,activity_name,intervention_stakeholder_type_map_id&order=sort_order.asc,activity_name.asc');
+    if (acts.length) {
+      // Build map: intervention_stakeholder_type_map_id → activities
+      const istmMap = {};
+      acts.forEach(a => {
+        const k = a.intervention_stakeholder_type_map_id;
+        if (!istmMap[k]) istmMap[k] = [];
+        istmMap[k].push({ id: a.activity_id, name: a.activity_name });
+      });
+
+      // Also load ISTM to map intervention_id → activities
+      const istms = await gsSbFetch('intervention_stakeholder_type_map', 'is_active=eq.true&select=intervention_stakeholder_type_map_id,intervention_id');
+      const actsByIntv = {};
+      istms.forEach(m => {
+        const list = istmMap[m.intervention_stakeholder_type_map_id] || [];
+        if (!actsByIntv[m.intervention_id]) actsByIntv[m.intervention_id] = [];
+        actsByIntv[m.intervention_id].push(...list);
+      });
+
+      gsState.dbActivities = actsByIntv;
+      // Update GS_ACTIVITIES for budget line dropdowns
+      GS_ACTIVITIES = actsByIntv;
+    }
+
+    // Re-render chips with live data
+    gsRenderFYChips();
+    gsRenderIntvChips();
+
+  } catch(e) {
+    console.warn('[gsLoadFromDB] error, falling back to seed data', e);
+    gsRenderFYChips();
+    gsRenderIntvChips();
+  }
 }
 
 // ── Rail ──────────────────────────────────────────────────────
@@ -5611,13 +5858,13 @@ function gsUpdateProgress() {
   const backBtn = $('gs-btn-back');
   if (bar) bar.style.width = pct + '%';
   if (lbl) lbl.textContent = pct + '%';
-  if (sub) sub.textContent = gsState.step <= 6
-    ? `Step ${gsState.step} of 6 — ${GS_STEP_META[gsState.step-1]?.label}`
+  if (sub) sub.textContent = gsState.step <= 7
+    ? `Step ${gsState.step} of 7 — ${GS_STEP_META[gsState.step-1]?.label}`
     : 'Review & Activate';
-  if (stepLbl) stepLbl.textContent = gsState.step <= 6 ? `Step ${gsState.step} of 6` : 'Review';
+  if (stepLbl) stepLbl.textContent = gsState.step <= 7 ? `Step ${gsState.step} of 7` : 'Review';
   if (nextLbl) nextLbl.textContent = GS_NEXT_LABELS[gsState.step - 1] || '';
   if (nextBtn) {
-    if (gsState.step === 7) {
+    if (gsState.step === 8) {
       nextBtn.innerHTML = '🚀 Activate Grant';
       nextBtn.className = 'btn btn-ok';
       nextBtn.style.background = 'var(--ok)';
@@ -5633,7 +5880,7 @@ function gsUpdateProgress() {
 }
 
 function gsShowPanel(n) {
-  for (let i = 1; i <= 7; i++) {
+  for (let i = 1; i <= 8; i++) {
     const p = $(`gs-p${i}`);
     if (p) p.classList.toggle('active', i === n);
   }
@@ -5645,12 +5892,13 @@ function gsShowPanel(n) {
   if (n === 4) { gsInitBL(); gsUpdateBLSummary(); }
   if (n === 5) { if (!gsState.disbRows.length) gsAddDisb(); gsRenderDisb(); }
   if (n === 6) { if (!gsState.reportRows.length) gsAddRep(); gsRenderRep(); }
-  if (n === 7) gsBuildReview();
+  if (n === 7) { gsOcLoadIndicators(); }
+  if (n === 8) gsBuildReview();
 }
 
 // ── Navigation ───────────────────────────────────────────────
 function gsNext() {
-  if (gsState.step === 7) { gsActivate(); return; }
+  if (gsState.step === 8) { gsActivate(); return; }
   if (!gsValidate(gsState.step)) return;
   gsState.step++;
   gsRenderRail();
@@ -5676,12 +5924,12 @@ function gsCancel() { showPage('grant-mgmt'); }
 function gsValidate(step) {
   if (step === 1) {
     if (!gsV('gs-d-name')) { toast('⚠ Donor name is required'); return false; }
-    if (!gsV('gs-d-code')) { toast('⚠ Donor code is required'); return false; }
     if (!gsV('gs-d-type')) { toast('⚠ Donor type is required'); return false; }
+    // donor_code is system-generated — no validation needed
   }
   if (step === 2) {
     if (!gsV('gs-g-name'))   { toast('⚠ Grant name is required'); return false; }
-    if (!gsV('gs-g-code'))   { toast('⚠ Grant code is required'); return false; }
+    // grant_code is system-generated — no validation needed
     if (!gsV('gs-g-status')) { toast('⚠ Grant status is required'); return false; }
     if (!gsV('gs-g-fy'))     { toast('⚠ Financial year is required'); return false; }
     if (!(parseFloat(gsV('gs-g-amount')) > 0)) { toast('⚠ Enter a valid committed amount'); return false; }
@@ -5700,6 +5948,11 @@ function gsValidate(step) {
   }
   if (step === 6) {
     if (!gsState.reportRows.length) { toast('⚠ Add at least one reporting obligation'); return false; }
+  }
+  if (step === 7) {
+    if (!gsState.committedOutcomes.length) { toast('⚠ Commit at least one indicator outcome for this grant'); return false; }
+    const missingTarget = gsState.committedOutcomes.find(o => !(parseFloat(o.targetValue) > 0));
+    if (missingTarget) { toast('⚠ Enter a target value for each committed indicator'); return false; }
   }
   return true;
 }
@@ -5957,7 +6210,7 @@ function gsRenderRep() {
 
 function gsRepSet(id, field, value) { const r = gsState.reportRows.find(r=>r.id===id); if(r) r[field]=value; }
 
-// ── Step 7: Review ───────────────────────────────────────────
+// ── Step 8: Review ───────────────────────────────────────────
 function gsBuildReview() {
   const kv = (k, v, cls='') => `<div class="gs-kv"><div class="k">${k}</div><div class="v ${cls}">${v||'—'}</div></div>`;
   const typeLabels = {foundation:'Foundation',trust:'Trust',csr:'CSR',government:'Government',organization:'Organisation',philanthropist:'Philanthropist',individual:'Individual',other:'Other'};
@@ -5969,11 +6222,11 @@ function gsBuildReview() {
   const setKV = (id, html) => { if($(id)) $(id).innerHTML = html; };
   setKV('gs-rv-donor',
     kv('Name', esc(gsV('gs-d-name'))) +
-    kv('Code', gsV('gs-d-code'),'mono') +
+    kv('Code', '🤖 Auto-assigned on save','slate') +
     kv('Type', typeLabels[gsV('gs-d-type')]||gsV('gs-d-type')));
   setKV('gs-rv-grant',
     kv('Grant Name', esc(gsV('gs-g-name'))) +
-    kv('Grant Code', gsV('gs-g-code'),'mono') +
+    kv('Grant Code', '🤖 Auto-assigned on save · GRT-{FY}-{seq}','slate') +
     kv('Status', statusLabels[gsV('gs-g-status')]||gsV('gs-g-status')) +
     kv('Committed', gsFmt(gsV('gs-g-amount')),'ok mono') +
     kv('Currency', gsV('gs-g-currency')) +
@@ -5994,6 +6247,230 @@ function gsBuildReview() {
     kv('Reports Scheduled', gsState.reportRows.length) +
     kv('Types', [...new Set(gsState.reportRows.map(r=>r.type))].join(', ')||'—') +
     kv('First Due', gsState.reportRows.map(r=>r.due).filter(Boolean).sort()[0]||'—'));
+
+  // Outcomes & MOU
+  const keyCount = gsState.committedOutcomes.filter(o=>o.isKeyOutcome).length;
+  setKV('gs-rv-outcomes',
+    kv('Indicators Committed', gsState.committedOutcomes.length) +
+    kv('Key Outcome Indicators', keyCount) +
+    kv('MOU Attached', gsState.mouFileName ? '✅ ' + gsState.mouFileName : '— Not uploaded'));
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STEP 7: OUTCOMES & MOU  (gsOc* / gsMou*)
+// ═══════════════════════════════════════════════════════════════
+
+// Load indicators from DB (filtered to selected interventions) + from builderRows fallback
+async function gsOcLoadIndicators() {
+  const list = $('gs-oc-list');
+  if (!list) return;
+  list.innerHTML = `<div class="gs-oc-empty"><div style="font-size:24px;margin-bottom:6px;">⏳</div><div>Loading indicators…</div></div>`;
+
+  let indicators = [];
+
+  // 1. Try live DB — filter by selected interventions via ISTM
+  const selectedIntvIds = [...gsState.selectedIntvs];
+  if (selectedIntvIds.length && GS_SB_URL) {
+    const istms = await gsSbFetch('intervention_stakeholder_type_map',
+      `intervention_id=in.(${selectedIntvIds.join(',')})&is_active=eq.true&select=intervention_stakeholder_type_map_id,intervention_id`);
+    if (istms.length) {
+      const istmIds = istms.map(m => m.intervention_stakeholder_type_map_id).join(',');
+      const dbInds = await gsSbFetch('indicator',
+        `intervention_stakeholder_type_map_id=in.(${istmIds})&is_active=eq.true&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,direction,is_key_outcome,intervention_stakeholder_type_map_id&order=indicator_name.asc`);
+      if (dbInds.length) {
+        // Build map: istm_id → intervention_name
+        const istmToIntv = {};
+        istms.forEach(m => {
+          const iv = GS_INTERVENTIONS.find(i => i.id === m.intervention_id);
+          istmToIntv[m.intervention_stakeholder_type_map_id] = iv?.name || 'Unknown';
+        });
+        indicators = dbInds.map(d => ({
+          id:       d.indicator_id,
+          name:     d.indicator_name,
+          code:     d.indicator_code || '',
+          unit:     d.unit_of_measure || '',
+          freq:     d.frequency || 'Monthly',
+          isKey:    d.is_key_outcome,
+          type:     'Outcome',
+          intvName: istmToIntv[d.intervention_stakeholder_type_map_id] || '—',
+        }));
+      }
+    }
+  }
+
+  // 2. Fallback to M&E builderRows (if any published)
+  if (!indicators.length && typeof builderRows !== 'undefined') {
+    const prog = gsState.selectedProgram?.program_name || '';
+    indicators = (builderRows || [])
+      .filter(r => r.active && r.name && (!prog || r.prog === prog))
+      .map(r => ({
+        id:       r.id,
+        name:     r.name,
+        code:     r.abbr || '',
+        unit:     r.unit || '',
+        freq:     r.freq || 'Monthly',
+        isKey:    !!r.isKey,
+        type:     r.type || 'Outcome',
+        intvName: r.intv || '—',
+      }));
+  }
+
+  gsState.dbIndicators = indicators;
+
+  // Populate intervention filter
+  const intvFilter = $('gs-oc-intv-filter');
+  if (intvFilter) {
+    const intvs = [...new Set(indicators.map(i => i.intvName))].filter(Boolean);
+    intvFilter.innerHTML = '<option value="">All interventions</option>' +
+      intvs.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  }
+
+  gsOcRender(indicators);
+}
+
+// Render outcome/indicator rows
+function gsOcRender(indicators) {
+  const list = $('gs-oc-list');
+  if (!list) return;
+  if (!indicators.length) {
+    list.innerHTML = `<div class="gs-oc-empty">
+      <div style="font-size:28px;margin-bottom:8px;">🎯</div>
+      <div>No indicators found for the selected interventions.<br>
+      <span style="font-size:12px;">Select interventions in Step 3 or publish a framework in M&amp;E Builder first.</span></div>
+    </div>`;
+    return;
+  }
+
+  const typeClass = { Output:'output', Outcome:'outcome', Process:'process', Impact:'impact' };
+
+  list.innerHTML = indicators.map(ind => {
+    const committed = gsState.committedOutcomes.find(o => o.indicatorId === ind.id);
+    const cls = committed ? ' committed' : '';
+    const chkMark = committed ? '✓' : '';
+    const tv  = committed?.targetValue || '';
+    const frq = committed?.frequency   || ind.freq || 'Monthly';
+    const iko = committed?.isKeyOutcome ? ' checked' : '';
+    const tc  = typeClass[ind.type] || 'outcome';
+
+    return `<div class="gs-oc-row${cls}" id="gs-oc-row-${ind.id}">
+      <div class="gs-oc-chk-col">
+        <div class="gs-oc-chk" onclick="gsOcToggle('${ind.id}',this)">${chkMark}</div>
+      </div>
+      <div class="gs-oc-info">
+        <div class="gs-oc-name">${esc(ind.name)}${ind.code ? ` <span style="font-size:11px;color:var(--slate);font-family:var(--mono);">${esc(ind.code)}</span>` : ''}</div>
+        <div class="gs-oc-meta">
+          <span class="gs-oc-pill ${tc}">${esc(ind.type)}</span>
+          ${ind.unit ? `<span class="gs-oc-unit">${esc(ind.unit)}</span>` : ''}
+          ${ind.isKey ? `<span class="gs-oc-key">⭐ Key Outcome</span>` : ''}
+          <span style="font-size:11px;color:var(--slate);">· ${esc(ind.intvName)}</span>
+        </div>
+        <!-- Commitment form — visible only when committed -->
+        <div class="gs-oc-commit-form" id="gs-oc-form-${ind.id}">
+          <div class="gs-oc-cf">
+            <label>Target Value <span class="req">*</span></label>
+            <input type="number" min="0" placeholder="e.g. 1200"
+              value="${esc(tv)}"
+              style="font-family:var(--mono);width:120px;"
+              onchange="gsOcSetField('${ind.id}','targetValue',this.value)" />
+          </div>
+          <div class="gs-oc-cf">
+            <label>Reporting Frequency</label>
+            <select onchange="gsOcSetField('${ind.id}','frequency',this.value)">
+              ${['Monthly','Quarterly','Half-yearly','Annual'].map(f =>
+                `<option value="${f}"${frq===f?' selected':''}>${f}</option>`).join('')}
+            </select>
+          </div>
+          <div class="gs-oc-cf" style="justify-content:flex-end;min-width:auto;">
+            <label>&nbsp;</label>
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" ${iko} onchange="gsOcSetField('${ind.id}','isKeyOutcome',this.checked)" />
+              Key Outcome Indicator
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="gs-oc-target-col">
+        ${committed ? `<span style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--purple);">${tv ? '🎯 ' + tv : ''}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  gsOcUpdateBadge();
+}
+
+// Toggle outcome commitment
+function gsOcToggle(id, el) {
+  const row = $(`gs-oc-row-${id}`);
+  const ind = gsState.dbIndicators.find(i => i.id === id);
+  if (!ind) return;
+
+  const already = gsState.committedOutcomes.findIndex(o => o.indicatorId === id);
+  if (already >= 0) {
+    gsState.committedOutcomes.splice(already, 1);
+  } else {
+    gsState.committedOutcomes.push({
+      indicatorId: id,
+      name:        ind.name,
+      targetValue: '',
+      frequency:   ind.freq || 'Monthly',
+      isKeyOutcome: ind.isKey || false,
+    });
+  }
+  // Re-render just this row cleanly
+  gsOcRender(gsOcCurrentList());
+}
+
+// Set a field on a committed outcome
+function gsOcSetField(id, field, value) {
+  const oc = gsState.committedOutcomes.find(o => o.indicatorId === id);
+  if (oc) { oc[field] = value; gsOcUpdateBadge(); }
+}
+
+// Update the count badge
+function gsOcUpdateBadge() {
+  const badge = $('gs-oc-count-badge');
+  const n = gsState.committedOutcomes.length;
+  if (badge) { badge.textContent = n + ' selected'; badge.style.background = n ? 'var(--purple)' : ''; badge.style.color = n ? '#fff' : ''; }
+}
+
+// Return filtered list based on search/filters
+function gsOcCurrentList() {
+  const q    = ($('gs-oc-search')?.value  || '').toLowerCase();
+  const type = $('gs-oc-type-filter')?.value  || '';
+  const intv = $('gs-oc-intv-filter')?.value  || '';
+  return gsState.dbIndicators.filter(i =>
+    (!q    || i.name.toLowerCase().includes(q) || (i.code||'').toLowerCase().includes(q)) &&
+    (!type || i.type === type) &&
+    (!intv || i.intvName === intv)
+  );
+}
+
+function gsOcFilter() { gsOcRender(gsOcCurrentList()); }
+
+// ── MOU Upload ───────────────────────────────────────────────
+function gsMouFileSelect(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  if (file.size > 10 * 1024 * 1024) { toast('⚠ File exceeds 10 MB limit'); input.value = ''; return; }
+  gsState.mouFile     = file;
+  gsState.mouFileName = file.name;
+  $('gs-mou-file-row').style.display = 'flex';
+  $('gs-mou-file-name').textContent  = file.name;
+  $('gs-mou-box').classList.add('has-file');
+  $('gs-mou-lbl').textContent = '✅ MOU attached — click to replace';
+}
+
+function gsMouFileDrop(e) {
+  const file = e.dataTransfer.files?.[0];
+  if (file) { const dt = new DataTransfer(); dt.items.add(file); $('gs-mou-file').files = dt.files; gsMouFileSelect($('gs-mou-file')); }
+}
+
+function gsMouClear() {
+  gsState.mouFile = null; gsState.mouFileName = '';
+  $('gs-mou-file').value = '';
+  $('gs-mou-file-row').style.display = 'none';
+  $('gs-mou-box').classList.remove('has-file');
+  $('gs-mou-lbl').textContent = 'Drop MOU / grant agreement here, or click to browse';
 }
 
 // ── Activate (Supabase save) ──────────────────────────────────
@@ -6002,57 +6479,123 @@ async function gsActivate() {
   const lo = $('gs-loading'); if(lo) lo.classList.add('show');
   const setLo = (t, s) => { if($('gs-loading-title')) $('gs-loading-title').textContent=t; if($('gs-loading-sub')) $('gs-loading-sub').textContent=s; };
 
-  // ── Supabase config ── replace with your project values ──────
-  const SB_URL = 'YOUR_SUPABASE_URL';
-  const SB_KEY = 'YOUR_SUPABASE_ANON_KEY';
-  const SB_CONFIGURED = SB_URL !== 'YOUR_SUPABASE_URL';
-
-  const sbInsert = async (table, payload) => {
-    if (!SB_CONFIGURED) { console.log('[MOCK] INSERT', table, payload); return { id: 'mock-' + Date.now() }; }
-    const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'return=representation'},
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(JSON.stringify(data));
-    return Array.isArray(data) ? data[0] : data;
-  };
-
   try {
-    setLo('Saving donor…','Step 1 of 6');
-    const donor = await sbInsert('donor', { donor_name:gsV('gs-d-name'), donor_code:gsV('gs-d-code').toUpperCase(), donor_type:gsV('gs-d-type'), description:gsV('gs-d-desc'), is_active:true });
-    const donorId = donor?.donor_id || donor?.id || 'mock-donor';
+    // ── 1: Donor — lookup by name first, reuse if exists ─────────
+    //  donor_code is system-generated by DB trigger (DNR-001 format)
+    setLo('Saving donor…','Step 1 of 8');
+    const dName = gsV('gs-d-name').trim();
+    let donorId;
+    const existingDonor = await gsSbQuery('donor',
+      `donor_name=eq.${encodeURIComponent(dName)}&select=donor_id,donor_code&limit=1`);
+    if (existingDonor.length) {
+      donorId = existingDonor[0].donor_id;
+      toast('ℹ Existing donor reused — code: ' + existingDonor[0].donor_code);
+    } else {
+      // donor_code intentionally omitted — DB trigger generates it
+      const donor = await gsSbInsert('donor', {
+        donor_name: dName,
+        donor_type: gsV('gs-d-type'),
+        description: gsV('gs-d-desc'),
+        is_active: true,
+      });
+      donorId = donor?.donor_id;
+    }
 
-    setLo('Saving grant…','Step 2 of 6');
-    const grant = await sbInsert('grants', { donor_id:donorId, grant_name:gsV('gs-g-name'), grant_code:gsV('gs-g-code').toUpperCase(), grant_status:gsV('gs-g-status'), total_committed_amount:parseFloat(gsV('gs-g-amount')), currency:gsV('gs-g-currency'), start_date:gsV('gs-g-start'), end_date:gsV('gs-g-end'), description:gsV('gs-g-desc'), is_active:true });
-    const grantId = grant?.grant_id || grant?.id || 'mock-grant';
+    // ── 2: Grant ─────────────────────────────────────────────────
+    //  grant_code is system-generated by DB trigger (GRT-2526-001 format)
+    setLo('Saving grant…','Step 2 of 8');
+    const fyId   = gsState.selectedFYId || gsV('gs-g-fy') || null;
+    const progId = gsState.selectedProgram?.program_id || null;
+    // grant_code intentionally omitted — DB trigger generates it
+    const grant = await gsSbInsert('grants', {
+      donor_id: donorId, grant_name: gsV('gs-g-name'),
+      grant_status: gsV('gs-g-status'),
+      total_committed_amount: parseFloat(gsV('gs-g-amount')),
+      currency: gsV('gs-g-currency'), financial_year_id: fyId,
+      start_date: gsV('gs-g-start'), end_date: gsV('gs-g-end'),
+      description: gsV('gs-g-desc'), is_active: true,
+    });
+    const grantId = grant?.grant_id;
 
-    setLo('Saving program scope…','Step 3 of 6');
-    await sbInsert('grant_program_scope', { grant_id:grantId, allocated_amount:parseFloat(gsV('gs-scope-alloc')), is_active:true });
-    for (const id of gsState.selectedIntvs) await sbInsert('grant_intervention_scope', { grant_id:grantId, intervention_id:id, is_active:true });
+    // ── 3: Multi-year FY mapping ──────────────────────────────────
+    setLo('Saving FY mapping…','Step 3 of 8');
+    for (const fyMapId of gsState.selectedFYs) {
+      await gsSbInsert('grant_financial_year_mapping', { grant_id: grantId, financial_year_id: fyMapId });
+    }
 
-    setLo('Saving budget lines…','Step 4 of 6');
-    for (const [i, l] of gsState.budgetLines.entries()) await sbInsert('grant_framework_budget', { grant_id:grantId, budget_category_code:l.cat, budget_line_code:l.code||null, budget_head_name:l.head, intervention_id:l.intv||null, unit_count:parseFloat(l.units)||null, cost_per_unit:parseFloat(l.cpu)||null, allocated_amount:parseFloat(l.allocated)||0, budget_status:'active', sort_order:i });
+    // ── 4: Program scope + Intervention scopes ────────────────────
+    setLo('Saving program scope…','Step 4 of 8');
+    await gsSbInsert('grant_program_scope', {
+      grant_id: grantId, program_id: progId,
+      financial_year_id: fyId, allocated_amount: parseFloat(gsV('gs-scope-alloc')), is_active: true,
+    });
+    for (const intvId of gsState.selectedIntvs) {
+      await gsSbInsert('grant_intervention_scope', {
+        grant_id: grantId, program_id: progId,
+        intervention_id: intvId, financial_year_id: fyId, is_active: true,
+      });
+    }
 
-    setLo('Saving disbursements…','Step 5 of 6');
-    for (const [i, d] of gsState.disbRows.entries()) await sbInsert('grant_disbursement_schedule', { grant_id:grantId, installment_no:i+1, due_date:d.due||null, expected_amount:parseFloat(d.expected)||0, status:d.status, notes:d.notes });
+    // ── 5: Budget lines ───────────────────────────────────────────
+    setLo('Saving budget lines…','Step 5 of 8');
+    for (const [i, l] of gsState.budgetLines.entries()) {
+      await gsSbInsert('grant_framework_budget', {
+        grant_id: grantId, financial_year_id: fyId, program_id: progId,
+        intervention_id: l.intv || null, budget_category_code: l.cat,
+        budget_line_code: l.code || null, budget_head_name: l.head,
+        unit_count: parseFloat(l.units) || null, cost_per_unit: parseFloat(l.cpu) || null,
+        allocated_amount: parseFloat(l.allocated) || 0, budget_status: 'active', sort_order: i,
+      });
+    }
 
-    setLo('Saving reporting schedule…','Step 6 of 6');
-    for (const r of gsState.reportRows) await sbInsert('grant_reporting_schedule', { grant_id:grantId, report_type:r.type, reporting_period_end:r.periodEnd||null, due_date:r.due||null, status:'planned', notes:r.notes });
+    // ── 6: Disbursement schedule ──────────────────────────────────
+    setLo('Saving disbursements…','Step 6 of 8');
+    for (const [i, d] of gsState.disbRows.entries()) {
+      await gsSbInsert('grant_disbursement_schedule', {
+        grant_id: grantId, installment_no: i + 1,
+        due_date: d.due || null, expected_amount: parseFloat(d.expected) || 0,
+        status: d.status, notes: d.notes,
+      });
+    }
+
+    // ── 7: Reporting schedule ─────────────────────────────────────
+    setLo('Saving reporting schedule…','Step 7 of 8');
+    for (const r of gsState.reportRows) {
+      await gsSbInsert('grant_reporting_schedule', {
+        grant_id: grantId, report_type: r.type,
+        reporting_period_end: r.periodEnd || null, due_date: r.due || null,
+        status: 'planned', notes: r.notes,
+      });
+    }
+
+    // ── 8: Outcome commitments + MOU document ────────────────────
+    setLo('Saving outcome commitments…','Step 8 of 8');
+    for (const oc of gsState.committedOutcomes) {
+      await gsSbInsert('grant_indicator_commitment', {
+        grant_id: grantId, indicator_id: oc.indicatorId, financial_year_id: fyId,
+        committed_target_value: parseFloat(oc.targetValue) || null,
+        reporting_frequency: oc.frequency,
+        is_key_outcome_indicator: !!oc.isKeyOutcome, remarks: null,
+      });
+    }
+    if (gsState.mouFileName) {
+      await gsSbInsert('grant_document', {
+        grant_id: grantId, document_type: 'mou', document_name: gsState.mouFileName,
+        document_url: null, version_number: 1, notes: 'Uploaded during grant setup',
+      });
+    }
 
     if(lo) lo.classList.remove('show');
     gsShowSuccess();
   } catch(err) {
     if(lo) lo.classList.remove('show');
-    console.error(err);
-    if (!SB_CONFIGURED) gsShowSuccess(); // mock mode
-    else toast('⚠ Error: ' + err.message);
+    console.error('[gsActivate]', err);
+    toast('⚠ Save error: ' + (err.message || 'Unknown error — check console'));
   }
 }
 
 function gsShowSuccess() {
-  for (let i=1; i<=7; i++) { const p=$(`gs-p${i}`); if(p) p.classList.remove('active'); }
+  for (let i=1; i<=8; i++) { const p=$(`gs-p${i}`); if(p) p.classList.remove('active'); }
   const footer=$('gs-footer'); if(footer) footer.style.display='none';
   const success=$('gs-success'); if(success) success.style.display='block';
   const blTotal = gsState.budgetLines.reduce((s,l)=>s+(parseFloat(l.allocated)||0),0);
@@ -6069,15 +6612,20 @@ function gsShowSuccess() {
 }
 
 function gsReset() {
-  gsState.step          = 1;
-  gsState.budgetLines   = [];
-  gsState.disbRows      = [];
-  gsState.reportRows    = [];
-  gsState.selectedIntvs = new Set();
-  gsState.selectedFYs   = new Set(['FY2526']);
+  gsState.step             = 1;
+  gsState.budgetLines      = [];
+  gsState.disbRows         = [];
+  gsState.reportRows       = [];
+  gsState.committedOutcomes= [];
+  gsState.mouFile          = null;
+  gsState.mouFileName      = '';
+  gsState.dbIndicators     = [];
+  gsState.selectedIntvs    = new Set();
+  gsState.selectedFYs      = new Set();
   gsState.blSeq = gsState.disbSeq = gsState.repSeq = 1;
   // Clear form fields
-  ['gs-d-name','gs-d-code','gs-d-desc','gs-g-name','gs-g-code','gs-g-desc','gs-g-amount','gs-scope-alloc'].forEach(id => { if($(id)) $(id).value=''; });
+  // gs-d-code and gs-g-code removed — system-generated, no input to clear
+  ['gs-d-name','gs-d-desc','gs-g-name','gs-g-desc','gs-g-amount','gs-scope-alloc'].forEach(id => { if($(id)) $(id).value=''; });
   const s=$('gs-success'); if(s) s.style.display='none';
   const f=$('gs-footer'); if(f) f.style.display='';
   gsInit();
@@ -6286,9 +6834,10 @@ function showPage(route) {
   } else if (route === 'me-builder') {
     $('page-me-builder').classList.remove('hidden');
     $('crumb-path').textContent = 'M&E Builder';
-    $('crumb-title').textContent = 'Select Program';
+    $('crumb-title').textContent = 'Select Grant';
     $('me-prog-selector').classList.remove('hidden');
     $('me-builder-content').classList.add('hidden');
+    meb2DbMode = false; meb2DbGrant = null;
     renderMEProgSelector();
   } else if (route === 'lfa') {
     $('page-lfa').classList.remove('hidden');
@@ -6416,14 +6965,32 @@ function computeStats() {
 // ═══════════════════════════════════════════════════
 let publishedFramework = null; // pointer to active program's published framework
 
-// ─── M&E Program Selector ───────────────────────────────────────
-const ME_PROGRAMS = ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab','Assam','Maharashtra'];
+// ═══════════════════════════════════════════════════════════════════
+// ─── M&E Program Selector — DB-connected ────────────────────────
+// ═══════════════════════════════════════════════════════════════════
 
-function getMEProgStatus(prog) {
-  const rows = builderRowsByProg[prog] || [];
-  const pf   = publishedFrameworkByProg[prog] || null;
-  // Use the same filter as doPublish so the dirty comparison is valid
-  const publishable = rows.filter(r => r.active && r.name && (r.type || r.sourceType) && (r.stk || r.stakeholder));
+// Cache for indicator category IDs (IC-001=Output, IC-002=Outcome)
+var meb2CatIds      = {};   // { 'IC-001': uuid, 'IC-002': uuid }
+var meb2DbGrant     = null; // current grant object when in DB mode
+var meb2DbMode      = false;// true when loaded from DB (not LFA store)
+var meb2DbGrantList = [];   // cached grant list for selector
+
+// Fetch + cache indicator_category IDs once
+async function meb2EnsureCatIds() {
+  if (meb2CatIds['IC-001']) return;
+  try {
+    const cats = await gsSbFetch('indicator_category',
+      'category_code=in.(IC-001,IC-002)&select=indicator_category_id,category_code');
+    (cats||[]).forEach(c => { meb2CatIds[c.category_code] = c.indicator_category_id; });
+  } catch(e) { console.warn('[meb2] Could not fetch indicator_category IDs:', e); }
+}
+
+// ── Grant-status helpers (for per-grant published state) ────────
+function getMEGrantStatus(grantId) {
+  const key = 'grant:' + grantId;
+  const rows = builderRowsByProg[key] || [];
+  const pf   = publishedFrameworkByProg[key] || null;
+  const publishable = rows.filter(r => r.active && r.name);
   const count = publishable.length;
   if (pf) {
     const dirty = JSON.stringify(publishable) !== JSON.stringify(pf.rows);
@@ -6433,50 +7000,401 @@ function getMEProgStatus(prog) {
   return { state:'empty', count:0, pf:null, dirty:false };
 }
 
-function renderMEProgSelector() {
+// ── renderMEProgSelector — loads active grants from DB ──────────
+async function renderMEProgSelector() {
   const grid = $('me-prog-cards');
   if (!grid) return;
-  grid.innerHTML = ME_PROGRAMS.map(prog => {
-    const { state, count, pf } = getMEProgStatus(prog);
-    const icon  = state==='published'
-      ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:3px;"></span>'
-      : (state==='draft'
-        ? '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:3px;"></span>'
-        : '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--slate-2);margin-right:3px;"></span>');
-    const label = state==='published'
-      ? `Published · ${pf.count} indicator${pf.count!==1?'s':''}`
-      : (count > 0 ? `Draft — ${count} indicator${count!==1?'s':''}` : 'Not started yet');
+
+  // Show loading state
+  grid.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--muted);font-size:13px;">
+    ⏳ Loading grants from database…
+  </div>`;
+
+  let grants = [];
+  try {
+    grants = await gsSbFetch('grants',
+      'is_active=eq.true&select=grant_id,grant_name,grant_code,donor_id&order=grant_name.asc');
+    meb2DbGrantList = grants || [];
+  } catch(e) {
+    console.warn('[meb2] DB grant fetch failed, showing empty state:', e);
+  }
+
+  if (!grants || grants.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:32px;text-align:center;color:var(--muted);">
+      <div style="font-size:32px;margin-bottom:8px;">📋</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">No active grants found</div>
+      <div style="font-size:12px;">Create a grant in Grant Setup first, then return here to configure indicators.</div>
+    </div>`;
+    return;
+  }
+
+  const dotCss = c => `display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:4px;vertical-align:middle;`;
+  grid.innerHTML = grants.map(g => {
+    const { state, count, pf } = getMEGrantStatus(g.grant_id);
+    const dot = state==='published' ? `<span style="${dotCss('var(--ok)')}"></span>`
+              : state==='draft'     ? `<span style="${dotCss('var(--warn)')}"></span>`
+              :                       `<span style="${dotCss('var(--slate-2)')}"></span>`;
+    const label = state==='published' ? `Published · ${pf.count} indicator${pf.count!==1?'s':''}`
+                : count > 0           ? `Draft — ${count} indicator${count!==1?'s':''}`
+                :                       'Click to configure indicators';
     const ts = pf ? `<span style="font-size:10px;color:var(--muted);margin-left:4px;">${pf.ts.toLocaleTimeString()}</span>` : '';
-    return `<div class="me-prog-card ${state}" data-meprog="${prog}">
-      <div class="mpc-name">${prog}</div>
+    return `<div class="me-prog-card ${state}" data-grantid="${g.grant_id}" style="cursor:pointer;">
+      <div class="mpc-name">${esc(g.grant_name||'Unnamed Grant')}</div>
+      <div class="mpc-count" style="font-size:11px;color:var(--muted);">${esc(g.grant_code||'')}</div>
       <div class="mpc-count">${count} indicator${count!==1?'s':''}</div>
-      <div class="mpc-status">${icon} <span>${label}</span>${ts}</div>
+      <div class="mpc-status">${dot}<span>${label}</span>${ts}</div>
       <div class="mpc-open">Open Builder →</div>
     </div>`;
   }).join('');
+
   grid.querySelectorAll('.me-prog-card').forEach(card =>
-    card.addEventListener('click', () => openMEBuilderForProg(card.dataset.meprog))
+    card.addEventListener('click', () => openMEBuilderForGrant(card.dataset.grantid))
   );
 }
 
+// ── openMEBuilderForGrant — DB mode entry point ─────────────────
+async function openMEBuilderForGrant(grantId) {
+  const grant = meb2DbGrantList.find(g => String(g.grant_id) === String(grantId));
+  const grantName = grant?.grant_name || 'Grant ' + grantId;
+  const grantKey  = 'grant:' + grantId;
+
+  meb2DbGrant  = grant || { grant_id: grantId, grant_name: grantName };
+  meb2DbMode   = true;
+  activeMEProgram   = grantKey;
+  builderFilterProg = grantKey;
+  if (!builderRowsByProg[grantKey]) builderRowsByProg[grantKey] = [];
+  builderRows        = builderRowsByProg[grantKey];
+  publishedFramework = publishedFrameworkByProg[grantKey] || null;
+
+  $('me-prog-selector').classList.add('hidden');
+  $('me-builder-content').classList.remove('hidden');
+  $('crumb-title').textContent = `M&E Builder — ${grantName}`;
+  const fyBadge = $('builder-fy-badge');
+  if (fyBadge) fyBadge.textContent = `Grant: ${grant?.grant_code || grantId}`;
+
+  const title = $('meb2-prog-title'); if (title) title.textContent = grantName;
+  const sub   = $('meb2-prog-sub');   if (sub)   sub.textContent   = `Grant: ${grant?.grant_code || ''} · Configure indicators and publish`;
+
+  // Load hierarchy from DB
+  await meb2LoadFromDB(grantId, grantName);
+}
+
+// Legacy: keep openMEBuilderForProg for any existing callers (LFA mode)
 function openMEBuilderForProg(prog) {
+  meb2DbMode  = false;
+  meb2DbGrant = null;
   activeMEProgram = prog;
   if (!builderRowsByProg[prog]) builderRowsByProg[prog] = [];
-  builderRows      = builderRowsByProg[prog];
+  builderRows        = builderRowsByProg[prog];
   publishedFramework = publishedFrameworkByProg[prog] || null;
   builderFilterProg  = prog;
-
   $('me-prog-selector').classList.add('hidden');
   $('me-builder-content').classList.remove('hidden');
   $('crumb-title').textContent = `M&E Builder — ${prog}`;
   const fyBadge = $('builder-fy-badge');
   if (fyBadge) fyBadge.textContent = `Editing FY: ${builderFilterFY} · ${prog}`;
-
-  // Update header title
   const title = $('meb2-prog-title'); if (title) title.textContent = prog;
-
-  // Render new builder
   if (typeof meb2Render === 'function') meb2Render(prog);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── meb2LoadFromDB — 4-query hierarchy loader ───────────────────
+// ═══════════════════════════════════════════════════════════════════
+//
+//  Grant → grant_intervention_scope → intervention
+//        → intervention_stakeholder_type_map (ISTM)
+//        → outcome  (IC-002 source)
+//        → activity (IC-001 source)
+//        → indicator (existing indicators per outcome/activity)
+//
+async function meb2LoadFromDB(grantId, grantName) {
+  const container = document.getElementById('meb2-framework');
+  const noLfa     = document.getElementById('meb2-no-lfa-state');
+  const pubBar    = document.querySelector('.meb2-pub-bar');
+  const banner    = document.getElementById('meb2-lfa-banner');
+
+  // Show loading spinner in the framework area
+  if (container) container.innerHTML = `
+    <div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;">
+      <div style="font-size:24px;margin-bottom:8px;">⏳</div>
+      Loading outcomes, activities and indicators from database…
+    </div>`;
+  if (noLfa)   noLfa.style.display   = 'none';
+  if (pubBar)  pubBar.style.display  = '';
+  if (banner)  banner.classList.add('hidden');
+
+  await meb2EnsureCatIds();
+
+  try {
+    // ── Step 1: Grant interventions ───────────────────────────────
+    const scopes = await gsSbFetch('grant_intervention_scope',
+      `grant_id=eq.${grantId}&select=intervention_id`);
+    const intvIds = (scopes||[]).map(s => s.intervention_id).filter(Boolean);
+
+    if (!intvIds.length) {
+      if (container) container.innerHTML = `
+        <div style="padding:32px;text-align:center;color:var(--muted);">
+          <div style="font-size:24px;margin-bottom:8px;">⚠️</div>
+          <div style="font-weight:600;margin-bottom:4px;">No interventions linked to this grant</div>
+          <div style="font-size:12px;">Go to Grant Setup and configure interventions first.</div>
+        </div>`;
+      return;
+    }
+
+    // ── Step 2: Intervention names ────────────────────────────────
+    const intvs = await gsSbFetch('intervention',
+      `intervention_id=in.(${intvIds.join(',')})&select=intervention_id,name,intervention_code`);
+    const intvById = {};
+    (intvs||[]).forEach(iv => { intvById[iv.intervention_id] = iv; });
+
+    // ── Step 3: ISTMs for those interventions ─────────────────────
+    const istms = await gsSbFetch('intervention_stakeholder_type_map',
+      `intervention_id=in.(${intvIds.join(',')})&is_active=eq.true` +
+      `&select=intervention_stakeholder_type_map_id,intervention_id,stakeholder_type_id`);
+    const istmList = istms||[];
+    const istmIds  = istmList.map(m => m.intervention_stakeholder_type_map_id);
+
+    if (!istmIds.length) {
+      if (container) container.innerHTML = `
+        <div style="padding:32px;text-align:center;color:var(--muted);">
+          <div style="font-size:24px;margin-bottom:8px;">⚠️</div>
+          <div style="font-weight:600;margin-bottom:4px;">No stakeholder mappings found</div>
+          <div style="font-size:12px;">Configure intervention × stakeholder mappings in LFA Setup first.</div>
+        </div>`;
+      return;
+    }
+
+    // ── Step 4: Stakeholder type names ────────────────────────────
+    const stkTypeIds = [...new Set(istmList.map(m => m.stakeholder_type_id).filter(Boolean))];
+    let stkById = {};
+    if (stkTypeIds.length) {
+      const stks = await gsSbFetch('stakeholder_type',
+        `stakeholder_type_id=in.(${stkTypeIds.join(',')})&select=stakeholder_type_id,name`);
+      (stks||[]).forEach(s => { stkById[s.stakeholder_type_id] = s.name; });
+    }
+
+    // ── Step 5: Outcomes by ISTM (IC-002) ────────────────────────
+    //   SELECT * FROM outcome
+    //   WHERE intervention_stakeholder_type_map_id IN (…) AND is_active = true
+    const outcomes = await gsSbFetch('outcome',
+      `intervention_stakeholder_type_map_id=in.(${istmIds.join(',')})&is_active=eq.true` +
+      `&select=outcome_id,outcome_statement,outcome_code,outcome_category_id,intervention_stakeholder_type_map_id` +
+      `&order=outcome_code.asc`);
+
+    // ── Step 6: Activities by ISTM (IC-001) ───────────────────────
+    //   SELECT * FROM activity
+    //   WHERE intervention_stakeholder_type_map_id IN (…) AND is_active = true
+    const activities = await gsSbFetch('activity',
+      `intervention_stakeholder_type_map_id=in.(${istmIds.join(',')})&is_active=eq.true` +
+      `&select=activity_id,activity_name,activity_code,activity_category_id,intervention_stakeholder_type_map_id` +
+      `&order=activity_code.asc`);
+
+    // ── Step 7a: Outcome indicators (IC-002) ──────────────────────
+    //   SELECT i.*, ic.category_code FROM indicator i
+    //   JOIN indicator_category ic ON ic.indicator_category_id = i.indicator_category_id
+    //   WHERE i.outcome_id IN (…) AND i.activity_id IS NULL AND i.is_active = true
+    const outcomeIds = (outcomes||[]).map(o => o.outcome_id);
+    let outcomeInds = [];
+    if (outcomeIds.length) {
+      outcomeInds = await gsSbFetch('indicator',
+        `outcome_id=in.(${outcomeIds.join(',')})&activity_id=is.null&is_active=eq.true` +
+        `&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,baseline,direction,is_key_outcome,outcome_id,activity_id,intervention_stakeholder_type_map_id`) || [];
+    }
+
+    // ── Step 7b: Activity/Output indicators (IC-001) ──────────────
+    //   SELECT i.* FROM indicator i
+    //   WHERE i.activity_id IN (…) AND i.outcome_id IS NULL AND i.is_active = true
+    const activityIds = (activities||[]).map(a => a.activity_id);
+    let activityInds = [];
+    if (activityIds.length) {
+      activityInds = await gsSbFetch('indicator',
+        `activity_id=in.(${activityIds.join(',')})&outcome_id=is.null&is_active=eq.true` +
+        `&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,baseline,direction,is_key_outcome,outcome_id,activity_id,intervention_stakeholder_type_map_id`) || [];
+    }
+
+    // ── Build index maps ──────────────────────────────────────────
+    const istmById = {};
+    istmList.forEach(m => { istmById[m.intervention_stakeholder_type_map_id] = m; });
+
+    // outcome_id → [indicators]
+    const indsByOutcome  = {};
+    outcomeInds.forEach(i => {
+      const k = i.outcome_id;
+      if (!indsByOutcome[k])  indsByOutcome[k]  = [];
+      indsByOutcome[k].push(i);
+    });
+
+    // activity_id → [indicators]
+    const indsByActivity = {};
+    activityInds.forEach(i => {
+      const k = i.activity_id;
+      if (!indsByActivity[k]) indsByActivity[k] = [];
+      indsByActivity[k].push(i);
+    });
+
+    // ── Build meb2Groups from DB data ─────────────────────────────
+    const groups = [];
+
+    // Helper: convert DB indicator row → meb2 indicator object
+    const dbIndToRow = ind => ({
+      id:           meb2NextId++,
+      indicator_id: ind.indicator_id,  // keep DB ID for update path
+      name:         ind.indicator_name || '',
+      abbr:         ind.indicator_code || '',
+      unit:         ind.unit_of_measure || 'count',
+      freq:         ind.frequency || 'monthly',
+      baseline:     ind.baseline != null ? String(ind.baseline) : '',
+      targets:      {},
+      active:       true,
+      _fromDb:      true
+    });
+
+    // Outcome groups (IC-002)
+    (outcomes||[]).forEach(oc => {
+      const istm    = istmById[oc.intervention_stakeholder_type_map_id] || {};
+      const intvId  = istm.intervention_id;
+      const intv    = intvById[intvId] || {};
+      const stkName = stkById[istm.stakeholder_type_id] || 'Stakeholder';
+      const existingInds = (indsByOutcome[oc.outcome_id] || []).map(dbIndToRow);
+
+      groups.push({
+        id:         'g-db-oc-' + oc.outcome_id,
+        _dbType:    'outcome',
+        _dbId:      oc.outcome_id,
+        _istmId:    oc.intervention_stakeholder_type_map_id,
+        prog:       grantName,
+        fy:         '2025-26',
+        intv:       intv.name || ('Intervention ' + (intvId||'')),
+        intvCode:   intv.intervention_code || '',
+        env:        '', child: '',
+        stk:        stkName,
+        sourceType: 'outcome',
+        sourceCode: oc.outcome_code || '',
+        sourceStmt: oc.outcome_statement || '',
+        sourceCat:  '',
+        outcome:    oc.outcome_statement || '',
+        indicators: existingInds.length ? existingInds : [meb2NewIndRow('')]
+      });
+    });
+
+    // Activity groups (IC-001)
+    (activities||[]).forEach(ac => {
+      const istm    = istmById[ac.intervention_stakeholder_type_map_id] || {};
+      const intvId  = istm.intervention_id;
+      const intv    = intvById[intvId] || {};
+      const stkName = stkById[istm.stakeholder_type_id] || 'Stakeholder';
+      const existingInds = (indsByActivity[ac.activity_id] || []).map(dbIndToRow);
+
+      groups.push({
+        id:         'g-db-ac-' + ac.activity_id,
+        _dbType:    'activity',
+        _dbId:      ac.activity_id,
+        _istmId:    ac.intervention_stakeholder_type_map_id,
+        prog:       grantName,
+        fy:         '2025-26',
+        intv:       intv.name || ('Intervention ' + (intvId||'')),
+        intvCode:   intv.intervention_code || '',
+        env:        '', child: '',
+        stk:        stkName,
+        sourceType: 'activity',
+        sourceCode: ac.activity_code || '',
+        sourceStmt: ac.activity_name || '',
+        sourceCat:  '',
+        outcome:    '',
+        indicators: existingInds.length ? existingInds : [meb2NewIndRow('')]
+      });
+    });
+
+    meb2Groups = groups;
+    meb2Prog   = grantName;
+
+    if (!groups.length) {
+      if (container) container.innerHTML = `
+        <div style="padding:32px;text-align:center;color:var(--muted);">
+          <div style="font-size:24px;margin-bottom:8px;">📭</div>
+          <div style="font-weight:600;margin-bottom:4px;">No outcomes or activities found</div>
+          <div style="font-size:12px;">Add outcomes and activities in LFA Setup for this grant's interventions.</div>
+        </div>`;
+      return;
+    }
+
+    // Render the framework with loaded data
+    meb2RenderFramework();
+    toast(`✅ Loaded ${groups.length} sources (${outcomeIds.length} outcomes · ${activityIds.length} activities)`);
+
+  } catch(err) {
+    console.error('[meb2LoadFromDB] Error:', err);
+    if (container) container.innerHTML = `
+      <div style="padding:32px;text-align:center;color:var(--danger);">
+        <div style="font-size:24px;margin-bottom:8px;">❌</div>
+        <div style="font-weight:600;margin-bottom:4px;">Failed to load from database</div>
+        <div style="font-size:12px;color:var(--muted);">${esc(String(err?.message||err))}</div>
+      </div>`;
+    toast('❌ DB load failed — check console');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ─── meb2PublishToDB — saves indicators to Supabase ──────────────
+// ═══════════════════════════════════════════════════════════════════
+async function meb2PublishToDB() {
+  if (!meb2DbGrant) return false;
+  await meb2EnsureCatIds();
+
+  const catIdOutput  = meb2CatIds['IC-001'];
+  const catIdOutcome = meb2CatIds['IC-002'];
+
+  let saved = 0, updated = 0, errors = 0;
+  const grantId = meb2DbGrant.grant_id;
+
+  for (const g of meb2Groups) {
+    const catId = g._dbType === 'activity' ? catIdOutput : catIdOutcome;
+
+    for (const ind of g.indicators) {
+      if (!ind.name && !ind.abbr) continue; // skip blank rows
+
+      const payload = {
+        indicator_name:                    ind.name || ind.abbr,
+        unit_of_measure:                   ind.unit  || 'count',
+        frequency:                         ind.freq  || 'monthly',
+        baseline:                          ind.baseline != null && ind.baseline !== '' ? Number(ind.baseline) : null,
+        direction:                         'increase',
+        is_active:                         true,
+        is_template:                       false,
+        indicator_category_id:             catId || null,
+        intervention_stakeholder_type_map_id: g._istmId || null,
+        ...(g._dbType === 'outcome'   ? { outcome_id:  g._dbId, activity_id: null } : {}),
+        ...(g._dbType === 'activity'  ? { activity_id: g._dbId, outcome_id:  null } : {}),
+      };
+
+      try {
+        if (ind.indicator_id) {
+          // UPDATE existing indicator
+          await fetch(`${GS_SB_URL}/rest/v1/indicator?indicator_id=eq.${ind.indicator_id}`, {
+            method: 'PATCH',
+            headers: { ...GS_SB_HDR, 'Prefer': 'return=minimal' },
+            body: JSON.stringify(payload)
+          });
+          updated++;
+        } else {
+          // INSERT new indicator — trigger generates indicator_code
+          const res = await gsSbInsert('indicator', payload);
+          if (res && res.indicator_id) ind.indicator_id = res.indicator_id;
+          saved++;
+        }
+      } catch(e) {
+        console.error('[meb2PublishToDB] Indicator save failed:', e, payload);
+        errors++;
+      }
+    }
+  }
+
+  if (errors > 0) {
+    toast(`⚠ Saved ${saved} new + ${updated} updated, but ${errors} failed — check console`);
+    return false;
+  }
+  toast(`✅ Saved ${saved} new indicators, updated ${updated} · codes auto-assigned by DB`);
+  return true;
 }
 // ────────────────────────────────────────────────────────────────
 
