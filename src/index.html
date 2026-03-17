@@ -7169,8 +7169,8 @@ async function meb2LoadFromDB(grantId, grantName) {
     let stkById = {};
     if (stkTypeIds.length) {
       const stks = await gsSbFetch('stakeholder_type',
-        `stakeholder_type_id=in.(${stkTypeIds.join(',')})&select=stakeholder_type_id,name`);
-      (stks||[]).forEach(s => { stkById[s.stakeholder_type_id] = s.name; });
+        `stakeholder_type_id=in.(${stkTypeIds.join(',')})&select=stakeholder_type_id,type_name`);
+      (stks||[]).forEach(s => { stkById[s.stakeholder_type_id] = s.type_name; });
     }
 
     // ── Step 5: Outcomes by ISTM (IC-002) ────────────────────────
