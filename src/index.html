@@ -7128,7 +7128,7 @@ async function meb2LoadFromDB(grantId, grantName) {
   try {
     // ── Step 1: Grant interventions ───────────────────────────────
     const scopes = await gsSbFetch('grant_intervention_scope',
-      `grant_id=eq.${grantId}&select=intervention_id`);
+      `grant_id=eq.${grantId}&is_active=eq.true&select=intervention_id`);
     const intvIds = (scopes||[]).map(s => s.intervention_id).filter(Boolean);
 
     if (!intvIds.length) {
@@ -7198,7 +7198,7 @@ async function meb2LoadFromDB(grantId, grantName) {
     if (outcomeIds.length) {
       outcomeInds = await gsSbFetch('indicator',
         `outcome_id=in.(${outcomeIds.join(',')})&activity_id=is.null&is_active=eq.true` +
-        `&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,baseline,direction,is_key_outcome,outcome_id,activity_id,intervention_stakeholder_type_map_id`) || [];
+        `&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,baseline_value,direction,is_key_outcome,outcome_id,activity_id,intervention_stakeholder_type_map_id`) || [];
     }
 
     // ── Step 7b: Activity/Output indicators (IC-001) ──────────────
@@ -7209,7 +7209,7 @@ async function meb2LoadFromDB(grantId, grantName) {
     if (activityIds.length) {
       activityInds = await gsSbFetch('indicator',
         `activity_id=in.(${activityIds.join(',')})&outcome_id=is.null&is_active=eq.true` +
-        `&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,baseline,direction,is_key_outcome,outcome_id,activity_id,intervention_stakeholder_type_map_id`) || [];
+        `&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,baseline_value,direction,is_key_outcome,outcome_id,activity_id,intervention_stakeholder_type_map_id`) || [];
     }
 
     // ── Build index maps ──────────────────────────────────────────
@@ -7243,7 +7243,7 @@ async function meb2LoadFromDB(grantId, grantName) {
       abbr:         ind.indicator_code || '',
       unit:         ind.unit_of_measure || 'count',
       freq:         ind.frequency || 'monthly',
-      baseline:     ind.baseline != null ? String(ind.baseline) : '',
+      baseline:     ind.baseline_value != null ? String(ind.baseline_value) : '',
       targets:      {},
       active:       true,
       _fromDb:      true
@@ -7357,7 +7357,7 @@ async function meb2PublishToDB() {
         indicator_name:                    ind.name || ind.abbr,
         unit_of_measure:                   ind.unit  || 'count',
         frequency:                         ind.freq  || 'monthly',
-        baseline:                          ind.baseline != null && ind.baseline !== '' ? Number(ind.baseline) : null,
+        baseline_value:                    ind.baseline != null && ind.baseline !== '' ? Number(ind.baseline) : null,
         direction:                         'increase',
         is_active:                         true,
         is_template:                       false,
