@@ -3167,6 +3167,29 @@ select:focus:not(:focus-visible) { outline: none; }
         .lfa-add-item-inp:focus{border-color:rgba(79,142,247,.4);}
         .lfa-add-item-inp::placeholder{color:var(--muted);}
         .lfa-add-item-code{width:70px;font-family:var(--mono);font-size:11px;}
+
+        /* ── Library Combobox ─────────────────────────────── */
+        .lfa-combo-wrap{position:relative;flex:3;min-width:0;}
+        .lfa-combo-wrap .lfa-add-item-inp{width:100%;box-sizing:border-box;}
+        .lfa-combo-drop{position:absolute;top:calc(100% + 3px);left:0;right:0;z-index:999;
+          background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r2);
+          box-shadow:0 4px 16px rgba(0,0,0,.12);max-height:220px;overflow-y:auto;display:none;}
+        body.dark .lfa-combo-drop{background:#1e2535;border-color:#334;}
+        .lfa-combo-drop.open{display:block;}
+        .lfa-combo-item{padding:7px 11px;font-size:12px;cursor:pointer;color:var(--text);
+          border-bottom:1px solid var(--mist-3);display:flex;align-items:center;gap:6px;}
+        .lfa-combo-item:last-child{border-bottom:none;}
+        .lfa-combo-item:hover,.lfa-combo-item.active{background:var(--blue-dim);}
+        .lfa-combo-item .lfa-combo-code{font-size:10px;font-family:var(--mono);color:var(--muted);
+          background:var(--canvas);padding:1px 5px;border-radius:4px;flex-shrink:0;}
+        .lfa-combo-item .lfa-combo-stmt{flex:1;}
+        .lfa-combo-create{padding:7px 11px;font-size:12px;cursor:pointer;color:var(--blue);
+          font-weight:600;border-top:1px solid var(--mist-2);}
+        .lfa-combo-create:hover{background:var(--blue-dim);}
+        .lfa-combo-empty{padding:10px 11px;font-size:12px;color:var(--muted);font-style:italic;}
+        .lfa-auto-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;
+          padding:2px 8px;border-radius:999px;background:var(--canvas);border:1px solid var(--mist-2);
+          color:var(--muted);white-space:nowrap;flex-shrink:0;}
         .lfa-add-item-cat{background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:6px;padding:4px 6px;font-size:11px;color:var(--text2);width:130px;outline:none;}
         .lfa-btn-add-item{padding:4px 10px;border-radius:6px;border:1px solid rgba(52,209,122,.3);background:rgba(52,209,122,.10);font-size:11px;color:var(--ok);cursor:pointer;white-space:nowrap;}
         .lfa-btn-add-item:hover{background:rgba(52,209,122,.16);}
@@ -3367,8 +3390,7 @@ select:focus:not(:focus-visible) { outline: none; }
                               </div>
                             </div></div>
                             <div class="lfa-add-item-row" id="lfa-add-ac-lfa-ir-fln-diet" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-diet" placeholder="Activity statement…" style="flex:3;"/>
-                              <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-ac-code-lfa-ir-fln-diet" placeholder="ACT-XX"/>
+                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-diet" placeholder="Search library or type new activity…" autocomplete="off"/>
                               <select class="lfa-add-item-cat" id="lfa-ac-cat-lfa-ir-fln-diet"><option value="">Category…</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
                               <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('lfa-ir-fln-diet')">Add</button>
                               <button onclick="lfaHideAddAC('lfa-ir-fln-diet')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">✕</button>
@@ -3395,8 +3417,7 @@ select:focus:not(:focus-visible) { outline: none; }
                               </div>
                             </div></div>
                             <div class="lfa-add-item-row" id="lfa-add-oc-lfa-ir-fln-diet" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-diet" placeholder="Outcome statement…" style="flex:3;"/>
-                              <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-oc-code-lfa-ir-fln-diet" placeholder="OUT-0X"/>
+                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-diet" placeholder="Search library or type new outcome…" autocomplete="off"/>
                               <select class="lfa-add-item-cat" id="lfa-oc-cat-lfa-ir-fln-diet"><option value="">Category…</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
                               <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('lfa-ir-fln-diet')">Add</button>
                               <button onclick="lfaHideAddOC('lfa-ir-fln-diet')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">✕</button>
@@ -3421,8 +3442,8 @@ select:focus:not(:focus-visible) { outline: none; }
                             <div class="lfa-empty-state" id="lfa-ac-empty-lfa-ir-fln-teacher">No activities yet for Teacher.</div>
                             <div id="lfa-ac-list-lfa-ir-fln-teacher"></div>
                             <div class="lfa-add-item-row" id="lfa-add-ac-lfa-ir-fln-teacher" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-teacher" placeholder="Activity statement…" style="flex:3;"/>
-                              <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-ac-code-lfa-ir-fln-teacher" placeholder="ACT-XX"/>
+                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-teacher" placeholder="Search library or type new activity…" autocomplete="off"/>
+
                               <select class="lfa-add-item-cat" id="lfa-ac-cat-lfa-ir-fln-teacher"><option value="">Category…</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
                               <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('lfa-ir-fln-teacher')">Add</button>
                               <button onclick="lfaHideAddAC('lfa-ir-fln-teacher')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">✕</button>
@@ -3434,8 +3455,8 @@ select:focus:not(:focus-visible) { outline: none; }
                             <div class="lfa-empty-state" id="lfa-oc-empty-lfa-ir-fln-teacher">No outcomes yet for Teacher.</div>
                             <div id="lfa-oc-list-lfa-ir-fln-teacher"></div>
                             <div class="lfa-add-item-row" id="lfa-add-oc-lfa-ir-fln-teacher" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-teacher" placeholder="Outcome statement…" style="flex:3;"/>
-                              <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-oc-code-lfa-ir-fln-teacher" placeholder="OUT-0X"/>
+                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-teacher" placeholder="Search library or type new outcome…" autocomplete="off"/>
+
                               <select class="lfa-add-item-cat" id="lfa-oc-cat-lfa-ir-fln-teacher"><option value="">Category…</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
                               <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('lfa-ir-fln-teacher')">Add</button>
                               <button onclick="lfaHideAddOC('lfa-ir-fln-teacher')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">✕</button>
@@ -3460,8 +3481,8 @@ select:focus:not(:focus-visible) { outline: none; }
                             <div class="lfa-empty-state" id="lfa-ac-empty-lfa-ir-fln-crc">No activities yet for CRC.</div>
                             <div id="lfa-ac-list-lfa-ir-fln-crc"></div>
                             <div class="lfa-add-item-row" id="lfa-add-ac-lfa-ir-fln-crc" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-crc" placeholder="Activity statement…" style="flex:3;"/>
-                              <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-ac-code-lfa-ir-fln-crc" placeholder="ACT-XX"/>
+                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-crc" placeholder="Search library or type new activity…" autocomplete="off"/>
+
                               <select class="lfa-add-item-cat" id="lfa-ac-cat-lfa-ir-fln-crc"><option value="">Category…</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
                               <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('lfa-ir-fln-crc')">Add</button>
                               <button onclick="lfaHideAddAC('lfa-ir-fln-crc')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">✕</button>
@@ -3473,8 +3494,7 @@ select:focus:not(:focus-visible) { outline: none; }
                             <div class="lfa-empty-state" id="lfa-oc-empty-lfa-ir-fln-crc">No outcomes yet for CRC.</div>
                             <div id="lfa-oc-list-lfa-ir-fln-crc"></div>
                             <div class="lfa-add-item-row" id="lfa-add-oc-lfa-ir-fln-crc" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-crc" placeholder="Outcome statement…" style="flex:3;"/>
-                              <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-oc-code-lfa-ir-fln-crc" placeholder="OUT-0X"/>
+                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-crc" placeholder="Search library or type new outcome…" autocomplete="off"/>
                               <select class="lfa-add-item-cat" id="lfa-oc-cat-lfa-ir-fln-crc"><option value="">Category…</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
                               <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('lfa-ir-fln-crc')">Add</button>
                               <button onclick="lfaHideAddOC('lfa-ir-fln-crc')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">✕</button>
@@ -3626,8 +3646,7 @@ select:focus:not(:focus-visible) { outline: none; }
                       <div class="lfa-empty-state" id="lfa-ac-empty-${rowId}">No activities yet.</div>
                       <div id="lfa-ac-list-${rowId}"></div>
                       <div class="lfa-add-item-row" id="lfa-add-ac-${rowId}" style="display:none;">
-                        <input class="lfa-add-item-inp" id="lfa-ac-inp-${rowId}" placeholder="Activity statement\u2026" style="flex:3;"/>
-                        <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-ac-code-${rowId}" placeholder="ACT-XX"/>
+                        <input class="lfa-add-item-inp" id="lfa-ac-inp-${rowId}" placeholder="Search library or type new activity\u2026" autocomplete="off"/>
                         <select class="lfa-add-item-cat" id="lfa-ac-cat-${rowId}"><option value="">Category\u2026</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
                         <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('${rowId}')">Add</button>
                         <button onclick="lfaHideAddAC('${rowId}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">\u2715</button>
@@ -3638,8 +3657,7 @@ select:focus:not(:focus-visible) { outline: none; }
                       <div class="lfa-empty-state" id="lfa-oc-empty-${rowId}">No outcomes yet.</div>
                       <div id="lfa-oc-list-${rowId}"></div>
                       <div class="lfa-add-item-row" id="lfa-add-oc-${rowId}" style="display:none;">
-                        <input class="lfa-add-item-inp" id="lfa-oc-inp-${rowId}" placeholder="Outcome statement\u2026" style="flex:3;"/>
-                        <input class="lfa-add-item-code lfa-add-item-inp" id="lfa-oc-code-${rowId}" placeholder="OUT-0X"/>
+                        <input class="lfa-add-item-inp" id="lfa-oc-inp-${rowId}" placeholder="Search library or type new outcome\u2026" autocomplete="off"/>
                         <select class="lfa-add-item-cat" id="lfa-oc-cat-${rowId}"><option value="">Category\u2026</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
                         <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('${rowId}')">Add</button>
                         <button onclick="lfaHideAddOC('${rowId}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">\u2715</button>
@@ -3662,24 +3680,141 @@ select:focus:not(:focus-visible) { outline: none; }
         // ── ISTM row toggle ───────────────────────────────
         function lfaToggleISTMRow(id){document.getElementById(id)?.classList.toggle('open');}
 
+        // ══════════════════════════════════════════════════════
+        // ── Global Library + Combobox ─────────────────────────
+        // ══════════════════════════════════════════════════════
+
+        // In-memory cache: { outcomes:[{id,code,stmt}], activities:[{id,code,stmt}] }
+        window.lfaLib = { outcomes:[], activities:[], loaded:false };
+
+        async function lfaLoadLibrary() {
+          if (window.lfaLib.loaded) return;
+          try {
+            const SB_URL = 'https://mqdcdkecvzekjsbdeobs.supabase.co';
+            const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZGNka2Vjdnpla2pzYmRlb2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDY0ODAsImV4cCI6MjA4ODM4MjQ4MH0.ys-Nx9GU0D4wyP9xkXMqDnkitHOgpOGWWOe-uP-NMOw';
+            const hdr  = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+            const [ocRes, acRes] = await Promise.all([
+              fetch(`${SB_URL}/rest/v1/outcome?is_active=eq.true&select=outcome_id,outcome_code,outcome_statement&order=outcome_statement.asc&limit=500`, { headers: hdr }),
+              fetch(`${SB_URL}/rest/v1/activity?is_active=eq.true&select=activity_id,activity_code,activity_name&order=activity_name.asc&limit=500`, { headers: hdr })
+            ]);
+            const outcomes   = ocRes.ok  ? await ocRes.json()  : [];
+            const activities = acRes.ok  ? await acRes.json()  : [];
+            window.lfaLib.outcomes   = (outcomes  ||[]).map(o=>({ id:o.outcome_id,  code:o.outcome_code||'',  stmt:o.outcome_statement||'' }));
+            window.lfaLib.activities = (activities||[]).map(a=>({ id:a.activity_id, code:a.activity_code||'', stmt:a.activity_name||'' }));
+            window.lfaLib.loaded = true;
+          } catch(e) { console.warn('[lfaLib] Library load failed:', e); }
+        }
+
+        // Attach combobox behaviour to an input element
+        // type: 'outcome' | 'activity'
+        // onConfirm: optional callback(selectedItem) when item picked
+        function lfaComboInit(inp, type, onConfirm) {
+          if (!inp || inp._comboInitialised) return;
+          inp._comboInitialised = true;
+
+          // Wrap input in a relative container
+          const wrap = document.createElement('div');
+          wrap.className = 'lfa-combo-wrap';
+          inp.parentNode.insertBefore(wrap, inp);
+          wrap.appendChild(inp);
+
+          // Create dropdown
+          const drop = document.createElement('div');
+          drop.className = 'lfa-combo-drop';
+          wrap.appendChild(drop);
+
+          const items = () => type === 'outcome' ? window.lfaLib.outcomes : window.lfaLib.activities;
+          let activeIdx = -1;
+
+          function renderDrop(q) {
+            const all = items();
+            const filtered = q
+              ? all.filter(it => it.stmt.toLowerCase().includes(q.toLowerCase()))
+              : all;
+            const hasExact = all.some(it => it.stmt.toLowerCase() === q.toLowerCase());
+            drop.innerHTML = '';
+            activeIdx = -1;
+
+            if (!filtered.length && !q) {
+              drop.innerHTML = `<div class="lfa-combo-empty">No library entries yet — type to create new</div>`;
+            } else {
+              filtered.slice(0, 50).forEach((it, i) => {
+                const div = document.createElement('div');
+                div.className = 'lfa-combo-item';
+                div.innerHTML = `${it.code ? `<span class="lfa-combo-code">${lfaEsc(it.code)}</span>` : ''}<span class="lfa-combo-stmt">${lfaEsc(it.stmt)}</span>`;
+                div.addEventListener('mousedown', e => {
+                  e.preventDefault();
+                  inp.value = it.stmt;
+                  inp._selectedLib = it;
+                  closeDrop();
+                  if (onConfirm) onConfirm(it);
+                });
+                drop.appendChild(div);
+              });
+            }
+
+            // "Create new" option when typed text has no exact match
+            if (q && !hasExact) {
+              const cr = document.createElement('div');
+              cr.className = 'lfa-combo-create';
+              cr.textContent = `➕ Create new: "${q}"`;
+              cr.addEventListener('mousedown', e => {
+                e.preventDefault();
+                inp._selectedLib = null;
+                closeDrop();
+                if (onConfirm) onConfirm(null);
+              });
+              drop.appendChild(cr);
+            }
+
+            drop.classList.toggle('open', !!(filtered.length || q));
+          }
+
+          function closeDrop() { drop.classList.remove('open'); activeIdx = -1; }
+
+          function moveActive(dir) {
+            const its = drop.querySelectorAll('.lfa-combo-item,.lfa-combo-create');
+            if (!its.length) return;
+            its[activeIdx]?.classList.remove('active');
+            activeIdx = Math.max(0, Math.min(its.length-1, activeIdx + dir));
+            its[activeIdx]?.classList.add('active');
+            its[activeIdx]?.scrollIntoView({ block:'nearest' });
+          }
+
+          inp.addEventListener('focus', async () => {
+            await lfaLoadLibrary();
+            renderDrop(inp.value.trim());
+          });
+          inp.addEventListener('input', () => renderDrop(inp.value.trim()));
+          inp.addEventListener('keydown', e => {
+            if (e.key === 'ArrowDown')  { e.preventDefault(); moveActive(1); }
+            else if (e.key === 'ArrowUp')   { e.preventDefault(); moveActive(-1); }
+            else if (e.key === 'Enter') {
+              const active = drop.querySelector('.lfa-combo-item.active,.lfa-combo-create.active');
+              if (active) { e.preventDefault(); active.dispatchEvent(new MouseEvent('mousedown')); }
+            }
+            else if (e.key === 'Escape') closeDrop();
+          });
+          inp.addEventListener('blur', () => setTimeout(closeDrop, 150));
+        }
+
         // ── Add outcome ───────────────────────────────────
         function lfaShowAddOC(rowId){
           const el=document.getElementById('lfa-add-oc-'+rowId); if(el) el.style.display='flex';
-          document.getElementById('lfa-oc-inp-'+rowId)?.focus();
+          const inp = document.getElementById('lfa-oc-inp-'+rowId);
+          if(inp) { lfaComboInit(inp, 'outcome'); inp.focus(); }
         }
         function lfaHideAddOC(rowId){const el=document.getElementById('lfa-add-oc-'+rowId); if(el) el.style.display='none';}
         function lfaConfirmAddOC(rowId){
           const stmt=document.getElementById('lfa-oc-inp-'+rowId)?.value.trim();
-          const code=document.getElementById('lfa-oc-code-'+rowId)?.value.trim()||'—';
           const cat=document.getElementById('lfa-oc-cat-'+rowId)?.value||'';
           if(!stmt) return;
           const catCls=({'Capacity Building':'cb','Structures & Process':'sp','Systemic Tools':'st'})[cat]||'cb';
 
-          // build outcome row
           const ocId='lfa-oc-dyn-'+Date.now();
           const el=document.createElement('div'); el.className='lfa-oc-row'; el.id=ocId;
           el.innerHTML=`<div class="lfa-oc-row-hd">
-            <span class="lfa-oc-code">${lfaEsc(code)}</span>
+            <span class="lfa-oc-code lfa-auto-badge">🤖 Auto</span>
             <span class="lfa-oc-stmt">${lfaEsc(stmt)}</span>
             ${cat?`<span class="lfa-oc-cat ${catCls}">${lfaEsc(cat)}</span>`:''}
             <button class="lfa-oc-del" onclick="lfaRemoveOC('${ocId}','${rowId}')">&#x2715;</button>
@@ -3687,17 +3822,12 @@ select:focus:not(:focus-visible) { outline: none; }
           const list=document.getElementById('lfa-oc-list-'+rowId);
           if(list){ list.appendChild(el); }
           else {
-            // pre-seeded rows: insert before add-row
             const addRow=document.getElementById('lfa-add-oc-'+rowId);
             if(addRow) addRow.parentNode.insertBefore(el,addRow);
           }
           const empty=document.getElementById('lfa-oc-empty-'+rowId); if(empty) empty.style.display='none';
-
-          // refresh link chips on all activities in this ISTM row
           lfaRefreshLinkChips(rowId);
-          // clear
           document.getElementById('lfa-oc-inp-'+rowId).value='';
-          document.getElementById('lfa-oc-code-'+rowId).value='';
           lfaHideAddOC(rowId);
         }
         function lfaRemoveOC(ocId,rowId){
@@ -3708,26 +3838,24 @@ select:focus:not(:focus-visible) { outline: none; }
         // ── Add activity ──────────────────────────────────
         function lfaShowAddAC(rowId){
           const el=document.getElementById('lfa-add-ac-'+rowId); if(el) el.style.display='flex';
-          document.getElementById('lfa-ac-inp-'+rowId)?.focus();
+          const inp = document.getElementById('lfa-ac-inp-'+rowId);
+          if(inp) { lfaComboInit(inp, 'activity'); inp.focus(); }
         }
         function lfaHideAddAC(rowId){const el=document.getElementById('lfa-add-ac-'+rowId); if(el) el.style.display='none';}
         function lfaConfirmAddAC(rowId){
           const stmt=document.getElementById('lfa-ac-inp-'+rowId)?.value.trim();
-          const code=document.getElementById('lfa-ac-code-'+rowId)?.value.trim()||'—';
           const cat=document.getElementById('lfa-ac-cat-'+rowId)?.value||'';
           if(!stmt) return;
           const catCls=({'Training':'lfa-lcat-cb','Field Visit':'lfa-lcat-sp','Review & Planning':'lfa-lcat-st'})[cat]||'lfa-lcat-cb';
 
-          // collect current outcome codes for this ISTM
           const linkChips = lfaGetOutcomeCodes(rowId);
-
           const acId='lfa-ac-dyn-'+Date.now();
           const el=document.createElement('div'); el.className='lfa-ac-row'; el.id=acId;
           const chipsHtml = linkChips.length
             ? linkChips.map(oc=>`<span class="lfa-link-chip" onclick="this.classList.toggle('linked')" title="Link to ${lfaEsc(oc)}">${lfaEsc(oc)}</span>`).join('')
             : '<span class="lfa-link-none">No outcomes defined yet</span>';
           el.innerHTML=`<div class="lfa-ac-row-hd">
-            <span class="lfa-ac-code">${lfaEsc(code)}</span>
+            <span class="lfa-ac-code lfa-auto-badge">🤖 Auto</span>
             <span class="lfa-ac-stmt">${lfaEsc(stmt)}</span>
             ${cat?`<span class="lfa-ac-cat lfa-lcat ${catCls}">${lfaEsc(cat)}</span>`:''}
             <button class="lfa-ac-del" onclick="document.getElementById('${acId}').remove()">&#x2715;</button>
@@ -3744,7 +3872,6 @@ select:focus:not(:focus-visible) { outline: none; }
           }
           const empty=document.getElementById('lfa-ac-empty-'+rowId); if(empty) empty.style.display='none';
           document.getElementById('lfa-ac-inp-'+rowId).value='';
-          document.getElementById('lfa-ac-code-'+rowId).value='';
           lfaHideAddAC(rowId);
         }
 
