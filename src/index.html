@@ -3715,8 +3715,12 @@ select:focus:not(:focus-visible) { outline: none; }
           // Wrap input in a relative container
           const wrap = document.createElement('div');
           wrap.className = 'lfa-combo-wrap';
+          // Inherit the original input's flex sizing so the wrapper fills the same space
+          wrap.style.cssText = 'position:relative;flex:1 1 0;min-width:0;';
           inp.parentNode.insertBefore(wrap, inp);
           wrap.appendChild(inp);
+          inp.style.width = '100%';
+          inp.style.boxSizing = 'border-box';
 
           // Create dropdown
           const drop = document.createElement('div');
