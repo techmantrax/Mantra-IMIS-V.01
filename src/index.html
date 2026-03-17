@@ -7143,7 +7143,7 @@ async function meb2LoadFromDB(grantId, grantName) {
 
     // ── Step 2: Intervention names ────────────────────────────────
     const intvs = await gsSbFetch('intervention',
-      `intervention_id=in.(${intvIds.join(',')})&select=intervention_id,name,intervention_code`);
+      `intervention_id=in.(${intvIds.join(',')})&select=intervention_id,intervention_name,intervention_code`);
     const intvById = {};
     (intvs||[]).forEach(iv => { intvById[iv.intervention_id] = iv; });
 
@@ -7264,7 +7264,7 @@ async function meb2LoadFromDB(grantId, grantName) {
         _istmId:    oc.intervention_stakeholder_type_map_id,
         prog:       grantName,
         fy:         '2025-26',
-        intv:       intv.name || ('Intervention ' + (intvId||'')),
+        intv:       intv.intervention_name || ('Intervention ' + (intvId||'')),
         intvCode:   intv.intervention_code || '',
         env:        '', child: '',
         stk:        stkName,
@@ -7292,7 +7292,7 @@ async function meb2LoadFromDB(grantId, grantName) {
         _istmId:    ac.intervention_stakeholder_type_map_id,
         prog:       grantName,
         fy:         '2025-26',
-        intv:       intv.name || ('Intervention ' + (intvId||'')),
+        intv:       intv.intervention_name || ('Intervention ' + (intvId||'')),
         intvCode:   intv.intervention_code || '',
         env:        '', child: '',
         stk:        stkName,
