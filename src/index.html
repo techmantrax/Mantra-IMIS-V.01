@@ -7818,34 +7818,40 @@ async function mebkInit() {
 // ── Load & cache categories ─────────────────────────
 async function mebkLoadCategories() {
   try {
-    const [ocRes, acRes, indRes] = await Promise.all([
+    const [ocRes, acRes, indRes, oicRes] = await Promise.all([
       fetch(`${MEBK_URL}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
       fetch(`${MEBK_URL}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
-      fetch(`${MEBK_URL}/rest/v1/indicator_category?select=indicator_category_id,category_code,category_name&order=category_code.asc`, { headers: MEBK_HDR })
+      fetch(`${MEBK_URL}/rest/v1/indicator_category?select=indicator_category_id,category_code,category_name&order=category_code.asc`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/outcome_indicator_category?is_active=eq.true&select=outcome_ind_cat_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
     ]);
     const ocCats  = await ocRes.json();
     const acCats  = await acRes.json();
     const indCats = await indRes.json();
+    const oicCats = oicRes.ok ? await oicRes.json() : [];
 
     if (Array.isArray(ocCats)) {
       mebkCats.outcomes = ocCats;
-      window.mebkOcCats = ocCats; // {outcome_category_id, category_name}
+      window.mebkOcCats = ocCats; // {outcome_category_id, category_name} — for outcome card dropdown
       const sel = document.getElementById('mebk-oc-cat-sel');
       if (sel) sel.innerHTML = '<option value="">Category…</option>' +
         ocCats.map(c => `<option value="${c.outcome_category_id}">${c.category_name}</option>`).join('');
     }
     if (Array.isArray(acCats)) {
       mebkCats.activities = acCats;
-      window.mebkAcCats = acCats; // {activity_category_id, category_name}
+      window.mebkAcCats = acCats; // {activity_category_id, category_name} — for activity card dropdown & activity indicator sub-cat
       const sel = document.getElementById('mebk-ac-cat-sel');
       if (sel) sel.innerHTML = '<option value="">Category…</option>' +
         acCats.map(c => `<option value="${c.activity_category_id}">${c.category_name}</option>`).join('');
     }
     if (Array.isArray(indCats)) {
       window.mebkIndCats = indCats.map(c => ({ id: c.indicator_category_id, code: c.category_code, name: c.category_name }));
-      // Store IC-001/IC-002 IDs for auto-assignment
+      // Store IC-001/IC-002 IDs for auto-assignment (hidden from user)
       window.mebkIcIds = {};
       indCats.forEach(c => { window.mebkIcIds[c.category_code] = c.indicator_category_id; });
+    }
+    if (Array.isArray(oicCats) && oicCats.length) {
+      // Capacity Building / Process & Structure / System Change — outcome indicator change-type
+      window.mebkOcIndCats = oicCats; // {outcome_ind_cat_id, category_name}
     }
   } catch(e) { /* silent */ }
 }
@@ -8025,10 +8031,16 @@ async function mebkLoadOcContent(ocId) {
   if (!body) return;
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/indicator?outcome_id=eq.${ocId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,outcome_category_id,outcome_categories(category_name)&order=indicator_code.asc`,
+      `${MEBK_URL}/rest/v1/indicator?outcome_id=eq.${ocId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,outcome_ind_cat_id&order=indicator_code.asc`,
       { headers: MEBK_HDR }
     );
-    const indicators = await res.json();
+    let indicators = res.ok ? await res.json() : [];
+    if (!Array.isArray(indicators)) indicators = [];
+    // Resolve category name client-side from cached arrays
+    indicators = indicators.map(i => ({
+      ...i,
+      _catName: (window.mebkOcIndCats||[]).find(c=>c.outcome_ind_cat_id===i.outcome_ind_cat_id)?.category_name || null
+    }));
     body.innerHTML = `
       <div class="mebk-section">
         <div class="mebk-section-lbl">${IC.chart} Outcome Indicators</div>
@@ -8045,10 +8057,16 @@ async function mebkLoadAcContent(acId) {
   if (!body) return;
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/indicator?activity_id=eq.${acId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,activity_category_id,activity_category(category_name)&order=indicator_code.asc`,
+      `${MEBK_URL}/rest/v1/indicator?activity_id=eq.${acId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,activity_category_id&order=indicator_code.asc`,
       { headers: MEBK_HDR }
     );
-    const indicators = await res.json();
+    let indicators = res.ok ? await res.json() : [];
+    if (!Array.isArray(indicators)) indicators = [];
+    // Resolve category name client-side from cached arrays
+    indicators = indicators.map(i => ({
+      ...i,
+      _catName: (window.mebkAcCats||[]).find(c=>c.activity_category_id===i.activity_category_id)?.category_name || null
+    }));
     body.innerHTML = `
       <div class="mebk-section">
         <div class="mebk-section-lbl">${IC.chart} Activity Indicators</div>
@@ -8067,7 +8085,7 @@ function mebkBuildIndGrid(indicators, pfx, parentId) {
     <div class="mebk-ind-grid">
       <div class="mebk-ind-hdr" style="grid-template-columns:100px 1fr 90px 160px 56px;"><span>Code</span><span>Indicator Name</span><span>Unit</span><span>Category</span><span></span></div>
       ${indicators.map(i => {
-        const catName = i.outcome_categories?.category_name || i.activity_category?.category_name || '—';
+        const catName = i._catName || '—';
         return `
         <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 160px 56px;" id="mebk-ind-row-${i.indicator_id}">
           <span class="mebk-ind-code">${i.indicator_code || '—'}</span>
@@ -8089,7 +8107,7 @@ function mebkBuildIndForm(pfx, parentId) {
       <select class="mebk-sel" id="mebk-ind-subcat-${pfx}-${parentId}" style="min-width:180px;">
         <option value="">Category…</option>
         ${pfx === 'oc'
-          ? (window.mebkOcCats||[]).map(c=>`<option value="${c.outcome_category_id}">${c.category_name}</option>`).join('')
+          ? (window.mebkOcIndCats||[]).map(c=>`<option value="${c.outcome_ind_cat_id}">${c.category_name}</option>`).join('')
           : (window.mebkAcCats||[]).map(c=>`<option value="${c.activity_category_id}">${c.category_name}</option>`).join('')
         }
       </select>
@@ -8172,7 +8190,7 @@ async function mebkSaveIndicator(pfx, parentId) {
     unit_of_measure:       unit || null,
     is_template:           true,
     is_active:             true,
-    ...(pfx === 'oc' ? { outcome_category_id:  subCat || null } : {}),
+    ...(pfx === 'oc' ? { outcome_ind_cat_id:  subCat || null } : {}),
     ...(pfx === 'ac' ? { activity_category_id: subCat || null } : {}),
   };
   if (pfx === 'oc') payload.outcome_id  = parentId;
@@ -8422,7 +8440,7 @@ function mebkEditInd(indId, pfx, parentId, indObj) {
   editRow.dataset.isOc = isOc ? '1' : '0';
   const isOc = !!indObj.outcome_id;
   const subCatOpts = isOc
-    ? (window.mebkOcCats||[]).map(c=>`<option value="${c.outcome_category_id}" ${indObj.outcome_category_id===c.outcome_category_id?'selected':''}>${c.category_name}</option>`).join('')
+    ? (window.mebkOcIndCats||[]).map(c=>`<option value="${c.outcome_ind_cat_id}" ${indObj.outcome_ind_cat_id===c.outcome_ind_cat_id?'selected':''}>${c.category_name}</option>`).join('')
     : (window.mebkAcCats||[]).map(c=>`<option value="${c.activity_category_id}" ${indObj.activity_category_id===c.activity_category_id?'selected':''}>${c.category_name}</option>`).join('');
 
   editRow.innerHTML = `
@@ -8463,7 +8481,7 @@ async function mebkSaveEditInd(indId, pfx, parentId) {
       body:    JSON.stringify({
         indicator_name:       name,
         unit_of_measure:      unit || null,
-        outcome_category_id:  isOcInd ? (subCat || null) : null,
+        outcome_ind_cat_id:  isOcInd ? (subCat || null) : null,
         activity_category_id: isOcInd ? null : (subCat || null),
       })
     });
