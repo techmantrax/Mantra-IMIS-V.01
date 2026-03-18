@@ -7818,40 +7818,33 @@ async function mebkInit() {
 // ── Load & cache categories ─────────────────────────
 async function mebkLoadCategories() {
   try {
-    const [ocRes, acRes, indRes, oicRes] = await Promise.all([
+    const [ocRes, acRes, indRes] = await Promise.all([
       fetch(`${MEBK_URL}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
       fetch(`${MEBK_URL}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
       fetch(`${MEBK_URL}/rest/v1/indicator_category?select=indicator_category_id,category_code,category_name&order=category_code.asc`, { headers: MEBK_HDR }),
-      fetch(`${MEBK_URL}/rest/v1/outcome_indicator_category?is_active=eq.true&select=outcome_ind_cat_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
     ]);
     const ocCats  = await ocRes.json();
     const acCats  = await acRes.json();
     const indCats = await indRes.json();
-    const oicCats = oicRes.ok ? await oicRes.json() : [];
 
     if (Array.isArray(ocCats)) {
       mebkCats.outcomes = ocCats;
-      window.mebkOcCats = ocCats; // {outcome_category_id, category_name} — for outcome card dropdown
+      window.mebkOcCats = ocCats;
       const sel = document.getElementById('mebk-oc-cat-sel');
       if (sel) sel.innerHTML = '<option value="">Category…</option>' +
         ocCats.map(c => `<option value="${c.outcome_category_id}">${c.category_name}</option>`).join('');
     }
     if (Array.isArray(acCats)) {
       mebkCats.activities = acCats;
-      window.mebkAcCats = acCats; // {activity_category_id, category_name} — for activity card dropdown & activity indicator sub-cat
+      window.mebkAcCats = acCats;
       const sel = document.getElementById('mebk-ac-cat-sel');
       if (sel) sel.innerHTML = '<option value="">Category…</option>' +
         acCats.map(c => `<option value="${c.activity_category_id}">${c.category_name}</option>`).join('');
     }
     if (Array.isArray(indCats)) {
       window.mebkIndCats = indCats.map(c => ({ id: c.indicator_category_id, code: c.category_code, name: c.category_name }));
-      // Store IC-001/IC-002 IDs for auto-assignment (hidden from user)
       window.mebkIcIds = {};
       indCats.forEach(c => { window.mebkIcIds[c.category_code] = c.indicator_category_id; });
-    }
-    if (Array.isArray(oicCats) && oicCats.length) {
-      // Capacity Building / Process & Structure / System Change — outcome indicator change-type
-      window.mebkOcIndCats = oicCats; // {outcome_ind_cat_id, category_name}
     }
   } catch(e) { /* silent */ }
 }
@@ -8031,16 +8024,11 @@ async function mebkLoadOcContent(ocId) {
   if (!body) return;
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/indicator?outcome_id=eq.${ocId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,outcome_ind_cat_id&order=indicator_code.asc`,
+      `${MEBK_URL}/rest/v1/indicator?outcome_id=eq.${ocId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure&order=indicator_code.asc`,
       { headers: MEBK_HDR }
     );
     let indicators = res.ok ? await res.json() : [];
     if (!Array.isArray(indicators)) indicators = [];
-    // Resolve category name client-side from cached arrays
-    indicators = indicators.map(i => ({
-      ...i,
-      _catName: (window.mebkOcIndCats||[]).find(c=>c.outcome_ind_cat_id===i.outcome_ind_cat_id)?.category_name || null
-    }));
     body.innerHTML = `
       <div class="mebk-section">
         <div class="mebk-section-lbl">${IC.chart} Outcome Indicators</div>
@@ -8057,16 +8045,11 @@ async function mebkLoadAcContent(acId) {
   if (!body) return;
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/indicator?activity_id=eq.${acId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,activity_category_id&order=indicator_code.asc`,
+      `${MEBK_URL}/rest/v1/indicator?activity_id=eq.${acId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure&order=indicator_code.asc`,
       { headers: MEBK_HDR }
     );
     let indicators = res.ok ? await res.json() : [];
     if (!Array.isArray(indicators)) indicators = [];
-    // Resolve category name client-side from cached arrays
-    indicators = indicators.map(i => ({
-      ...i,
-      _catName: (window.mebkAcCats||[]).find(c=>c.activity_category_id===i.activity_category_id)?.category_name || null
-    }));
     body.innerHTML = `
       <div class="mebk-section">
         <div class="mebk-section-lbl">${IC.chart} Activity Indicators</div>
@@ -8083,34 +8066,23 @@ function mebkBuildIndGrid(indicators, pfx, parentId) {
     return '<div class="mebk-no-data">No indicators yet — click "+ Add Indicator" below</div>';
   return `
     <div class="mebk-ind-grid">
-      <div class="mebk-ind-hdr" style="grid-template-columns:100px 1fr 90px 160px 56px;"><span>Code</span><span>Indicator Name</span><span>Unit</span><span>Category</span><span></span></div>
-      ${indicators.map(i => {
-        const catName = i._catName || '—';
-        return `
-        <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 160px 56px;" id="mebk-ind-row-${i.indicator_id}">
+      <div class="mebk-ind-hdr" style="grid-template-columns:100px 1fr 90px 56px;"><span>Code</span><span>Indicator Name</span><span>Unit</span><span></span></div>
+      ${indicators.map(i => `
+        <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 56px;" id="mebk-ind-row-${i.indicator_id}">
           <span class="mebk-ind-code">${i.indicator_code || '—'}</span>
           <span>${i.indicator_name || '—'}</span>
           <span style="color:var(--slate)">${i.unit_of_measure || '—'}</span>
-          <span style="color:var(--slate);font-size:11px;">${catName}</span>
           <span style="display:flex;gap:4px;align-items:center;">
             <button class="mebk-action-btn edit" title="Edit" onclick="mebkEditInd('${i.indicator_id}','${pfx}','${parentId}',${JSON.stringify(i)})">${IC.edit}</button>
             <button class="mebk-action-btn del"  title="Delete" onclick="mebkDeleteInd('${i.indicator_id}','${pfx}','${parentId}')">${IC.trash}</button>
           </span>
-        </div>`;
-      }).join('')}
+        </div>`).join('')}
     </div>`;
 }
 function mebkBuildIndForm(pfx, parentId) {
   return `
     <div class="mebk-add-form ind-form" id="mebk-ind-form-${pfx}-${parentId}" style="display:none;">
       <input class="mebk-inp mebk-inp-lg" id="mebk-ind-name-${pfx}-${parentId}" placeholder="Indicator name…"/>
-      <select class="mebk-sel" id="mebk-ind-subcat-${pfx}-${parentId}" style="min-width:180px;">
-        <option value="">Category…</option>
-        ${pfx === 'oc'
-          ? (window.mebkOcIndCats||[]).map(c=>`<option value="${c.outcome_ind_cat_id}">${c.category_name}</option>`).join('')
-          : (window.mebkAcCats||[]).map(c=>`<option value="${c.activity_category_id}">${c.category_name}</option>`).join('')
-        }
-      </select>
       <select class="mebk-sel" id="mebk-ind-unit-${pfx}-${parentId}" style="min-width:130px;">
         <option value="">Unit…</option>
         <option value="percentage">Percentage (%)</option>
@@ -8177,9 +8149,8 @@ async function mebkSaveActivity() {
 
 // ── Save: Indicator (under outcome or activity) ─────
 async function mebkSaveIndicator(pfx, parentId) {
-  const name   = document.getElementById(`mebk-ind-name-${pfx}-${parentId}`)?.value.trim();
-  const subCat = document.getElementById(`mebk-ind-subcat-${pfx}-${parentId}`)?.value;
-  const unit   = document.getElementById(`mebk-ind-unit-${pfx}-${parentId}`)?.value;
+  const name = document.getElementById(`mebk-ind-name-${pfx}-${parentId}`)?.value.trim();
+  const unit = document.getElementById(`mebk-ind-unit-${pfx}-${parentId}`)?.value;
   if (!name) { alert('Please enter an indicator name.'); return; }
   // Auto-assign superset type: activity → IC-001 Output, outcome → IC-002 Outcome
   const icIds = window.mebkIcIds || {};
@@ -8190,8 +8161,6 @@ async function mebkSaveIndicator(pfx, parentId) {
     unit_of_measure:       unit || null,
     is_template:           true,
     is_active:             true,
-    ...(pfx === 'oc' ? { outcome_ind_cat_id:  subCat || null } : {}),
-    ...(pfx === 'ac' ? { activity_category_id: subCat || null } : {}),
   };
   if (pfx === 'oc') payload.outcome_id  = parentId;
   else              payload.activity_id = parentId;
@@ -8202,7 +8171,7 @@ async function mebkSaveIndicator(pfx, parentId) {
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(await res.text());
-    ['name','subcat','unit'].forEach(f => { const el = document.getElementById(`mebk-ind-${f}-${pfx}-${parentId}`); if(el) el.value=''; });
+    ['name','unit'].forEach(f => { const el = document.getElementById(`mebk-ind-${f}-${pfx}-${parentId}`); if(el) el.value=''; });
     document.getElementById(`mebk-ind-form-${pfx}-${parentId}`).style.display = 'none';
     if (pfx === 'oc') await mebkLoadOcContent(parentId);
     else              await mebkLoadAcContent(parentId);
@@ -8437,19 +8406,10 @@ function mebkEditInd(indId, pfx, parentId, indObj) {
   const editRow = document.createElement('div');
   editRow.className = 'mebk-ind-edit-row';
   editRow.id = `mebk-ind-edit-row-${indId}`;
-  editRow.dataset.isOc = isOc ? '1' : '0';
-  const isOc = !!indObj.outcome_id;
-  const subCatOpts = isOc
-    ? (window.mebkOcIndCats||[]).map(c=>`<option value="${c.outcome_ind_cat_id}" ${indObj.outcome_ind_cat_id===c.outcome_ind_cat_id?'selected':''}>${c.category_name}</option>`).join('')
-    : (window.mebkAcCats||[]).map(c=>`<option value="${c.activity_category_id}" ${indObj.activity_category_id===c.activity_category_id?'selected':''}>${c.category_name}</option>`).join('');
 
   editRow.innerHTML = `
     <span style="font-size:10px;color:var(--slate);font-family:var(--mono);">${indObj.indicator_code||'—'}</span>
     <input id="mebk-ind-edit-name-${indId}" value="${(indObj.indicator_name||'').replace(/"/g,'&quot;')}" placeholder="Indicator name…" style="width:100%;"/>
-    <select id="mebk-ind-edit-subcat-${indId}">
-      <option value="">Category…</option>
-      ${subCatOpts}
-    </select>
     <select id="mebk-ind-edit-unit-${indId}">
       <option value="">Unit…</option>
       ${units.map(u=>`<option value="${u.v}" ${indObj.unit_of_measure===u.v?'selected':''}>${u.l}</option>`).join('')}
@@ -8469,20 +8429,16 @@ function mebkCancelEditInd(indId) {
 }
 
 async function mebkSaveEditInd(indId, pfx, parentId) {
-  const name   = document.getElementById(`mebk-ind-edit-name-${indId}`)?.value.trim();
-  const subCat = document.getElementById(`mebk-ind-edit-subcat-${indId}`)?.value;
-  const unit   = document.getElementById(`mebk-ind-edit-unit-${indId}`)?.value;
+  const name = document.getElementById(`mebk-ind-edit-name-${indId}`)?.value.trim();
+  const unit = document.getElementById(`mebk-ind-edit-unit-${indId}`)?.value;
   if (!name) { alert('Indicator name cannot be empty.'); return; }
-  const isOcInd = document.getElementById(`mebk-ind-edit-row-${indId}`)?.dataset.isOc === '1';
   try {
     const res = await fetch(`${MEBK_URL}/rest/v1/indicator?indicator_id=eq.${indId}`, {
       method:  'PATCH',
       headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
       body:    JSON.stringify({
-        indicator_name:       name,
-        unit_of_measure:      unit || null,
-        outcome_ind_cat_id:  isOcInd ? (subCat || null) : null,
-        activity_category_id: isOcInd ? null : (subCat || null),
+        indicator_name:  name,
+        unit_of_measure: unit || null,
       })
     });
     if (!res.ok) throw new Error(await res.text());
