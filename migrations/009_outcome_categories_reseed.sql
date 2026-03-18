@@ -14,10 +14,13 @@
 -- they already belong to the IC-002 Outcome superset type.
 -- ════════════════════════════════════════════════════════════════
 
--- 1. Remove old placeholder rows
+-- 1. Detach existing outcomes from old categories (avoids FK violation)
+UPDATE public.outcome SET outcome_category_id = NULL;
+
+-- 2. Remove old placeholder rows
 DELETE FROM public.outcome_categories;
 
--- 2. Insert the three correct categories
+-- 3. Insert the three correct categories
 INSERT INTO public.outcome_categories
   (category_name, category_code, description, sort_order, is_active)
 VALUES
