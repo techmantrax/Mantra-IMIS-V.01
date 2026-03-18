@@ -3548,6 +3548,17 @@ select:focus:not(:focus-visible) { outline: none; }
         .lfa-dict-panel.active{display:block;}
         .lfa-dp-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
         .lfa-dp-desc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.55;}
+        /* Program Goals */
+        .lfa-goal-card{border:1px solid var(--border2);border-radius:var(--r2);overflow:hidden;margin-bottom:6px;background:rgba(255,255,255,.02);}
+        .lfa-goal-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;flex-wrap:wrap;}
+        .lfa-goal-code{font-size:10px;font-family:var(--mono);color:var(--muted);background:rgba(110,231,255,.08);border:1px solid rgba(110,231,255,.15);padding:2px 6px;border-radius:4px;flex-shrink:0;}
+        .lfa-goal-name{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+        .lfa-goal-meta{font-size:11px;color:var(--muted);flex-shrink:0;}
+        .lfa-goal-desc{font-size:12px;color:var(--muted);padding:0 14px 10px;line-height:1.5;}
+        .lfa-goal-edit-form{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-top:1px solid var(--border2);background:rgba(255,255,255,.02);}
+        .lfa-btn-sm{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text);cursor:pointer;}
+        .lfa-btn-sm:hover{background:rgba(255,255,255,.08);}
+        .lfa-btn-sm.danger{color:var(--red);border-color:rgba(239,68,68,.3);}
 
         /* chips */
         .lfa-chip-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
@@ -3719,6 +3730,7 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="lfa-nav-item done" onclick="lfaShowDict('outcat')">Outcome Categories <span class="lnc">3</span></div>
             <div class="lfa-nav-item done" onclick="lfaShowDict('actcat')">Activity Categories <span class="lnc">3</span></div>
             <div class="lfa-nav-sep">Program framework</div>
+            <div class="lfa-nav-item" id="lfa-nav-goals" onclick="lfaShowDict('goals');lfaLoadProgramGoals();">Program Goals <span class="lnc" id="lfa-goals-count">—</span></div>
             <div class="lfa-nav-item active" onclick="lfaShowDict('interventions')">Interventions <span class="lnc" id="lfa-intv-count">2</span></div>
           </div>
 
@@ -3800,6 +3812,26 @@ select:focus:not(:focus-visible) { outline: none; }
             </div>
 
             <!-- ══ Interventions (main panel) ══ -->
+            <!-- Program Goals -->
+            <div class="lfa-dict-panel" id="lfa-dict-goals">
+              <div class="lfa-dp-title">Program Goals</div>
+              <div class="lfa-dp-desc">Measurable goals specific to this program — these sit at the top of the M&amp;E hierarchy above outcomes and activities.</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:flex-end;">
+                <input class="lfa-add-inp" id="lfa-goal-name-inp" placeholder="Goal name…" style="flex:1;min-width:200px;"/>
+                <input class="lfa-add-inp" id="lfa-goal-desc-inp" placeholder="Description (optional)…" style="flex:2;min-width:240px;"/>
+                <input class="lfa-add-inp" id="lfa-goal-target-inp" type="number" min="0" placeholder="Target value" style="flex:0 0 110px;"/>
+                <select class="lfa-add-inp" id="lfa-goal-unit-sel" style="flex:0 0 130px;">
+                  <option value="">Unit…</option>
+                  <option value="percentage">Percentage (%)</option>
+                  <option value="count">Count (No.)</option>
+                  <option value="ratio">Ratio</option>
+                  <option value="yes_no">Yes / No</option>
+                </select>
+                <button class="lfa-btn-add" onclick="lfaSaveProgramGoal()">+ Add Goal</button>
+              </div>
+              <div id="lfa-goals-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+            </div>
+
             <div class="lfa-dict-panel active" id="lfa-dict-interventions">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
                 <div class="lfa-dp-title" style="margin:0;">Interventions</div>
@@ -4474,6 +4506,7 @@ select:focus:not(:focus-visible) { outline: none; }
           });
         }
         function lfaOpenProgram(prog){
+          window.lfaCurrentProgId = null; // reset on program switch
           document.getElementById('lfa-prog-selector').classList.add('hidden');
           document.getElementById('lfa-builder-content').classList.remove('hidden');
           document.getElementById('lfa-prog-title').textContent=prog;
@@ -4495,6 +4528,127 @@ select:focus:not(:focus-visible) { outline: none; }
             lfaRenderProgCards();
           });
         })();
+
+        // ── Program Goals ─────────────────────────────────
+        async function lfaFetchProgramId(progName) {
+          if (window.lfaCurrentProgId) return window.lfaCurrentProgId;
+          try {
+            const r = await fetch(`${GS_SB_URL}/rest/v1/program?program_name=eq.${encodeURIComponent(progName)}&select=program_id&limit=1`, { headers: GS_SB_HDR });
+            if (!r.ok) return null;
+            const [row] = await r.json();
+            window.lfaCurrentProgId = row?.program_id || null;
+            return window.lfaCurrentProgId;
+          } catch(e) { return null; }
+        }
+
+        async function lfaLoadProgramGoals() {
+          const list = document.getElementById('lfa-goals-list');
+          if (!list) return;
+          const prog   = document.getElementById('lfa-prog-title')?.textContent?.trim();
+          const progId = await lfaFetchProgramId(prog);
+          if (!progId) {
+            list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0;">Program not found in DB — goals cannot be loaded.</div>';
+            return;
+          }
+          list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0;">Loading…</div>';
+          try {
+            const r = await fetch(`${GS_SB_URL}/rest/v1/program_goal?program_id=eq.${progId}&is_active=eq.true&select=*&order=sort_order.asc,created_at.asc`, { headers: GS_SB_HDR });
+            const goals = r.ok ? await r.json() : [];
+            const cnt = document.getElementById('lfa-goals-count');
+            if (cnt) cnt.textContent = goals.length;
+            if (!goals.length) {
+              list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0;">No goals yet — add one above.</div>';
+              return;
+            }
+            list.innerHTML = goals.map(g => `
+              <div class="lfa-goal-card" id="lfa-gc-${g.program_goal_id}">
+                <div class="lfa-goal-hd">
+                  <span class="lfa-goal-code">${g.goal_code||'—'}</span>
+                  <span class="lfa-goal-name">${lfaEsc(g.goal_name)}</span>
+                  <span class="lfa-goal-meta">${g.target_value!=null?g.target_value+' '+(g.unit_of_measure||''):''}</span>
+                  <span style="display:flex;gap:4px;margin-left:auto;">
+                    <button class="lfa-btn-sm" onclick="lfaEditGoal('${g.program_goal_id}')">Edit</button>
+                    <button class="lfa-btn-sm danger" onclick="lfaDeleteGoal('${g.program_goal_id}')">Delete</button>
+                  </span>
+                </div>
+                ${g.goal_description?`<div class="lfa-goal-desc">${lfaEsc(g.goal_description)}</div>`:''}
+                <div id="lfa-ge-${g.program_goal_id}" style="display:none;" class="lfa-goal-edit-form">
+                  <input class="lfa-add-inp" id="lfa-ge-name-${g.program_goal_id}" value="${(g.goal_name||'').replace(/"/g,'&quot;')}" placeholder="Goal name…" style="flex:1;min-width:180px;"/>
+                  <input class="lfa-add-inp" id="lfa-ge-desc-${g.program_goal_id}" value="${(g.goal_description||'').replace(/"/g,'&quot;')}" placeholder="Description…" style="flex:2;min-width:220px;"/>
+                  <input class="lfa-add-inp" id="lfa-ge-tgt-${g.program_goal_id}" type="number" value="${g.target_value??''}" placeholder="Target" style="flex:0 0 100px;"/>
+                  <select class="lfa-add-inp" id="lfa-ge-unit-${g.program_goal_id}" style="flex:0 0 120px;">
+                    <option value="">Unit…</option>
+                    ${['percentage','count','ratio','yes_no'].map(u=>`<option value="${u}" ${g.unit_of_measure===u?'selected':''}>${u}</option>`).join('')}
+                  </select>
+                  <button class="lfa-btn-add" onclick="lfaSaveEditGoal('${g.program_goal_id}')">Save</button>
+                  <button class="lfa-btn-sm" onclick="document.getElementById('lfa-ge-${g.program_goal_id}').style.display='none'">Cancel</button>
+                </div>
+              </div>`).join('');
+          } catch(e) {
+            list.innerHTML = '<div style="color:var(--red);font-size:12px;padding:8px 0;">Error loading goals.</div>';
+          }
+        }
+
+        async function lfaSaveProgramGoal() {
+          const nameEl = document.getElementById('lfa-goal-name-inp');
+          const name   = nameEl?.value.trim();
+          if (!name) { nameEl?.focus(); return; }
+          const prog   = document.getElementById('lfa-prog-title')?.textContent?.trim();
+          const progId = await lfaFetchProgramId(prog);
+          if (!progId) { alert('Program not found in DB.'); return; }
+          const desc   = document.getElementById('lfa-goal-desc-inp')?.value.trim() || null;
+          const target = document.getElementById('lfa-goal-target-inp')?.value;
+          const unit   = document.getElementById('lfa-goal-unit-sel')?.value || null;
+          try {
+            const r = await fetch(`${GS_SB_URL}/rest/v1/program_goal`, {
+              method: 'POST',
+              headers: { ...GS_SB_HDR, 'Prefer': 'return=minimal' },
+              body: JSON.stringify({ program_id: progId, goal_name: name, goal_description: desc, target_value: target ? parseFloat(target) : null, unit_of_measure: unit, is_active: true, sort_order: 99 }),
+            });
+            if (!r.ok) throw new Error(await r.text());
+            ['lfa-goal-name-inp','lfa-goal-desc-inp','lfa-goal-target-inp'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+            const sel = document.getElementById('lfa-goal-unit-sel'); if(sel) sel.value='';
+            lfaLoadProgramGoals();
+          } catch(e) { alert('Error saving goal: ' + e.message); }
+        }
+
+        function lfaEditGoal(id) {
+          document.getElementById(`lfa-ge-${id}`).style.display = 'flex';
+        }
+
+        async function lfaSaveEditGoal(id) {
+          const name = document.getElementById(`lfa-ge-name-${id}`)?.value.trim();
+          if (!name) return;
+          const desc   = document.getElementById(`lfa-ge-desc-${id}`)?.value.trim() || null;
+          const target = document.getElementById(`lfa-ge-tgt-${id}`)?.value;
+          const unit   = document.getElementById(`lfa-ge-unit-${id}`)?.value || null;
+          try {
+            const r = await fetch(`${GS_SB_URL}/rest/v1/program_goal?program_goal_id=eq.${id}`, {
+              method: 'PATCH',
+              headers: { ...GS_SB_HDR, 'Prefer': 'return=minimal' },
+              body: JSON.stringify({ goal_name: name, goal_description: desc, target_value: target ? parseFloat(target) : null, unit_of_measure: unit }),
+            });
+            if (!r.ok) throw new Error(await r.text());
+            lfaLoadProgramGoals();
+          } catch(e) { alert('Error updating goal: ' + e.message); }
+        }
+
+        async function lfaDeleteGoal(id) {
+          if (!confirm('Delete this goal?')) return;
+          try {
+            const r = await fetch(`${GS_SB_URL}/rest/v1/program_goal?program_goal_id=eq.${id}`, {
+              method: 'PATCH',
+              headers: { ...GS_SB_HDR, 'Prefer': 'return=minimal' },
+              body: JSON.stringify({ is_active: false }),
+            });
+            if (!r.ok) throw new Error(await r.text());
+            document.getElementById(`lfa-gc-${id}`)?.remove();
+            const list = document.getElementById('lfa-goals-list');
+            if (list && !list.children.length) list.innerHTML = '<div style="color:var(--muted);font-size:12px;padding:8px 0;">No goals yet — add one above.</div>';
+            const cnt = document.getElementById('lfa-goals-count');
+            if (cnt) cnt.textContent = Math.max(0, parseInt(cnt.textContent||'0') - 1);
+          } catch(e) { alert('Error deleting goal: ' + e.message); }
+        }
 
         // ── Util ──────────────────────────────────────────
         function lfaEsc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);}
@@ -7998,7 +8152,7 @@ async function mebkSaveNewCat(tab) {
     // Sync all selects
     mebkSyncCatSelects(tab);
     // Auto-select new category in form select
-    const idKey   = isOc ? 'outcome_category_id' : 'activity_category_id';
+    const idKey   = tab === 'oc' ? 'outcome_category_id' : tab === 'im' ? 'impact_category_id' : 'activity_category_id';
     const formSel = document.getElementById(`mebk-${tab}-cat-sel`);
     if (formSel && newCat[idKey]) formSel.value = newCat[idKey];
     mebkHideNewCatForm(tab);
