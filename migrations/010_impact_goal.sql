@@ -1,17 +1,6 @@
 -- ════════════════════════════════════════════════════════════════
 -- Migration 010 — Impact / Goal level
 -- ════════════════════════════════════════════════════════════════
---
--- Adds the highest tier of the M&E hierarchy:
---   Impact / Goal → Impact Indicators (IC-003)
---
--- New tables:
---   impact_category — categories for impact goals
---   impact          — impact/goal statements (global template library)
---
--- New column:
---   indicator.impact_id — FK to impact (for IC-003 indicators)
--- ════════════════════════════════════════════════════════════════
 
 -- 1. Impact categories
 CREATE TABLE IF NOT EXISTS public.impact_category (
@@ -30,10 +19,10 @@ INSERT INTO public.impact_category (category_name, category_code, sort_order) VA
 ON CONFLICT (category_code) DO NOTHING;
 
 ALTER TABLE public.impact_category ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "ipc_read_all"
-  ON public.impact_category FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "ipc_write_all"
-  ON public.impact_category FOR ALL USING (true);
+DROP POLICY IF EXISTS "ipc_read_all"  ON public.impact_category;
+DROP POLICY IF EXISTS "ipc_write_all" ON public.impact_category;
+CREATE POLICY "ipc_read_all"  ON public.impact_category FOR SELECT USING (true);
+CREATE POLICY "ipc_write_all" ON public.impact_category FOR ALL USING (true);
 
 -- 2. Impact table
 CREATE TABLE IF NOT EXISTS public.impact (
@@ -47,7 +36,6 @@ CREATE TABLE IF NOT EXISTS public.impact (
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Auto-code trigger (IM-TMPL-001, IM-TMPL-002…)
 CREATE OR REPLACE FUNCTION public.set_impact_code()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 DECLARE seq INT;
@@ -59,26 +47,27 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_impact_code ON public.impact;
 CREATE TRIGGER trg_impact_code
   BEFORE INSERT ON public.impact
   FOR EACH ROW WHEN (NEW.impact_code IS NULL)
   EXECUTE FUNCTION public.set_impact_code();
 
--- Updated_at trigger
 CREATE OR REPLACE FUNCTION public.set_impact_updated_at()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_impact_updated_at ON public.impact;
 CREATE TRIGGER trg_impact_updated_at
   BEFORE UPDATE ON public.impact
   FOR EACH ROW EXECUTE FUNCTION public.set_impact_updated_at();
 
 ALTER TABLE public.impact ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "impact_read_all"
-  ON public.impact FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "impact_write_all"
-  ON public.impact FOR ALL USING (true);
+DROP POLICY IF EXISTS "impact_read_all"  ON public.impact;
+DROP POLICY IF EXISTS "impact_write_all" ON public.impact;
+CREATE POLICY "impact_read_all"  ON public.impact FOR SELECT USING (true);
+CREATE POLICY "impact_write_all" ON public.impact FOR ALL USING (true);
 
 CREATE INDEX IF NOT EXISTS idx_impact_category ON public.impact(impact_category_id);
 CREATE INDEX IF NOT EXISTS idx_impact_active   ON public.impact(is_active);
