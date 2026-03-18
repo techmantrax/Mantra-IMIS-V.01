@@ -2730,8 +2730,9 @@ select:focus:not(:focus-visible) { outline: none; }
                   stk: stk.name,
                   sourceType: 'activity',
                   sourceCode: ac.code, sourceStmt: ac.stmt, sourceCat: ac.cat,
+                  sourceDbId: ac.dbId || '',
                   outcome: resolvedOutcome,
-                  indicators: [meb2NewIndRow('')]  // start with one empty indicator
+                  indicators: [meb2NewIndRow('')]  // start with one empty; hydrated from M&E Book below
                 });
               });
               // Outcome groups
@@ -2744,6 +2745,7 @@ select:focus:not(:focus-visible) { outline: none; }
                   stk: stk.name,
                   sourceType: 'outcome',
                   sourceCode: oc.code, sourceStmt: oc.stmt, sourceCat: oc.cat,
+                  sourceDbId: oc.dbId || '',
                   outcome: oc.stmt,
                   indicators: [meb2NewIndRow('')]
                 });
@@ -2777,7 +2779,7 @@ select:focus:not(:focus-visible) { outline: none; }
         }
 
         // ── meb2Render ───────────────────────────────────────────────
-        function meb2Render(prog) {
+        async function meb2Render(prog) {
           meb2Prog = prog;
           const banner = document.getElementById('meb2-lfa-banner');
           const noLfa  = document.getElementById('meb2-no-lfa-state');
@@ -2786,17 +2788,22 @@ select:focus:not(:focus-visible) { outline: none; }
           const lfaGroups  = meb2BuildGroupsFromLFA(prog);
           const seedGroups = meb2BuildGroupsFromSeed(prog);
           if (lfaGroups && lfaGroups.length) {
-            // LFA published for this program — use it
+            // LFA published for this program — use it, then hydrate indicators from M&E Book
             meb2Groups = lfaGroups;
-            if (banner) { banner.classList.remove('hidden'); banner.innerHTML = IC['check-circle'] + ' LFA loaded — indicators pre-populated. Fill in names, targets and publish.'; }
+            if (banner) { banner.classList.remove('hidden'); banner.innerHTML = IC.info + ' LFA loaded — fetching M&amp;E Book indicators…'; }
             if (noLfa)  noLfa.style.display = 'none';
             if (pubBar) pubBar.style.display = '';
+            meb2RenderFramework();
+            await meb2HydrateIndicatorsFromDB();
+            if (banner) { banner.innerHTML = IC['check-circle'] + ' LFA loaded — M&amp;E Book indicators pre-filled. Add more if needed, set targets and publish.'; }
+            meb2RenderFramework();
           } else if (seedGroups && seedGroups.length) {
             // No LFA yet — fall back to seed rows so M&E Builder is usable
             meb2Groups = seedGroups;
             if (banner) { banner.classList.remove('hidden'); banner.style.cssText += ';background:var(--blue-dim);border-color:var(--blue);color:var(--blue);'; banner.innerHTML = IC.info + ' Using pre-seeded framework. Complete LFA Setup to generate from your own interventions.'; }
             if (noLfa)  noLfa.style.display = 'none';
             if (pubBar) pubBar.style.display = '';
+            meb2RenderFramework();
           } else {
             // No LFA, no seed — show empty state
             meb2Groups = [];
@@ -2804,7 +2811,53 @@ select:focus:not(:focus-visible) { outline: none; }
             if (noLfa)  noLfa.style.display = '';
             if (pubBar) pubBar.style.display = 'none';
           }
-          meb2RenderFramework();
+        }
+
+        // ── meb2HydrateIndicatorsFromDB ──────────────────────────────
+        // Fetches indicators from M&E Book (Supabase indicator table) for each
+        // outcome/activity group and pre-fills group.indicators. One empty row
+        // is appended at the end so users can still add more.
+        async function meb2HydrateIndicatorsFromDB() {
+          if (typeof GS_SB_URL === 'undefined' || !GS_SB_URL) return;
+          const ocIds = meb2Groups.filter(g => g.sourceType === 'outcome'  && g.sourceDbId).map(g => g.sourceDbId);
+          const acIds = meb2Groups.filter(g => g.sourceType === 'activity' && g.sourceDbId).map(g => g.sourceDbId);
+          if (!ocIds.length && !acIds.length) return;
+          try {
+            const fetches = [];
+            if (ocIds.length) fetches.push(
+              fetch(`${GS_SB_URL}/rest/v1/indicator?outcome_id=in.(${ocIds.join(',')})&activity_id=is.null&is_active=eq.true` +
+                `&select=indicator_id,indicator_name,unit_of_measure,frequency,baseline_value,outcome_id,activity_id&order=indicator_name.asc`,
+                { headers: GS_SB_HDR }).then(r => r.ok ? r.json() : []).catch(() => [])
+            );
+            if (acIds.length) fetches.push(
+              fetch(`${GS_SB_URL}/rest/v1/indicator?activity_id=in.(${acIds.join(',')})&outcome_id=is.null&is_active=eq.true` +
+                `&select=indicator_id,indicator_name,unit_of_measure,frequency,baseline_value,outcome_id,activity_id&order=indicator_name.asc`,
+                { headers: GS_SB_HDR }).then(r => r.ok ? r.json() : []).catch(() => [])
+            );
+            const allInds = (await Promise.all(fetches)).flat();
+            if (!allInds.length) return;
+            meb2Groups.forEach(g => {
+              if (!g.sourceDbId) return;
+              const matched = allInds.filter(ind =>
+                g.sourceType === 'outcome' ? ind.outcome_id === g.sourceDbId : ind.activity_id === g.sourceDbId
+              );
+              if (!matched.length) return;
+              g.indicators = [
+                ...matched.map(ind => ({
+                  id: meb2NextId++,
+                  indicator_id: ind.indicator_id,
+                  name: ind.indicator_name || '',
+                  abbr: '', unit: ind.unit_of_measure || 'count',
+                  freq: ind.frequency || 'monthly',
+                  baseline: ind.baseline_value != null ? String(ind.baseline_value) : '',
+                  targets: {}, active: true, _fromMEBook: true,
+                })),
+                meb2NewIndRow(''),  // one blank row for adding new
+              ];
+            });
+          } catch(e) {
+            console.warn('[meb2HydrateIndicatorsFromDB]', e);
+          }
         }
 
         // ── meb2RenderFramework ──────────────────────────────────────
@@ -4167,13 +4220,16 @@ select:focus:not(:focus-visible) { outline: none; }
         }
         function lfaHideAddOC(rowId){const el=document.getElementById('lfa-add-oc-'+rowId); if(el) el.style.display='none';}
         function lfaConfirmAddOC(rowId){
-          const stmt=document.getElementById('lfa-oc-inp-'+rowId)?.value.trim();
+          const ocInp=document.getElementById('lfa-oc-inp-'+rowId);
+          const stmt=ocInp?.value.trim();
           const cat=document.getElementById('lfa-oc-cat-'+rowId)?.value||'';
           if(!stmt) return;
+          const dbId = ocInp?._selectedLib?.id || '';
           const catCls=({'Capacity Building':'cb','Structures & Process':'sp','Systemic Tools':'st'})[cat]||'cb';
 
           const ocId='lfa-oc-dyn-'+Date.now();
           const el=document.createElement('div'); el.className='lfa-oc-row'; el.id=ocId;
+          el.dataset.dbId = dbId;
           el.innerHTML=`<div class="lfa-oc-row-hd">
             <span class="lfa-oc-code lfa-auto-badge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Auto</span>
             <span class="lfa-oc-stmt">${lfaEsc(stmt)}</span>
@@ -4204,14 +4260,17 @@ select:focus:not(:focus-visible) { outline: none; }
         }
         function lfaHideAddAC(rowId){const el=document.getElementById('lfa-add-ac-'+rowId); if(el) el.style.display='none';}
         function lfaConfirmAddAC(rowId){
-          const stmt=document.getElementById('lfa-ac-inp-'+rowId)?.value.trim();
+          const acInp=document.getElementById('lfa-ac-inp-'+rowId);
+          const stmt=acInp?.value.trim();
           const cat=document.getElementById('lfa-ac-cat-'+rowId)?.value||'';
           if(!stmt) return;
+          const dbId = acInp?._selectedLib?.id || '';
           const catCls=({'Training':'lfa-lcat-cb','Field Visit':'lfa-lcat-sp','Review & Planning':'lfa-lcat-st'})[cat]||'lfa-lcat-cb';
 
           const linkChips = lfaGetOutcomeCodes(rowId);
           const acId='lfa-ac-dyn-'+Date.now();
           const el=document.createElement('div'); el.className='lfa-ac-row'; el.id=acId;
+          el.dataset.dbId = dbId;
           const chipsHtml = linkChips.length
             ? linkChips.map(oc=>`<span class="lfa-link-chip" onclick="this.classList.toggle('linked')" title="Link to ${lfaEsc(oc)}">${lfaEsc(oc)}</span>`).join('')
             : '<span class="lfa-link-none">No outcomes defined yet</span>';
@@ -4397,7 +4456,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 const code = acRow.querySelector('.lfa-ac-code')?.textContent.trim() || '';
                 const stmt = acRow.querySelector('.lfa-ac-stmt')?.textContent.trim() || '';
                 const cat  = acRow.querySelector('.lfa-ac-cat')?.textContent.trim() || '';
-                if (stmt) activities.push({ code, stmt, cat });
+                if (stmt) activities.push({ code, stmt, cat, dbId: acRow.dataset.dbId || '' });
               });
 
               const outcomes = [];
@@ -4405,7 +4464,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 const code = ocRow.querySelector('.lfa-oc-code')?.textContent.trim() || '';
                 const stmt = ocRow.querySelector('.lfa-oc-stmt')?.textContent.trim() || '';
                 const cat  = ocRow.querySelector('.lfa-oc-cat')?.textContent.trim() || '';
-                if (stmt) outcomes.push({ code, stmt, cat });
+                if (stmt) outcomes.push({ code, stmt, cat, dbId: ocRow.dataset.dbId || '' });
               });
 
               // Read activity→outcome links
