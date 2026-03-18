@@ -2179,13 +2179,11 @@ select:focus:not(:focus-visible) { outline: none; }
         #mebk-filter-oc .mebk-filter-pill.sel{color:var(--ok);}
         #mebk-filter-ac .mebk-filter-pill.sel{color:var(--blue);}
 
-        /* ── Category filter pills ── */
-        .mebk-cat-pills{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 2px 0;}
-        .mebk-cat-pill{padding:3px 12px;font-size:11px;font-weight:500;border:1.5px solid var(--mist-2);border-radius:20px;cursor:pointer;color:var(--slate);background:var(--white);transition:all .15s;font-family:var(--sans);white-space:nowrap;}
-        .mebk-cat-pill:hover{border-color:var(--ink);color:var(--ink);}
-        .mebk-cat-pill.sel{background:var(--ink);border-color:var(--ink);color:#fff;}
-        #mebk-cat-pills-oc .mebk-cat-pill.sel{background:var(--ok);border-color:var(--ok);}
-        #mebk-cat-pills-ac .mebk-cat-pill.sel{background:var(--blue);border-color:var(--blue);}
+        /* ── Category filter dropdown ── */
+        .mebk-cat-sel{height:32px;padding:0 28px 0 10px;font-size:12px;font-weight:500;border:1.5px solid var(--mist-2);border-radius:var(--r-sm);background:var(--white);color:var(--ink);cursor:pointer;font-family:var(--sans);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s;flex-shrink:0;}
+        .mebk-cat-sel:focus{outline:none;border-color:var(--ok);}
+        .mebk-cat-sel.has-filter{border-color:var(--ok);color:var(--ok);font-weight:600;}
+        #mebk-panel-ac .mebk-cat-sel.has-filter{border-color:var(--blue);color:var(--blue);}
 
         /* ── CSS toggle switch ── */
         .mebk-sw{display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;}
@@ -2257,9 +2255,11 @@ select:focus:not(:focus-visible) { outline: none; }
                 <button class="mebk-filter-pill"     id="mebk-fpill-oc-all"      onclick="mebkSetFilter('oc','all')">All</button>
                 <button class="mebk-filter-pill"     id="mebk-fpill-oc-inactive" onclick="mebkSetFilter('oc','inactive')">Inactive</button>
               </div>
+              <select class="mebk-cat-sel" id="mebk-cat-sel-oc" onchange="mebkSetCatFilter('oc',this.value)">
+                <option value="">All Categories</option>
+              </select>
               <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;white-space:nowrap;" onclick="mebkShowOcForm()">+ Add Outcome</button>
             </div>
-            <div class="mebk-cat-pills" id="mebk-cat-pills-oc"></div>
             <div class="mebk-add-form oc-form" id="mebk-add-oc-form">
               <input class="mebk-inp mebk-inp-lg" id="mebk-oc-stmt" placeholder="Outcome statement…" onkeydown="if(event.key==='Enter')mebkSaveOutcome()"/>
               <select class="mebk-sel" id="mebk-oc-cat-sel"><option value="">Category…</option></select>
@@ -2278,9 +2278,11 @@ select:focus:not(:focus-visible) { outline: none; }
                 <button class="mebk-filter-pill"     id="mebk-fpill-ac-all"      onclick="mebkSetFilter('ac','all')">All</button>
                 <button class="mebk-filter-pill"     id="mebk-fpill-ac-inactive" onclick="mebkSetFilter('ac','inactive')">Inactive</button>
               </div>
+              <select class="mebk-cat-sel" id="mebk-cat-sel-ac" onchange="mebkSetCatFilter('ac',this.value)">
+                <option value="">All Categories</option>
+              </select>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkShowAcForm()">+ Add Activity</button>
             </div>
-            <div class="mebk-cat-pills" id="mebk-cat-pills-ac"></div>
             <div class="mebk-add-form ac-form" id="mebk-add-ac-form">
               <input class="mebk-inp mebk-inp-lg" id="mebk-ac-name" placeholder="Activity name…" onkeydown="if(event.key==='Enter')mebkSaveActivity()"/>
               <select class="mebk-sel" id="mebk-ac-cat-sel"><option value="">Category…</option></select>
@@ -7862,32 +7864,27 @@ async function mebkLoadCategories() {
 }
 
 function mebkRenderCatPills() {
-  const ocEl = document.getElementById('mebk-cat-pills-oc');
-  const acEl = document.getElementById('mebk-cat-pills-ac');
-  if (ocEl) {
+  // Populate category dropdowns after categories load
+  const ocSel = document.getElementById('mebk-cat-sel-oc');
+  if (ocSel) {
     const cats = window.mebkOcCats || [];
-    ocEl.innerHTML = `<button class="mebk-cat-pill sel" id="mebk-cpill-oc-all" onclick="mebkSetCatFilter('oc','')">All Categories</button>`
-      + cats.map(c => `<button class="mebk-cat-pill" id="mebk-cpill-oc-${c.outcome_category_id}" onclick="mebkSetCatFilter('oc','${c.outcome_category_id}')">${c.category_name}</button>`).join('');
+    ocSel.innerHTML = '<option value="">All Categories</option>'
+      + cats.map(c => `<option value="${c.outcome_category_id}">${c.category_name}</option>`).join('');
   }
-  if (acEl) {
+  const acSel = document.getElementById('mebk-cat-sel-ac');
+  if (acSel) {
     const cats = window.mebkAcCats || [];
-    acEl.innerHTML = `<button class="mebk-cat-pill sel" id="mebk-cpill-ac-all" onclick="mebkSetCatFilter('ac','')">All Categories</button>`
-      + cats.map(c => `<button class="mebk-cat-pill" id="mebk-cpill-ac-${c.activity_category_id}" onclick="mebkSetCatFilter('ac','${c.activity_category_id}')">${c.category_name}</button>`).join('');
+    acSel.innerHTML = '<option value="">All Categories</option>'
+      + cats.map(c => `<option value="${c.activity_category_id}">${c.category_name}</option>`).join('');
   }
 }
 
 function mebkSetCatFilter(tab, catId) {
   window.mebkCatFilter = window.mebkCatFilter || {};
   window.mebkCatFilter[tab] = catId;
-  // Update pill highlights
-  const container = document.getElementById(`mebk-cat-pills-${tab}`);
-  if (container) {
-    container.querySelectorAll('.mebk-cat-pill').forEach(p => p.classList.remove('sel'));
-    const allPill = document.getElementById(`mebk-cpill-${tab}-all`);
-    const catPill = catId ? document.getElementById(`mebk-cpill-${tab}-${catId}`) : allPill;
-    if (!catId && allPill) allPill.classList.add('sel');
-    else if (catPill) catPill.classList.add('sel');
-  }
+  // Highlight dropdown border when a category is active
+  const sel = document.getElementById(`mebk-cat-sel-${tab}`);
+  if (sel) sel.classList.toggle('has-filter', !!catId);
   if (tab === 'oc') mebkLoadOutcomes();
   else              mebkLoadActivities();
 }
