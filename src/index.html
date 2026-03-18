@@ -7883,7 +7883,8 @@ window.mebkIndCats = []; // [{id, code, name}] — Output/Outcome/Impact
 
 async function mebkInit() {
   await mebkLoadCategories();
-  await Promise.all([mebkLoadStats(), mebkLoadOutcomes(), mebkLoadActivities(), mebkLoadImpacts()]);
+  await Promise.all([mebkLoadStats(), mebkLoadOutcomes(), mebkLoadActivities()]);
+  // Impact loaded lazily on tab click (mebkSwitchTab checks mebkImLoaded)
 }
 
 // ── Load & cache categories ─────────────────────────
@@ -8364,6 +8365,16 @@ async function mebkLoadImpacts() {
       `${MEBK_URL}/rest/v1/impact?is_template=eq.true${activeFilter}${catFilter}&select=impact_id,impact_code,impact_statement,is_active,impact_category(category_name)&order=is_active.desc,impact_code.asc&limit=300`,
       { headers: MEBK_HDR }
     );
+    // Table may not exist yet (migration pending) — show friendly message
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (err.code === 'PGRST205' || String(err.message).includes("impact")) {
+        const el2 = document.getElementById('mebk-impacts-list');
+        if (el2) el2.innerHTML = `<div class="mebk-empty" style="color:var(--amber);">⚠ Database migration pending — run <code>migrations/010_impact_goal.sql</code> in Supabase to activate this tab.</div>`;
+        return;
+      }
+      throw new Error(JSON.stringify(err));
+    }
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
     const el2 = document.getElementById('mebk-impacts-list');
