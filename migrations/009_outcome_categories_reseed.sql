@@ -14,20 +14,34 @@
 -- they already belong to the IC-002 Outcome superset type.
 -- ════════════════════════════════════════════════════════════════
 
--- 1. Insert new categories first (needed before re-pointing outcomes)
-INSERT INTO public.outcome_categories (category_name, category_code, description, sort_order, is_active)
-VALUES
-  ('Capacity Building',   'OCC-001', 'Indicators measuring change in individual or organisational capacity',    1, true),
-  ('Process & Structure', 'OCC-002', 'Indicators measuring improvements in processes, systems, or structures', 2, true),
-  ('System Change',       'OCC-003', 'Indicators measuring broader systemic or institutional level change',    3, true)
-ON CONFLICT (category_code) DO NOTHING;
+-- 1. Rename existing OCC-001/002/003 rows in-place (avoids FK churn)
+UPDATE public.outcome_categories SET
+  category_name = 'Capacity Building',
+  description   = 'Indicators measuring change in individual or organisational capacity',
+  sort_order    = 1
+WHERE category_code = 'OCC-001';
 
--- 2. Move all existing outcomes to Capacity Building (NOT NULL constraint requires a valid FK)
---    Users can re-assign via M&E Book after migration
+UPDATE public.outcome_categories SET
+  category_name = 'Process & Structure',
+  description   = 'Indicators measuring improvements in processes, systems, or structures',
+  sort_order    = 2
+WHERE category_code = 'OCC-002';
+
+UPDATE public.outcome_categories SET
+  category_name = 'System Change',
+  description   = 'Indicators measuring broader systemic or institutional level change',
+  sort_order    = 3
+WHERE category_code = 'OCC-003';
+
+-- 2. Move any outcomes still on OCC-004/005/006 to OCC-001 before deleting
 UPDATE public.outcome
 SET outcome_category_id = (
   SELECT outcome_category_id FROM public.outcome_categories WHERE category_code = 'OCC-001'
+)
+WHERE outcome_category_id IN (
+  SELECT outcome_category_id FROM public.outcome_categories
+  WHERE category_code NOT IN ('OCC-001', 'OCC-002', 'OCC-003')
 );
 
--- 3. Delete the old placeholder rows (no longer referenced)
+-- 3. Delete the leftover placeholder rows
 DELETE FROM public.outcome_categories WHERE category_code NOT IN ('OCC-001', 'OCC-002', 'OCC-003');
