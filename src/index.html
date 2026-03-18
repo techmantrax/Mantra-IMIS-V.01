@@ -2826,12 +2826,12 @@ select:focus:not(:focus-visible) { outline: none; }
             const fetches = [];
             if (ocIds.length) fetches.push(
               fetch(`${GS_SB_URL}/rest/v1/indicator?outcome_id=in.(${ocIds.join(',')})&activity_id=is.null&is_active=eq.true` +
-                `&select=indicator_id,indicator_name,unit_of_measure,frequency,baseline_value,outcome_id,activity_id&order=indicator_name.asc`,
+                `&select=indicator_id,indicator_name,unit_of_measure,outcome_id,activity_id&order=indicator_name.asc`,
                 { headers: GS_SB_HDR }).then(r => r.ok ? r.json() : []).catch(() => [])
             );
             if (acIds.length) fetches.push(
               fetch(`${GS_SB_URL}/rest/v1/indicator?activity_id=in.(${acIds.join(',')})&outcome_id=is.null&is_active=eq.true` +
-                `&select=indicator_id,indicator_name,unit_of_measure,frequency,baseline_value,outcome_id,activity_id&order=indicator_name.asc`,
+                `&select=indicator_id,indicator_name,unit_of_measure,outcome_id,activity_id&order=indicator_name.asc`,
                 { headers: GS_SB_HDR }).then(r => r.ok ? r.json() : []).catch(() => [])
             );
             const allInds = (await Promise.all(fetches)).flat();
@@ -2848,8 +2848,8 @@ select:focus:not(:focus-visible) { outline: none; }
                   indicator_id: ind.indicator_id,
                   name: ind.indicator_name || '',
                   abbr: '', unit: ind.unit_of_measure || 'count',
-                  freq: ind.frequency || 'monthly',
-                  baseline: ind.baseline_value != null ? String(ind.baseline_value) : '',
+                  freq: 'monthly',   // program sets in M&E Builder
+                  baseline: '',      // program sets in M&E Builder
                   targets: {}, active: true, _fromMEBook: true,
                 })),
                 meb2NewIndRow(''),  // one blank row for adding new
@@ -8020,7 +8020,7 @@ async function mebkLoadOcContent(ocId) {
   if (!body) return;
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/indicator?outcome_id=eq.${ocId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,frequency,baseline_value&order=indicator_code.asc`,
+      `${MEBK_URL}/rest/v1/indicator?outcome_id=eq.${ocId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure&order=indicator_code.asc`,
       { headers: MEBK_HDR }
     );
     const indicators = await res.json();
@@ -8040,7 +8040,7 @@ async function mebkLoadAcContent(acId) {
   if (!body) return;
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/indicator?activity_id=eq.${acId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure,frequency,baseline_value&order=indicator_code.asc`,
+      `${MEBK_URL}/rest/v1/indicator?activity_id=eq.${acId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure&order=indicator_code.asc`,
       { headers: MEBK_HDR }
     );
     const indicators = await res.json();
@@ -8060,14 +8060,12 @@ function mebkBuildIndGrid(indicators, pfx, parentId) {
     return '<div class="mebk-no-data">No indicators yet — click "+ Add Indicator" below</div>';
   return `
     <div class="mebk-ind-grid">
-      <div class="mebk-ind-hdr" style="grid-template-columns:100px 1fr 90px 100px 70px 56px;"><span>Code</span><span>Indicator Name</span><span>Unit</span><span>Frequency</span><span>Baseline</span><span></span></div>
+      <div class="mebk-ind-hdr" style="grid-template-columns:100px 1fr 90px 56px;"><span>Code</span><span>Indicator Name</span><span>Unit</span><span></span></div>
       ${indicators.map(i => `
-        <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 100px 70px 56px;" id="mebk-ind-row-${i.indicator_id}">
+        <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 56px;" id="mebk-ind-row-${i.indicator_id}">
           <span class="mebk-ind-code">${i.indicator_code || '—'}</span>
           <span>${i.indicator_name || '—'}</span>
           <span style="color:var(--slate)">${i.unit_of_measure || '—'}</span>
-          <span style="color:var(--slate)">${i.frequency || '—'}</span>
-          <span style="color:var(--slate)">${i.baseline_value ?? '—'}</span>
           <span style="display:flex;gap:4px;align-items:center;">
             <button class="mebk-action-btn edit" title="Edit" onclick="mebkEditInd('${i.indicator_id}','${pfx}','${parentId}',${JSON.stringify(i)})">${IC.edit}</button>
             <button class="mebk-action-btn del"  title="Delete" onclick="mebkDeleteInd('${i.indicator_id}','${pfx}','${parentId}')">${IC.trash}</button>
@@ -8090,14 +8088,6 @@ function mebkBuildIndForm(pfx, parentId) {
         <option value="ratio">Ratio</option>
         <option value="yes_no">Yes / No</option>
       </select>
-      <select class="mebk-sel" id="mebk-ind-freq-${pfx}-${parentId}" style="min-width:115px;">
-        <option value="">Frequency…</option>
-        <option value="monthly">Monthly</option>
-        <option value="quarterly">Quarterly</option>
-        <option value="annually">Annually</option>
-        <option value="one_time">One Time</option>
-      </select>
-      <input class="mebk-inp mebk-inp-xs" id="mebk-ind-base-${pfx}-${parentId}" placeholder="Baseline"/>
       <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="mebkSaveIndicator('${pfx}','${parentId}')">Save</button>
       <button class="btn" style="font-size:12px;padding:6px 12px;" onclick="document.getElementById('mebk-ind-form-${pfx}-${parentId}').style.display='none'">Cancel</button>
     </div>`;
@@ -8160,18 +8150,14 @@ async function mebkSaveIndicator(pfx, parentId) {
   const name  = document.getElementById(`mebk-ind-name-${pfx}-${parentId}`)?.value.trim();
   const catId = document.getElementById(`mebk-ind-cat-${pfx}-${parentId}`)?.value;
   const unit  = document.getElementById(`mebk-ind-unit-${pfx}-${parentId}`)?.value;
-  const freq  = document.getElementById(`mebk-ind-freq-${pfx}-${parentId}`)?.value;
-  const base  = document.getElementById(`mebk-ind-base-${pfx}-${parentId}`)?.value.trim();
   if (!name)  { alert('Please enter an indicator name.'); return; }
   if (!catId) { alert('Please select an indicator type (Output / Outcome / Impact).'); return; }
   const payload = {
-    indicator_name:       name,
+    indicator_name:        name,
     indicator_category_id: catId,
-    unit_of_measure:      unit || null,
-    frequency:            freq || null,
-    baseline_value:       base !== '' ? parseFloat(base) : null,
-    is_template:          true,
-    is_active:            true
+    unit_of_measure:       unit || null,
+    is_template:           true,
+    is_active:             true
   };
   if (pfx === 'oc') payload.outcome_id  = parentId;
   else              payload.activity_id = parentId;
@@ -8182,8 +8168,7 @@ async function mebkSaveIndicator(pfx, parentId) {
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(await res.text());
-    ['name','cat','unit','base'].forEach(f => { const el = document.getElementById(`mebk-ind-${f}-${pfx}-${parentId}`); if(el) el.value=''; });
-    const fe = document.getElementById(`mebk-ind-freq-${pfx}-${parentId}`); if(fe) fe.value='';
+    ['name','cat','unit'].forEach(f => { const el = document.getElementById(`mebk-ind-${f}-${pfx}-${parentId}`); if(el) el.value=''; });
     document.getElementById(`mebk-ind-form-${pfx}-${parentId}`).style.display = 'none';
     if (pfx === 'oc') await mebkLoadOcContent(parentId);
     else              await mebkLoadAcContent(parentId);
@@ -8414,12 +8399,6 @@ function mebkEditInd(indId, pfx, parentId, indObj) {
     { v:'ratio',      l:'Ratio'          },
     { v:'yes_no',     l:'Yes / No'       }
   ];
-  const freqs = [
-    { v:'monthly',   l:'Monthly'   },
-    { v:'quarterly', l:'Quarterly' },
-    { v:'annually',  l:'Annually'  },
-    { v:'one_time',  l:'One Time'  }
-  ];
 
   const editRow = document.createElement('div');
   editRow.className = 'mebk-ind-edit-row';
@@ -8431,11 +8410,6 @@ function mebkEditInd(indId, pfx, parentId, indObj) {
       <option value="">Unit…</option>
       ${units.map(u=>`<option value="${u.v}" ${indObj.unit_of_measure===u.v?'selected':''}>${u.l}</option>`).join('')}
     </select>
-    <select id="mebk-ind-edit-freq-${indId}">
-      <option value="">Freq…</option>
-      ${freqs.map(f=>`<option value="${f.v}" ${indObj.frequency===f.v?'selected':''}>${f.l}</option>`).join('')}
-    </select>
-    <input id="mebk-ind-edit-base-${indId}" value="${indObj.baseline_value??''}" placeholder="Baseline" style="width:60px;"/>
     <span style="display:flex;gap:3px;flex-wrap:wrap;">
       <button class="mebk-ind-save-btn"   onclick="mebkSaveEditInd('${indId}','${pfx}','${parentId}')">${IC.check}</button>
       <button class="mebk-ind-cancel-btn" onclick="mebkCancelEditInd('${indId}')">${IC.x}</button>
@@ -8453,8 +8427,6 @@ function mebkCancelEditInd(indId) {
 async function mebkSaveEditInd(indId, pfx, parentId) {
   const name = document.getElementById(`mebk-ind-edit-name-${indId}`)?.value.trim();
   const unit = document.getElementById(`mebk-ind-edit-unit-${indId}`)?.value;
-  const freq = document.getElementById(`mebk-ind-edit-freq-${indId}`)?.value;
-  const base = document.getElementById(`mebk-ind-edit-base-${indId}`)?.value.trim();
   if (!name) { alert('Indicator name cannot be empty.'); return; }
   try {
     const res = await fetch(`${MEBK_URL}/rest/v1/indicator?indicator_id=eq.${indId}`, {
@@ -8462,9 +8434,7 @@ async function mebkSaveEditInd(indId, pfx, parentId) {
       headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
       body:    JSON.stringify({
         indicator_name:  name,
-        unit_of_measure: unit || null,
-        frequency:       freq || null,
-        baseline_value:  base !== '' ? parseFloat(base) : null
+        unit_of_measure: unit || null
       })
     });
     if (!res.ok) throw new Error(await res.text());
