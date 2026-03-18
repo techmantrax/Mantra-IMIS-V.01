@@ -2185,6 +2185,14 @@ select:focus:not(:focus-visible) { outline: none; }
         .mebk-cat-sel.has-filter{border-color:var(--ok);color:var(--ok);font-weight:600;}
         #mebk-panel-ac .mebk-cat-sel.has-filter{border-color:var(--blue);color:var(--blue);}
 
+        /* ── Inline new-category form ── */
+        .mebk-newcat-form{display:none;align-items:center;gap:6px;padding:6px 10px;background:var(--mist-3);border-radius:var(--r-sm);margin-top:6px;border:1.5px dashed var(--mist-2);}
+        .mebk-newcat-form input{flex:1;height:30px;padding:0 10px;font-size:12px;border:1.5px solid var(--mist-2);border-radius:var(--r-sm);font-family:var(--sans);background:var(--white);}
+        .mebk-newcat-form input:focus{outline:none;border-color:var(--ok);}
+        .mebk-newcat-save{height:30px;padding:0 14px;font-size:12px;font-weight:600;background:var(--ok);color:#fff;border:none;border-radius:var(--r-sm);cursor:pointer;font-family:var(--sans);}
+        .mebk-newcat-cancel{height:30px;padding:0 10px;font-size:12px;background:none;border:1.5px solid var(--mist-2);border-radius:var(--r-sm);cursor:pointer;color:var(--slate);font-family:var(--sans);}
+        .mebk-newcat-save:disabled{opacity:.5;cursor:not-allowed;}
+
         /* ── CSS toggle switch ── */
         .mebk-sw{display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;}
         .mebk-sw-track{width:30px;height:17px;border-radius:999px;background:var(--mist);border:1.5px solid var(--mist-2);position:relative;transition:background .22s,border-color .22s;flex-shrink:0;}
@@ -2260,11 +2268,16 @@ select:focus:not(:focus-visible) { outline: none; }
               </select>
               <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;white-space:nowrap;" onclick="mebkShowOcForm()">+ Add Outcome</button>
             </div>
-            <div class="mebk-add-form oc-form" id="mebk-add-oc-form">
+            <div class="mebk-add-form oc-form" id="mebk-add-oc-form" style="flex-wrap:wrap;">
               <input class="mebk-inp mebk-inp-lg" id="mebk-oc-stmt" placeholder="Outcome statement…" onkeydown="if(event.key==='Enter')mebkSaveOutcome()"/>
-              <select class="mebk-sel" id="mebk-oc-cat-sel"><option value="">Category…</option></select>
+              <select class="mebk-sel" id="mebk-oc-cat-sel" onchange="mebkOnCatSelChange('oc',this)"><option value="">Category…</option></select>
               <button class="btn btn-ok" style="font-size:12px;padding:7px 14px;" id="mebk-oc-save-btn" onclick="mebkSaveOutcome()">Save Outcome</button>
-              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="document.getElementById('mebk-add-oc-form').style.display='none'">Cancel</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="document.getElementById('mebk-add-oc-form').style.display='none';mebkHideNewCatForm('oc')">Cancel</button>
+              <div class="mebk-newcat-form" id="mebk-newcat-form-oc" style="width:100%;">
+                <input id="mebk-newcat-inp-oc" placeholder="New category name…" onkeydown="if(event.key==='Enter')mebkSaveNewCat('oc')"/>
+                <button class="mebk-newcat-save" id="mebk-newcat-save-oc" onclick="mebkSaveNewCat('oc')">Save</button>
+                <button class="mebk-newcat-cancel" onclick="mebkHideNewCatForm('oc')">Cancel</button>
+              </div>
             </div>
             <div id="mebk-outcomes-list"><div class="mebk-loading">Loading…</div></div>
           </div>
@@ -2283,11 +2296,16 @@ select:focus:not(:focus-visible) { outline: none; }
               </select>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkShowAcForm()">+ Add Activity</button>
             </div>
-            <div class="mebk-add-form ac-form" id="mebk-add-ac-form">
+            <div class="mebk-add-form ac-form" id="mebk-add-ac-form" style="flex-wrap:wrap;">
               <input class="mebk-inp mebk-inp-lg" id="mebk-ac-name" placeholder="Activity name…" onkeydown="if(event.key==='Enter')mebkSaveActivity()"/>
-              <select class="mebk-sel" id="mebk-ac-cat-sel"><option value="">Category…</option></select>
+              <select class="mebk-sel" id="mebk-ac-cat-sel" onchange="mebkOnCatSelChange('ac',this)"><option value="">Category…</option></select>
               <button class="btn" style="font-size:12px;padding:7px 14px;background:var(--blue);color:#fff;border-color:var(--blue);" id="mebk-ac-save-btn" onclick="mebkSaveActivity()">Save Activity</button>
-              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="document.getElementById('mebk-add-ac-form').style.display='none'">Cancel</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="document.getElementById('mebk-add-ac-form').style.display='none';mebkHideNewCatForm('ac')">Cancel</button>
+              <div class="mebk-newcat-form" id="mebk-newcat-form-ac" style="width:100%;">
+                <input id="mebk-newcat-inp-ac" placeholder="New category name…" onkeydown="if(event.key==='Enter')mebkSaveNewCat('ac')"/>
+                <button class="mebk-newcat-save" id="mebk-newcat-save-ac" onclick="mebkSaveNewCat('ac')">Save</button>
+                <button class="mebk-newcat-cancel" onclick="mebkHideNewCatForm('ac')">Cancel</button>
+              </div>
             </div>
             <div id="mebk-activities-list"><div class="mebk-loading">Loading…</div></div>
           </div>
@@ -7842,16 +7860,10 @@ async function mebkLoadCategories() {
     if (Array.isArray(ocCats)) {
       mebkCats.outcomes = ocCats;
       window.mebkOcCats = ocCats;
-      const sel = document.getElementById('mebk-oc-cat-sel');
-      if (sel) sel.innerHTML = '<option value="">Category…</option>' +
-        ocCats.map(c => `<option value="${c.outcome_category_id}">${c.category_name}</option>`).join('');
     }
     if (Array.isArray(acCats)) {
       mebkCats.activities = acCats;
       window.mebkAcCats = acCats;
-      const sel = document.getElementById('mebk-ac-cat-sel');
-      if (sel) sel.innerHTML = '<option value="">Category…</option>' +
-        acCats.map(c => `<option value="${c.activity_category_id}">${c.category_name}</option>`).join('');
     }
     if (Array.isArray(indCats)) {
       window.mebkIndCats = indCats.map(c => ({ id: c.indicator_category_id, code: c.category_code, name: c.category_name }));
@@ -7863,30 +7875,97 @@ async function mebkLoadCategories() {
   } catch(e) { /* silent */ }
 }
 
+// ── Sync all category selects for a tab (form + filter) ────
+function mebkSyncCatSelects(tab) {
+  const isOc    = tab === 'oc';
+  const cats    = isOc ? (window.mebkOcCats || []) : (window.mebkAcCats || []);
+  const idKey   = isOc ? 'outcome_category_id' : 'activity_category_id';
+  const catOpts = cats.map(c => `<option value="${c[idKey]}">${c.category_name}</option>`).join('');
+  const addOpt  = `<option value="__new__" style="color:var(--ok);font-weight:600;">+ Add new category…</option>`;
+
+  // Form select (Category… + existing + add new)
+  const formSel = document.getElementById(`mebk-${tab}-cat-sel`);
+  if (formSel) {
+    const cur = formSel.value;
+    formSel.innerHTML = `<option value="">Category…</option>${catOpts}${addOpt}`;
+    if (cur && cur !== '__new__') formSel.value = cur;
+  }
+
+  // Filter dropdown (All Categories + existing — no add new here)
+  const filterSel = document.getElementById(`mebk-cat-sel-${tab}`);
+  if (filterSel) {
+    const cur = filterSel.value;
+    filterSel.innerHTML = `<option value="">All Categories</option>${catOpts}`;
+    if (cur) filterSel.value = cur;
+  }
+}
+
+// Called after mebkLoadCategories resolves
 function mebkRenderCatPills() {
-  // Populate category dropdowns after categories load
-  const ocSel = document.getElementById('mebk-cat-sel-oc');
-  if (ocSel) {
-    const cats = window.mebkOcCats || [];
-    ocSel.innerHTML = '<option value="">All Categories</option>'
-      + cats.map(c => `<option value="${c.outcome_category_id}">${c.category_name}</option>`).join('');
-  }
-  const acSel = document.getElementById('mebk-cat-sel-ac');
-  if (acSel) {
-    const cats = window.mebkAcCats || [];
-    acSel.innerHTML = '<option value="">All Categories</option>'
-      + cats.map(c => `<option value="${c.activity_category_id}">${c.category_name}</option>`).join('');
-  }
+  mebkSyncCatSelects('oc');
+  mebkSyncCatSelects('ac');
 }
 
 function mebkSetCatFilter(tab, catId) {
   window.mebkCatFilter = window.mebkCatFilter || {};
   window.mebkCatFilter[tab] = catId;
-  // Highlight dropdown border when a category is active
   const sel = document.getElementById(`mebk-cat-sel-${tab}`);
   if (sel) sel.classList.toggle('has-filter', !!catId);
   if (tab === 'oc') mebkLoadOutcomes();
   else              mebkLoadActivities();
+}
+
+// ── Detect "+ Add new category…" selection ──────────
+function mebkOnCatSelChange(tab, sel) {
+  if (sel.value === '__new__') {
+    sel.value = ''; // reset select
+    mebkShowNewCatForm(tab);
+  }
+}
+
+function mebkShowNewCatForm(tab) {
+  const form = document.getElementById(`mebk-newcat-form-${tab}`);
+  if (form) { form.style.display = 'flex'; document.getElementById(`mebk-newcat-inp-${tab}`)?.focus(); }
+}
+
+function mebkHideNewCatForm(tab) {
+  const form = document.getElementById(`mebk-newcat-form-${tab}`);
+  if (form) { form.style.display = 'none'; const inp = document.getElementById(`mebk-newcat-inp-${tab}`); if (inp) inp.value = ''; }
+}
+
+// ── Save new category to DB, update global state ────
+async function mebkSaveNewCat(tab) {
+  const inp  = document.getElementById(`mebk-newcat-inp-${tab}`);
+  const name = inp?.value.trim();
+  if (!name) { inp?.focus(); return; }
+  const btn = document.getElementById(`mebk-newcat-save-${tab}`);
+  if (btn) btn.disabled = true;
+  try {
+    const isOc  = tab === 'oc';
+    const table = isOc ? 'outcome_categories' : 'activity_category';
+    const body  = isOc
+      ? { category_name: name, category_code: 'OCC-AUTO-' + Date.now(), sort_order: 99, is_active: true }
+      : { category_name: name, category_code: 'ACC-AUTO-' + Date.now(), sort_order: 99, is_active: true };
+    const res = await fetch(`${MEBK_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const [newCat] = await res.json();
+    // Update global cache
+    if (isOc) window.mebkOcCats = [...(window.mebkOcCats || []), newCat];
+    else      window.mebkAcCats = [...(window.mebkAcCats || []), newCat];
+    // Sync all selects
+    mebkSyncCatSelects(tab);
+    // Auto-select new category in form select
+    const idKey   = isOc ? 'outcome_category_id' : 'activity_category_id';
+    const formSel = document.getElementById(`mebk-${tab}-cat-sel`);
+    if (formSel && newCat[idKey]) formSel.value = newCat[idKey];
+    mebkHideNewCatForm(tab);
+    mebkToast(`Category "${name}" added ✓`);
+  } catch(e) { alert('Error saving category: ' + e.message); }
+  if (btn) btn.disabled = false;
 }
 
 // ── Tab switch ──────────────────────────────────────
