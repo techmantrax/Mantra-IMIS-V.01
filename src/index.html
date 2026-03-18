@@ -2184,6 +2184,18 @@ select:focus:not(:focus-visible) { outline: none; }
         .mebk-cat-sel:focus{outline:none;border-color:var(--ok);}
         .mebk-cat-sel.has-filter{border-color:var(--ok);color:var(--ok);font-weight:600;}
         #mebk-panel-ac .mebk-cat-sel.has-filter{border-color:var(--blue);color:var(--blue);}
+        #mebk-panel-im .mebk-cat-sel.has-filter{border-color:#7c3aed;color:#7c3aed;}
+        .mebk-tab.im{color:#7c3aed;}
+        .mebk-tab.im.active,.mebk-tab.im:hover{color:#7c3aed;border-color:#7c3aed;}
+        #mebk-filter-im .mebk-filter-pill.sel{color:#7c3aed;}
+        .mebk-im-code{font-size:10px;font-weight:700;color:#7c3aed;font-family:var(--mono);background:#f5f3ff;padding:2px 7px;border-radius:4px;flex-shrink:0;}
+        .mebk-im-card{border:1px solid var(--mist-2);border-radius:var(--r-md);margin-bottom:8px;overflow:hidden;background:var(--white);}
+        .mebk-im-card.inactive{opacity:.6;}
+        .mebk-im-hd{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;}
+        .mebk-im-hd:hover{background:var(--mist-3);}
+        .mebk-im-stmt{flex:1;font-size:13px;font-weight:500;color:var(--ink);}
+        .mebk-im-body{padding:12px 14px 14px;border-top:1px solid var(--mist-2);background:var(--mist-3);}
+        .mebk-im-cat-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:#f5f3ff;color:#7c3aed;font-weight:500;flex-shrink:0;}
 
         /* ── Inline new-category form ── */
         .mebk-newcat-form{display:none;align-items:center;gap:6px;padding:6px 10px;background:var(--mist-3);border-radius:var(--r-sm);margin-top:6px;border:1.5px dashed var(--mist-2);}
@@ -2252,6 +2264,7 @@ select:focus:not(:focus-visible) { outline: none; }
           <div class="mebk-tabs">
             <button class="mebk-tab oc active" id="mebk-tab-oc" onclick="mebkSwitchTab('oc')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg> Outcomes</button>
             <button class="mebk-tab ac" id="mebk-tab-ac" onclick="mebkSwitchTab('ac')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Activities</button>
+            <button class="mebk-tab im" id="mebk-tab-im" onclick="mebkSwitchTab('im')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Impact / Goals</button>
           </div>
 
           <!-- ── OUTCOMES PANEL ── -->
@@ -2308,6 +2321,34 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
             </div>
             <div id="mebk-activities-list"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── IMPACT / GOALS PANEL ── -->
+          <div id="mebk-panel-im" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-im" placeholder="Search impact goals…" oninput="mebkSearch('im',this.value)"/>
+              <div class="mebk-filter-pills" id="mebk-filter-im">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-im-active"   onclick="mebkSetFilter('im','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-im-all"      onclick="mebkSetFilter('im','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-im-inactive" onclick="mebkSetFilter('im','inactive')">Inactive</button>
+              </div>
+              <select class="mebk-cat-sel" id="mebk-cat-sel-im" onchange="mebkSetCatFilter('im',this.value)">
+                <option value="">All Categories</option>
+              </select>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#7c3aed;color:#fff;border-color:#7c3aed;" onclick="mebkShowImForm()">+ Add Impact Goal</button>
+            </div>
+            <div class="mebk-add-form im-form" id="mebk-add-im-form" style="flex-wrap:wrap;">
+              <input class="mebk-inp mebk-inp-lg" id="mebk-im-stmt" placeholder="Impact goal statement…" onkeydown="if(event.key==='Enter')mebkSaveImpact()"/>
+              <select class="mebk-sel" id="mebk-im-cat-sel" onchange="mebkOnCatSelChange('im',this)"><option value="">Category…</option></select>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#7c3aed;color:#fff;border-color:#7c3aed;" id="mebk-im-save-btn" onclick="mebkSaveImpact()">Save Impact Goal</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="document.getElementById('mebk-add-im-form').style.display='none';mebkHideNewCatForm('im')">Cancel</button>
+              <div class="mebk-newcat-form" id="mebk-newcat-form-im" style="width:100%;">
+                <input id="mebk-newcat-inp-im" placeholder="New category name…" onkeydown="if(event.key==='Enter')mebkSaveNewCat('im')"/>
+                <button class="mebk-newcat-save" id="mebk-newcat-save-im" onclick="mebkSaveNewCat('im')">Save</button>
+                <button class="mebk-newcat-cancel" onclick="mebkHideNewCatForm('im')">Cancel</button>
+              </div>
+            </div>
+            <div id="mebk-impacts-list"><div class="mebk-loading">Loading…</div></div>
           </div>
 
         </div>
@@ -7837,49 +7878,45 @@ const mebkState = { loading: false };
 // Mapping happens during LFA Setup per stakeholder.
 // ═══════════════════════════════════════════════════
 
-window.mebkCats    = { outcomes: [], activities: [] };
+window.mebkCats    = { outcomes: [], activities: [], impacts: [] };
 window.mebkIndCats = []; // [{id, code, name}] — Output/Outcome/Impact
 
 async function mebkInit() {
   await mebkLoadCategories();
-  await Promise.all([mebkLoadStats(), mebkLoadOutcomes(), mebkLoadActivities()]);
+  await Promise.all([mebkLoadStats(), mebkLoadOutcomes(), mebkLoadActivities(), mebkLoadImpacts()]);
 }
 
 // ── Load & cache categories ─────────────────────────
 async function mebkLoadCategories() {
   try {
-    const [ocRes, acRes, indRes] = await Promise.all([
+    const [ocRes, acRes, indRes, imRes] = await Promise.all([
       fetch(`${MEBK_URL}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
       fetch(`${MEBK_URL}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
       fetch(`${MEBK_URL}/rest/v1/indicator_category?select=indicator_category_id,category_code,category_name&order=category_code.asc`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/impact_category?is_active=eq.true&select=impact_category_id,category_name&order=sort_order.asc`, { headers: MEBK_HDR }),
     ]);
     const ocCats  = await ocRes.json();
     const acCats  = await acRes.json();
     const indCats = await indRes.json();
+    const imCats  = imRes.ok ? await imRes.json() : [];
 
-    if (Array.isArray(ocCats)) {
-      mebkCats.outcomes = ocCats;
-      window.mebkOcCats = ocCats;
-    }
-    if (Array.isArray(acCats)) {
-      mebkCats.activities = acCats;
-      window.mebkAcCats = acCats;
-    }
+    if (Array.isArray(ocCats)) { mebkCats.outcomes = ocCats;    window.mebkOcCats = ocCats; }
+    if (Array.isArray(acCats)) { mebkCats.activities = acCats;  window.mebkAcCats = acCats; }
+    if (Array.isArray(imCats)) { mebkCats.impacts = imCats;     window.mebkImCats = imCats; }
     if (Array.isArray(indCats)) {
       window.mebkIndCats = indCats.map(c => ({ id: c.indicator_category_id, code: c.category_code, name: c.category_name }));
       window.mebkIcIds = {};
       indCats.forEach(c => { window.mebkIcIds[c.category_code] = c.indicator_category_id; });
     }
-    // Render category filter pills once categories are loaded
     mebkRenderCatPills();
   } catch(e) { /* silent */ }
 }
 
 // ── Sync all category selects for a tab (form + filter) ────
 function mebkSyncCatSelects(tab) {
-  const isOc    = tab === 'oc';
-  const cats    = isOc ? (window.mebkOcCats || []) : (window.mebkAcCats || []);
-  const idKey   = isOc ? 'outcome_category_id' : 'activity_category_id';
+  const cats  = tab === 'oc' ? (window.mebkOcCats||[]) : tab === 'im' ? (window.mebkImCats||[]) : (window.mebkAcCats||[]);
+  const idKey = tab === 'oc' ? 'outcome_category_id' : tab === 'im' ? 'impact_category_id' : 'activity_category_id';
+  const isOc  = tab === 'oc'; // kept for unused refs below
   const catOpts = cats.map(c => `<option value="${c[idKey]}">${c.category_name}</option>`).join('');
   const addOpt  = `<option value="__new__" style="color:var(--ok);font-weight:600;">+ Add new category…</option>`;
 
@@ -7904,6 +7941,7 @@ function mebkSyncCatSelects(tab) {
 function mebkRenderCatPills() {
   mebkSyncCatSelects('oc');
   mebkSyncCatSelects('ac');
+  mebkSyncCatSelects('im');
 }
 
 function mebkSetCatFilter(tab, catId) {
@@ -7912,7 +7950,8 @@ function mebkSetCatFilter(tab, catId) {
   const sel = document.getElementById(`mebk-cat-sel-${tab}`);
   if (sel) sel.classList.toggle('has-filter', !!catId);
   if (tab === 'oc') mebkLoadOutcomes();
-  else              mebkLoadActivities();
+  else if (tab === 'ac') mebkLoadActivities();
+  else mebkLoadImpacts();
 }
 
 // ── Detect "+ Add new category…" selection ──────────
@@ -7941,11 +7980,9 @@ async function mebkSaveNewCat(tab) {
   const btn = document.getElementById(`mebk-newcat-save-${tab}`);
   if (btn) btn.disabled = true;
   try {
-    const isOc  = tab === 'oc';
-    const table = isOc ? 'outcome_categories' : 'activity_category';
-    const body  = isOc
-      ? { category_name: name, category_code: 'OCC-AUTO-' + Date.now(), sort_order: 99, is_active: true }
-      : { category_name: name, category_code: 'ACC-AUTO-' + Date.now(), sort_order: 99, is_active: true };
+    const table = tab === 'oc' ? 'outcome_categories' : tab === 'im' ? 'impact_category' : 'activity_category';
+    const pfxMap = { oc: 'OCC', ac: 'ACC', im: 'IPC' };
+    const body = { category_name: name, category_code: `${pfxMap[tab]||'CAT'}-AUTO-${Date.now()}`, sort_order: 99, is_active: true };
     const res = await fetch(`${MEBK_URL}/rest/v1/${table}`, {
       method: 'POST',
       headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
@@ -7954,8 +7991,9 @@ async function mebkSaveNewCat(tab) {
     if (!res.ok) throw new Error(await res.text());
     const [newCat] = await res.json();
     // Update global cache
-    if (isOc) window.mebkOcCats = [...(window.mebkOcCats || []), newCat];
-    else      window.mebkAcCats = [...(window.mebkAcCats || []), newCat];
+    if (tab === 'oc')      window.mebkOcCats = [...(window.mebkOcCats||[]), newCat];
+    else if (tab === 'ac') window.mebkAcCats = [...(window.mebkAcCats||[]), newCat];
+    else                   window.mebkImCats = [...(window.mebkImCats||[]), newCat];
     // Sync all selects
     mebkSyncCatSelects(tab);
     // Auto-select new category in form select
@@ -7970,10 +8008,11 @@ async function mebkSaveNewCat(tab) {
 
 // ── Tab switch ──────────────────────────────────────
 function mebkSwitchTab(tab) {
-  document.getElementById('mebk-panel-oc').style.display = tab === 'oc' ? '' : 'none';
-  document.getElementById('mebk-panel-ac').style.display = tab === 'ac' ? '' : 'none';
-  document.getElementById('mebk-tab-oc').classList.toggle('active', tab === 'oc');
-  document.getElementById('mebk-tab-ac').classList.toggle('active', tab === 'ac');
+  ['oc','ac','im'].forEach(t => {
+    document.getElementById(`mebk-panel-${t}`).style.display = tab === t ? '' : 'none';
+    document.getElementById(`mebk-tab-${t}`).classList.toggle('active', tab === t);
+  });
+  if (tab === 'im' && !window.mebkImLoaded) { mebkLoadImpacts(); window.mebkImLoaded = true; }
 }
 
 // ── Show add forms ──────────────────────────────────
@@ -8275,9 +8314,9 @@ async function mebkSaveIndicator(pfx, parentId) {
   const name = document.getElementById(`mebk-ind-name-${pfx}-${parentId}`)?.value.trim();
   const unit = document.getElementById(`mebk-ind-unit-${pfx}-${parentId}`)?.value;
   if (!name) { alert('Please enter an indicator name.'); return; }
-  // Auto-assign superset type: activity → IC-001 Output, outcome → IC-002 Outcome
+  // Auto-assign superset type: activity → IC-001, outcome → IC-002, impact → IC-003
   const icIds = window.mebkIcIds || {};
-  const autoIndCatId = pfx === 'ac' ? icIds['IC-001'] : icIds['IC-002'];
+  const autoIndCatId = pfx === 'ac' ? icIds['IC-001'] : pfx === 'im' ? icIds['IC-003'] : icIds['IC-002'];
   const payload = {
     indicator_name:        name,
     indicator_category_id: autoIndCatId || null,
@@ -8285,8 +8324,9 @@ async function mebkSaveIndicator(pfx, parentId) {
     is_template:           true,
     is_active:             true,
   };
-  if (pfx === 'oc') payload.outcome_id  = parentId;
-  else              payload.activity_id = parentId;
+  if (pfx === 'oc')      payload.outcome_id  = parentId;
+  else if (pfx === 'ac') payload.activity_id = parentId;
+  else                   payload.impact_id   = parentId;
   try {
     const res = await fetch(`${MEBK_URL}/rest/v1/indicator`, {
       method: 'POST',
@@ -8296,18 +8336,185 @@ async function mebkSaveIndicator(pfx, parentId) {
     if (!res.ok) throw new Error(await res.text());
     ['name','unit'].forEach(f => { const el = document.getElementById(`mebk-ind-${f}-${pfx}-${parentId}`); if(el) el.value=''; });
     document.getElementById(`mebk-ind-form-${pfx}-${parentId}`).style.display = 'none';
-    if (pfx === 'oc') await mebkLoadOcContent(parentId);
-    else              await mebkLoadAcContent(parentId);
+    if (pfx === 'oc')      await mebkLoadOcContent(parentId);
+    else if (pfx === 'ac') await mebkLoadAcContent(parentId);
+    else                   await mebkLoadImContent(parentId);
     await mebkLoadStats();
     mebkToast('Indicator saved ✓');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ════════════════════════════════════════════════════
+// IMPACT / GOALS
+// ════════════════════════════════════════════════════
+function mebkShowImForm() {
+  const f = document.getElementById('mebk-add-im-form');
+  if (f) { f.style.display = 'flex'; document.getElementById('mebk-im-stmt')?.focus(); }
+}
+
+async function mebkLoadImpacts() {
+  const el = document.getElementById('mebk-impacts-list');
+  if (el) el.innerHTML = '<div class="mebk-loading">Loading…</div>';
+  const filterVal = (window.mebkFilter = window.mebkFilter || {}).im || 'active';
+  const activeFilter = filterVal === 'active' ? '&is_active=eq.true' : filterVal === 'inactive' ? '&is_active=eq.false' : '';
+  const catId = (window.mebkCatFilter = window.mebkCatFilter || {}).im || '';
+  const catFilter = catId ? `&impact_category_id=eq.${catId}` : '';
+  try {
+    const res = await fetch(
+      `${MEBK_URL}/rest/v1/impact?is_template=eq.true${activeFilter}${catFilter}&select=impact_id,impact_code,impact_statement,is_active,impact_category(category_name)&order=is_active.desc,impact_code.asc&limit=300`,
+      { headers: MEBK_HDR }
+    );
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+    const el2 = document.getElementById('mebk-impacts-list');
+    if (!el2) return;
+    if (!data.length) {
+      const msg = filterVal === 'inactive' ? 'No inactive impact goals' : 'No impact goals yet — click "+ Add Impact Goal" to start';
+      el2.innerHTML = `<div class="mebk-empty"><div class="mebk-empty-icon">🌐</div>${msg}</div>`;
+      return;
+    }
+    el2.innerHTML = data.map(im => {
+      const isActive = im.is_active !== false;
+      const catName  = im.impact_category?.category_name || '';
+      const sw = mebkSwitch(isActive, `mebkSetActiveIm('${im.impact_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
+      return `
+      <div class="mebk-im-card${isActive ? '' : ' inactive'}" id="mebk-im-${im.impact_id}">
+        <div class="mebk-im-hd" onclick="mebkToggleIm('${im.impact_id}')">
+          <span class="mebk-im-code">${im.impact_code || '—'}</span>
+          <span class="mebk-im-stmt">${im.impact_statement || '—'}</span>
+          ${catName ? `<span class="mebk-im-cat-badge">${catName}</span>` : ''}
+          <button class="mebk-action-btn edit" title="Edit" onclick="event.stopPropagation();mebkEditIm('${im.impact_id}',${JSON.stringify(im).replace(/"/g,'&quot;')})">${IC.edit}</button>
+          ${sw}
+          <span class="mebk-chevron">${IC.chevronDown}</span>
+        </div>
+        <div class="mebk-im-body" id="mebk-im-body-${im.impact_id}" style="display:none;"></div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    const el2 = document.getElementById('mebk-impacts-list');
+    if (el2) el2.innerHTML = `<div class="mebk-err">${IC.warning} ${e.message}</div>`;
+  }
+}
+
+async function mebkSaveImpact() {
+  const stmt  = document.getElementById('mebk-im-stmt')?.value.trim();
+  const catId = document.getElementById('mebk-im-cat-sel')?.value;
+  if (!stmt)  { alert('Please enter an impact goal statement.'); return; }
+  if (!catId) { alert('Please select a category.'); return; }
+  const btn = document.getElementById('mebk-im-save-btn');
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/impact`, {
+      method: 'POST', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ impact_statement: stmt, impact_category_id: catId, is_template: true, is_active: true })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    document.getElementById('mebk-im-stmt').value = '';
+    document.getElementById('mebk-im-cat-sel').value = '';
+    document.getElementById('mebk-add-im-form').style.display = 'none';
+    await Promise.all([mebkLoadImpacts(), mebkLoadStats()]);
+    mebkToast('Impact goal added ✓');
+  } catch(e) { alert('Error: ' + e.message); }
+  if (btn) btn.disabled = false;
+}
+
+async function mebkToggleIm(imId) {
+  const card = document.getElementById(`mebk-im-${imId}`);
+  if (!card) return;
+  const body = document.getElementById(`mebk-im-body-${imId}`);
+  const chevron = card.querySelector('.mebk-chevron');
+  if (body.style.display !== 'none') {
+    body.style.display = 'none';
+    if (chevron) chevron.style.transform = '';
+    return;
+  }
+  body.style.display = 'block';
+  if (chevron) chevron.style.transform = 'rotate(180deg)';
+  await mebkLoadImContent(imId);
+}
+
+async function mebkLoadImContent(imId) {
+  const body = document.getElementById(`mebk-im-body-${imId}`);
+  if (!body) return;
+  try {
+    const res = await fetch(
+      `${MEBK_URL}/rest/v1/indicator?impact_id=eq.${imId}&is_template=eq.true&is_active=eq.true&select=indicator_id,indicator_code,indicator_name,unit_of_measure&order=indicator_code.asc`,
+      { headers: MEBK_HDR }
+    );
+    let indicators = res.ok ? await res.json() : [];
+    if (!Array.isArray(indicators)) indicators = [];
+    body.innerHTML = `
+      <div class="mebk-section">
+        <div class="mebk-section-lbl">${IC.chart} Impact Indicators</div>
+        ${mebkBuildIndGrid(indicators, 'im', imId)}
+        ${mebkBuildIndForm('im', imId)}
+        <button class="mebk-add-btn ind" onclick="mebkShowIndForm('im','${imId}')">+ Add Indicator</button>
+      </div>`;
+  } catch(e) { body.innerHTML = `<div class="mebk-err">${IC.warning} ${e.message}</div>`; }
+}
+
+async function mebkSetActiveIm(imId, newActive) {
+  const action = newActive ? 'Reactivate' : 'Deactivate';
+  if (!confirm(`${action} this impact goal?`)) return;
+  try {
+    await fetch(`${MEBK_URL}/rest/v1/impact?impact_id=eq.${imId}`, {
+      method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ is_active: newActive })
+    });
+    await Promise.all([mebkLoadImpacts(), mebkLoadStats()]);
+    mebkToast(newActive ? 'Impact goal reactivated ✓' : 'Impact goal deactivated ✓');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function mebkEditIm(imId, imObj) {
+  if (typeof imObj === 'string') try { imObj = JSON.parse(imObj); } catch { imObj = {}; }
+  const row = document.getElementById(`mebk-im-${imId}`);
+  if (!row || row.dataset.editing) return;
+  row.dataset.editing = '1';
+  const hd = row.querySelector('.mebk-im-hd');
+  if (!hd) return;
+  const editRow = document.createElement('div');
+  editRow.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--mist-3);border-top:1px solid var(--mist-2);flex-wrap:wrap;';
+  editRow.id = `mebk-im-edit-${imId}`;
+  const catOpts = (window.mebkImCats||[]).map(c=>`<option value="${c.impact_category_id}" ${imObj.impact_category_id===c.impact_category_id?'selected':''}>${c.category_name}</option>`).join('');
+  editRow.innerHTML = `
+    <span style="font-size:10px;color:#7c3aed;font-family:var(--mono);font-weight:700;">${imObj.impact_code||'—'}</span>
+    <input id="mebk-im-edit-stmt-${imId}" value="${(imObj.impact_statement||'').replace(/"/g,'&quot;')}" style="flex:1;min-width:200px;height:30px;padding:0 10px;font-size:12px;border:1.5px solid var(--mist-2);border-radius:var(--r-sm);" placeholder="Impact statement…"/>
+    <select id="mebk-im-edit-cat-${imId}" style="height:30px;padding:0 8px;font-size:12px;border:1.5px solid var(--mist-2);border-radius:var(--r-sm);">
+      <option value="">Category…</option>${catOpts}
+    </select>
+    <button class="mebk-ind-save-btn"   onclick="mebkSaveEditIm('${imId}')">${IC.check}</button>
+    <button class="mebk-ind-cancel-btn" onclick="mebkCancelEditIm('${imId}')">${IC.x}</button>`;
+  row.appendChild(editRow);
+  document.getElementById(`mebk-im-edit-stmt-${imId}`)?.focus();
+}
+
+function mebkCancelEditIm(imId) {
+  document.getElementById(`mebk-im-edit-${imId}`)?.remove();
+  const row = document.getElementById(`mebk-im-${imId}`);
+  if (row) delete row.dataset.editing;
+}
+
+async function mebkSaveEditIm(imId) {
+  const stmt  = document.getElementById(`mebk-im-edit-stmt-${imId}`)?.value.trim();
+  const catId = document.getElementById(`mebk-im-edit-cat-${imId}`)?.value;
+  if (!stmt) { alert('Impact statement cannot be empty.'); return; }
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/impact?impact_id=eq.${imId}`, {
+      method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ impact_statement: stmt, impact_category_id: catId || null })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    await mebkLoadImpacts();
+    mebkToast('Impact goal updated ✓');
   } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── Search (active tab) ─────────────────────────────
 function mebkSearch(tab, q) {
   const lq    = (q || '').toLowerCase();
-  const listId = tab === 'oc' ? 'mebk-outcomes-list' : 'mebk-activities-list';
-  const codeClass = tab === 'oc' ? '.mebk-oc-code' : '.mebk-ac-code';
+  const listId = tab === 'oc' ? 'mebk-outcomes-list' : tab === 'im' ? 'mebk-impacts-list' : 'mebk-activities-list';
+  const codeClass = tab === 'oc' ? '.mebk-oc-code' : tab === 'im' ? '.mebk-im-code' : '.mebk-ac-code';
   document.querySelectorAll(`#${listId} > div`).forEach(card => {
     const txt  = (card.querySelector('.mebk-stmt')?.textContent || '').toLowerCase();
     const code = (card.querySelector(codeClass)?.textContent || '').toLowerCase();
@@ -8441,17 +8648,15 @@ async function mebkDeleteAc(acId) {
 
 // ── Status filter pill controller ───────────────────
 function mebkSetFilter(tab, value) {
-  // update stored state
   window.mebkFilter = window.mebkFilter || {};
   window.mebkFilter[tab] = value;
-  // update pill highlight
   ['active','all','inactive'].forEach(v => {
     const pill = document.getElementById(`mebk-fpill-${tab}-${v}`);
     if (pill) pill.classList.toggle('sel', v === value);
   });
-  // reload list
   if (tab === 'oc') mebkLoadOutcomes();
-  else              mebkLoadActivities();
+  else if (tab === 'ac') mebkLoadActivities();
+  else mebkLoadImpacts();
 }
 
 // Set active status for an outcome (true = activate, false = deactivate)
@@ -8566,8 +8771,9 @@ async function mebkSaveEditInd(indId, pfx, parentId) {
     });
     if (!res.ok) throw new Error(await res.text());
     // reload indicators in the parent card body
-    if (pfx === 'oc') await mebkLoadOcContent(parentId);
-    else              await mebkLoadAcContent(parentId);
+    if (pfx === 'oc')      await mebkLoadOcContent(parentId);
+    else if (pfx === 'ac') await mebkLoadAcContent(parentId);
+    else                   await mebkLoadImContent(parentId);
     await mebkLoadStats();
     mebkToast('Indicator updated ✓');
   } catch(e) { alert('Error: ' + e.message); }
