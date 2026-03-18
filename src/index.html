@@ -2179,6 +2179,14 @@ select:focus:not(:focus-visible) { outline: none; }
         #mebk-filter-oc .mebk-filter-pill.sel{color:var(--ok);}
         #mebk-filter-ac .mebk-filter-pill.sel{color:var(--blue);}
 
+        /* ── Category filter pills ── */
+        .mebk-cat-pills{display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 2px 0;}
+        .mebk-cat-pill{padding:3px 12px;font-size:11px;font-weight:500;border:1.5px solid var(--mist-2);border-radius:20px;cursor:pointer;color:var(--slate);background:var(--white);transition:all .15s;font-family:var(--sans);white-space:nowrap;}
+        .mebk-cat-pill:hover{border-color:var(--ink);color:var(--ink);}
+        .mebk-cat-pill.sel{background:var(--ink);border-color:var(--ink);color:#fff;}
+        #mebk-cat-pills-oc .mebk-cat-pill.sel{background:var(--ok);border-color:var(--ok);}
+        #mebk-cat-pills-ac .mebk-cat-pill.sel{background:var(--blue);border-color:var(--blue);}
+
         /* ── CSS toggle switch ── */
         .mebk-sw{display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;}
         .mebk-sw-track{width:30px;height:17px;border-radius:999px;background:var(--mist);border:1.5px solid var(--mist-2);position:relative;transition:background .22s,border-color .22s;flex-shrink:0;}
@@ -2251,6 +2259,7 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
               <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;white-space:nowrap;" onclick="mebkShowOcForm()">+ Add Outcome</button>
             </div>
+            <div class="mebk-cat-pills" id="mebk-cat-pills-oc"></div>
             <div class="mebk-add-form oc-form" id="mebk-add-oc-form">
               <input class="mebk-inp mebk-inp-lg" id="mebk-oc-stmt" placeholder="Outcome statement…" onkeydown="if(event.key==='Enter')mebkSaveOutcome()"/>
               <select class="mebk-sel" id="mebk-oc-cat-sel"><option value="">Category…</option></select>
@@ -2271,6 +2280,7 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkShowAcForm()">+ Add Activity</button>
             </div>
+            <div class="mebk-cat-pills" id="mebk-cat-pills-ac"></div>
             <div class="mebk-add-form ac-form" id="mebk-add-ac-form">
               <input class="mebk-inp mebk-inp-lg" id="mebk-ac-name" placeholder="Activity name…" onkeydown="if(event.key==='Enter')mebkSaveActivity()"/>
               <select class="mebk-sel" id="mebk-ac-cat-sel"><option value="">Category…</option></select>
@@ -7846,7 +7856,40 @@ async function mebkLoadCategories() {
       window.mebkIcIds = {};
       indCats.forEach(c => { window.mebkIcIds[c.category_code] = c.indicator_category_id; });
     }
+    // Render category filter pills once categories are loaded
+    mebkRenderCatPills();
   } catch(e) { /* silent */ }
+}
+
+function mebkRenderCatPills() {
+  const ocEl = document.getElementById('mebk-cat-pills-oc');
+  const acEl = document.getElementById('mebk-cat-pills-ac');
+  if (ocEl) {
+    const cats = window.mebkOcCats || [];
+    ocEl.innerHTML = `<button class="mebk-cat-pill sel" id="mebk-cpill-oc-all" onclick="mebkSetCatFilter('oc','')">All Categories</button>`
+      + cats.map(c => `<button class="mebk-cat-pill" id="mebk-cpill-oc-${c.outcome_category_id}" onclick="mebkSetCatFilter('oc','${c.outcome_category_id}')">${c.category_name}</button>`).join('');
+  }
+  if (acEl) {
+    const cats = window.mebkAcCats || [];
+    acEl.innerHTML = `<button class="mebk-cat-pill sel" id="mebk-cpill-ac-all" onclick="mebkSetCatFilter('ac','')">All Categories</button>`
+      + cats.map(c => `<button class="mebk-cat-pill" id="mebk-cpill-ac-${c.activity_category_id}" onclick="mebkSetCatFilter('ac','${c.activity_category_id}')">${c.category_name}</button>`).join('');
+  }
+}
+
+function mebkSetCatFilter(tab, catId) {
+  window.mebkCatFilter = window.mebkCatFilter || {};
+  window.mebkCatFilter[tab] = catId;
+  // Update pill highlights
+  const container = document.getElementById(`mebk-cat-pills-${tab}`);
+  if (container) {
+    container.querySelectorAll('.mebk-cat-pill').forEach(p => p.classList.remove('sel'));
+    const allPill = document.getElementById(`mebk-cpill-${tab}-all`);
+    const catPill = catId ? document.getElementById(`mebk-cpill-${tab}-${catId}`) : allPill;
+    if (!catId && allPill) allPill.classList.add('sel');
+    else if (catPill) catPill.classList.add('sel');
+  }
+  if (tab === 'oc') mebkLoadOutcomes();
+  else              mebkLoadActivities();
 }
 
 // ── Tab switch ──────────────────────────────────────
@@ -7899,9 +7942,11 @@ async function mebkLoadOutcomes() {
   const filterVal = (window.mebkFilter = window.mebkFilter || {}).oc || 'active';
   const activeFilter = filterVal === 'active' ? '&is_active=eq.true'
                      : filterVal === 'inactive' ? '&is_active=eq.false' : '';
+  const catId = (window.mebkCatFilter = window.mebkCatFilter || {}).oc || '';
+  const catFilter = catId ? `&outcome_category_id=eq.${catId}` : '';
   try {
     const res  = await fetch(
-      `${MEBK_URL}/rest/v1/outcome?is_template=eq.true${activeFilter}&select=outcome_id,outcome_code,outcome_statement,is_active,outcome_categories(category_name)&order=is_active.desc,outcome_code.asc&limit=300`,
+      `${MEBK_URL}/rest/v1/outcome?is_template=eq.true${activeFilter}${catFilter}&select=outcome_id,outcome_code,outcome_statement,is_active,outcome_categories(category_name)&order=is_active.desc,outcome_code.asc&limit=300`,
       { headers: MEBK_HDR }
     );
     const data = await res.json();
@@ -7954,9 +7999,11 @@ async function mebkLoadActivities() {
   const filterVal = (window.mebkFilter = window.mebkFilter || {}).ac || 'active';
   const activeFilter = filterVal === 'active' ? '&is_active=eq.true'
                      : filterVal === 'inactive' ? '&is_active=eq.false' : '';
+  const catId = (window.mebkCatFilter = window.mebkCatFilter || {}).ac || '';
+  const catFilter = catId ? `&activity_category_id=eq.${catId}` : '';
   try {
     const res  = await fetch(
-      `${MEBK_URL}/rest/v1/activity?is_template=eq.true${activeFilter}&select=activity_id,activity_code,activity_name,is_active,activity_category(category_name)&order=is_active.desc,activity_code.asc&limit=300`,
+      `${MEBK_URL}/rest/v1/activity?is_template=eq.true${activeFilter}${catFilter}&select=activity_id,activity_code,activity_name,is_active,activity_category(category_name)&order=is_active.desc,activity_code.asc&limit=300`,
       { headers: MEBK_HDR }
     );
     const data = await res.json();
