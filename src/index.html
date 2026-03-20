@@ -5024,7 +5024,7 @@ select:focus:not(:focus-visible) { outline: none; }
             const createRes = await fetch(`${GS_SB_URL}/rest/v1/program`, {
               method: 'POST',
               headers: { ...GS_SB_HDR, 'Prefer': 'return=representation' },
-              body: JSON.stringify({ program_name: progName, is_active: true })
+              body: JSON.stringify({ program_name: progName })
             });
             console.log('[lfaFetchProgramId] Create response:', createRes.status, createRes.statusText);
             if (createRes.ok) {
