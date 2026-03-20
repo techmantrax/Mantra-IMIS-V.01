@@ -7379,6 +7379,202 @@ const gsSbQuery = async (table, params = '') => {
   return r.ok ? await r.json() : [];
 };
 
+// ═══════════════════════════════════════════════════════════════════
+// GLOBAL DATA LOADER — Fetches reference data from Supabase
+// Replaces hardcoded values with live database content
+// ═══════════════════════════════════════════════════════════════════
+
+// Global cache for database-loaded reference data
+const dbCache = {
+  programs: [],
+  states: [],
+  districts: [],
+  interventions: [],
+  stakeholderTypes: [],
+  stakeholderLevels: [],
+  outcomeCategories: [],
+  environments: [],
+  childExperiences: [],
+  financialYears: [],
+  periods: [],
+  donors: [],
+  grants: [],
+  loaded: false
+};
+
+// Load all reference data from Supabase
+async function loadGlobalDbData() {
+  if (dbCache.loaded) return dbCache;
+  console.log('[DB] Loading global reference data from Supabase...');
+  
+  try {
+    const [
+      programs,
+      states,
+      districts,
+      interventions,
+      stakeholderTypes,
+      stakeholderLevels,
+      outcomeCategories,
+      environments,
+      childExperiences,
+      financialYears,
+      periods,
+      donors,
+      grants
+    ] = await Promise.all([
+      gsSbFetch('program', 'select=program_id,program_name,state_id&order=program_name.asc&limit=100'),
+      gsSbFetch('state', 'select=state_id,state_name&order=state_name.asc&limit=50'),
+      gsSbFetch('district', 'select=district_id,district_name,state_id&order=district_name.asc&limit=500'),
+      gsSbFetch('intervention', 'select=intervention_id,intervention_name,intervention_code&is_active=eq.true&order=intervention_name.asc&limit=100'),
+      gsSbFetch('stakeholder_type', 'select=stakeholder_type_id,type_name&order=type_name.asc&limit=50'),
+      gsSbFetch('stakeholder_level', 'select=stakeholder_level_id,level_name&order=level_name.asc&limit=20'),
+      gsSbFetch('outcome_categories', 'select=outcome_category_id,category_name,category_code,sort_order&is_active=eq.true&order=sort_order.asc&limit=50'),
+      gsSbFetch('environment', 'select=environment_id,environment_name,environment_code&is_active=eq.true&order=sort_order.asc&limit=20'),
+      gsSbFetch('child_experience', 'select=child_experience_id,experience_name,short_label,child_experience_code&is_active=eq.true&order=sort_order.asc&limit=50'),
+      gsSbFetch('financial_year', 'select=financial_year_id,fy_name,start_date,end_date,is_current&order=start_date.desc&limit=10'),
+      gsSbFetch('period', 'select=period_id,period_name,period_type,start_date,end_date,financial_year_id&order=start_date.asc&limit=50'),
+      gsSbFetch('donor', 'select=donor_id,donor_name,donor_code,donor_type&is_active=eq.true&order=donor_name.asc&limit=100'),
+      gsSbFetch('grants', 'select=grant_id,grant_name,grant_code,donor_id,total_committed_amount,currency,start_date,end_date,grant_status&is_active=eq.true&order=grant_name.asc&limit=200')
+    ]);
+
+    dbCache.programs = programs || [];
+    dbCache.states = states || [];
+    dbCache.districts = districts || [];
+    dbCache.interventions = interventions || [];
+    dbCache.stakeholderTypes = stakeholderTypes || [];
+    dbCache.stakeholderLevels = stakeholderLevels || [];
+    dbCache.outcomeCategories = outcomeCategories || [];
+    dbCache.environments = environments || [];
+    dbCache.childExperiences = childExperiences || [];
+    dbCache.financialYears = financialYears || [];
+    dbCache.periods = periods || [];
+    dbCache.donors = donors || [];
+    dbCache.grants = grants || [];
+    dbCache.loaded = true;
+
+    console.log('[DB] Loaded:', {
+      programs: dbCache.programs.length,
+      states: dbCache.states.length,
+      districts: dbCache.districts.length,
+      interventions: dbCache.interventions.length,
+      stakeholderTypes: dbCache.stakeholderTypes.length,
+      outcomeCategories: dbCache.outcomeCategories.length,
+      donors: dbCache.donors.length,
+      grants: dbCache.grants.length
+    });
+
+    // Update builderRefs with live data (will be defined later, safe to call after DOM ready)
+    if (typeof updateBuilderRefsFromDb === 'function') {
+      updateBuilderRefsFromDb();
+    }
+
+    return dbCache;
+  } catch (e) {
+    console.error('[DB] Error loading global data:', e);
+    dbCache.loaded = true; // prevent retry loop
+    return dbCache;
+  }
+}
+
+// Get programs list (from DB or fallback)
+function getDbPrograms() {
+  if (dbCache.programs.length > 0) {
+    return dbCache.programs.map(p => p.program_name);
+  }
+  // Fallback to hardcoded if DB is empty
+  return ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab','Rajasthan','Madhya Pradesh','Jharkhand','Assam','Maharashtra'];
+}
+
+// Get districts for a state/program
+function getDbDistricts(stateName) {
+  const state = dbCache.states.find(s => s.state_name === stateName);
+  if (state) {
+    const dists = dbCache.districts.filter(d => d.state_id === state.state_id);
+    if (dists.length > 0) return dists.map(d => d.district_name);
+  }
+  // Fallback
+  const fallbackDistricts = {
+    'Karnataka': ['BENGALURU URBAN','MYSURU','HUBLI-DHARWAD','BELAGAVI','KALABURAGI','SHIVAMOGGA','TUMAKURU','DAVANAGERE'],
+    'Bihar': ['PATNA','GAYA','MUZAFFARPUR','BHAGALPUR','NALANDA','VAISHALI','SITAMARHI','BEGUSARAI','DARBHANGA','SAMASTIPUR'],
+  };
+  return fallbackDistricts[stateName] || ['DISTRICT-1','DISTRICT-2','DISTRICT-3'];
+}
+
+// Get stakeholder levels from DB
+function getDbStakeholderLevels() {
+  if (dbCache.stakeholderLevels.length > 0) {
+    return dbCache.stakeholderLevels.map(l => l.level_name);
+  }
+  return ['school','cluster','block','district','state'];
+}
+
+// Get outcome categories from DB
+function getDbOutcomeCategories() {
+  if (dbCache.outcomeCategories.length > 0) {
+    return dbCache.outcomeCategories.map(c => c.category_name);
+  }
+  return ['Capacity Building','Systemic Tools','Structures & Process'];
+}
+
+// Get outcome category metadata from DB
+function getDbOutcomeCategoryMeta() {
+  const meta = {};
+  if (dbCache.outcomeCategories.length > 0) {
+    dbCache.outcomeCategories.forEach((c, i) => {
+      meta[c.category_name] = { code: c.category_code || `OCC-${i+1}`, sort: c.sort_order || i };
+    });
+    return meta;
+  }
+  return {
+    'Capacity Building':   { code: 'CAP_BUILD', sort: 0 },
+    'Systemic Tools':      { code: 'SYS_TOOLS', sort: 1 },
+    'Structures & Process':{ code: 'STR_PROC',  sort: 2 },
+  };
+}
+
+// Get interventions from DB
+function getDbInterventions() {
+  if (dbCache.interventions.length > 0) {
+    return dbCache.interventions.map(i => i.intervention_name);
+  }
+  return ['FLN Program','Teacher Development','School Leadership','Community Engagement','District Capacity Building','Cluster Support','STEM Initiative','Assessment Reform'];
+}
+
+// Get stakeholder types from DB
+function getDbStakeholderTypes() {
+  if (dbCache.stakeholderTypes.length > 0) {
+    return dbCache.stakeholderTypes.map(s => s.type_name);
+  }
+  return ['Teacher','Student','Leader','Community','Cluster Resource Coordinator','Block Education Officer','Academic Mentor','Training Facilitator','District Coordinator','Parent'];
+}
+
+// Get environments from DB
+function getDbEnvironments() {
+  if (dbCache.environments.length > 0) {
+    return dbCache.environments.map(e => e.environment_name);
+  }
+  return ['School','Cluster','Block','District','State'];
+}
+
+// Get child experiences from DB  
+function getDbChildExperiences() {
+  if (dbCache.childExperiences.length > 0) {
+    return dbCache.childExperiences.map(e => e.short_label || e.experience_name);
+  }
+  return ['Classroom Engagement','Foundational Literacy','Numeracy','Social-Emotional Learning','STEM Exploration','Holistic Development'];
+}
+
+// Get periods from DB
+function getDbPeriods() {
+  if (dbCache.periods.length > 0) {
+    return dbCache.periods.map(p => p.period_name.trim());
+  }
+  return ['Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026','Apr 2026','Q1 FY26','Q2 FY26'];
+}
+
+// ═══════════════════════════════════════════════════════════════════
+
 // ── State ──────────────────────────────────────────────────────
 const gsState = {
   step:       1,
@@ -11437,6 +11633,7 @@ function _applyPocProgFilter() {
 }
 
 
+// builderRefs - initialized with fallback values, updated from DB on load
 const builderRefs = {
   types:        ['Output','Outcome','Process','Impact'],
   stakeholders: ['Teacher','Student','Leader','Community','Cluster Resource Coordinator','Block Education Officer','Academic Mentor','Training Facilitator','District Coordinator','Parent'],
@@ -11469,6 +11666,65 @@ const builderRefs = {
   },
   stakeholderLevels: ['school','cluster','block','district','state'],
 };
+
+// Update builderRefs with live data from Supabase
+function updateBuilderRefsFromDb() {
+  if (!dbCache.loaded) return;
+  
+  // Update programs from DB
+  if (dbCache.programs.length > 0) {
+    builderRefs.programs = dbCache.programs.map(p => p.program_name);
+  }
+  
+  // Update stakeholder types from DB
+  if (dbCache.stakeholderTypes.length > 0) {
+    builderRefs.stakeholders = dbCache.stakeholderTypes.map(s => s.type_name);
+  }
+  
+  // Update stakeholder levels from DB
+  if (dbCache.stakeholderLevels.length > 0) {
+    builderRefs.stakeholderLevels = dbCache.stakeholderLevels.map(l => l.level_name);
+  }
+  
+  // Update outcome categories from DB
+  if (dbCache.outcomeCategories.length > 0) {
+    builderRefs.outcomeCategories = dbCache.outcomeCategories.map(c => c.category_name);
+    builderRefs.outcomeCategoryMeta = {};
+    dbCache.outcomeCategories.forEach((c, i) => {
+      builderRefs.outcomeCategoryMeta[c.category_name] = { 
+        code: c.category_code || `OCC-${i+1}`, 
+        sort: c.sort_order || i 
+      };
+    });
+  }
+  
+  // Update environments from DB
+  if (dbCache.environments.length > 0) {
+    builderRefs.environments = dbCache.environments.map(e => e.environment_name);
+  }
+  
+  // Update child experiences from DB
+  if (dbCache.childExperiences.length > 0) {
+    builderRefs.childexp = dbCache.childExperiences.map(e => e.short_label || e.experience_name);
+  }
+  
+  // Update interventions from DB
+  if (dbCache.interventions.length > 0) {
+    builderRefs.interventions = dbCache.interventions.map(i => i.intervention_name);
+  }
+  
+  // Update periods from DB
+  if (dbCache.periods.length > 0) {
+    builderRefs.periods = dbCache.periods.map(p => p.period_name.trim());
+  }
+  
+  console.log('[DB] builderRefs updated with live data');
+  
+  // Also update UI dropdowns when data changes
+  if (typeof populateProgramDropdowns === 'function') {
+    populateProgramDropdowns();
+  }
+}
 
 const _allSeedRows = [];
 // Split seed rows into per-program buckets
@@ -12325,12 +12581,43 @@ function renderBuilder() {
 // INIT
 // ═══════════════════════════════════════════════════
 
+// Load global reference data from Supabase on page load
+(async function initGlobalData() {
+  try {
+    await loadGlobalDbData();
+    // Update builderRefs after data is loaded
+    if (typeof updateBuilderRefsFromDb === 'function') {
+      updateBuilderRefsFromDb();
+    }
+    console.log('[INIT] Global data loaded from Supabase');
+  } catch (e) {
+    console.warn('[INIT] Could not load global data from DB, using fallbacks:', e);
+  }
+})();
+
 // ── Auth ──
-$('btn-login').addEventListener('click', () => {
+$('btn-login').addEventListener('click', async () => {
   state.role = $('login-role').value;
   $('screen-auth').classList.add('hidden');
   $('screen-app').classList.remove('hidden');
   applyRoleUI();
+  
+  // Ensure global data is loaded before showing home
+  if (!dbCache.loaded) {
+    await loadGlobalDbData();
+    updateBuilderRefsFromDb();
+  }
+  
+  // Update Budget Tracker programs from DB
+  if (typeof btLoadProgramsFromDb === 'function') {
+    await btLoadProgramsFromDb();
+  }
+  
+  // Load GOP indicators from DB
+  if (typeof loadGopIndicatorsFromDb === 'function') {
+    await loadGopIndicatorsFromDb();
+  }
+  
   showPage('home');
 });
 $('btn-otp').addEventListener('click', () => toast('OTP sent to registered mobile (prototype)'));
@@ -13113,7 +13400,8 @@ function duRenderHistory() {
 function duRenderUdiseGrid() {
   const grid = $('du-udise-prog-grid');
   if (!grid) return;
-  const progs = ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab','Rajasthan','Madhya Pradesh','Jharkhand','Assam','Maharashtra'];
+  // Use dynamic programs from DB, fallback to builderRefs
+  const progs = getDbPrograms();
   grid.innerHTML = progs.map(p => {
     const u = uploadStore.udise[p];
     const hasData = u && u.schools.length > 0;
@@ -13171,20 +13459,9 @@ function duHandleUdiseFile(file) {
 function duGenerateUdiseSchools(prog, n) {
   // Generate a representative set of school records
   // In production this parses the actual uploaded UDISE Excel file
-  const districts = {
-    'Odisha':         ['ANGUL','BALASORE','BARAGARH','BHADRAK','BOLANGIR','BOUDH','CUTTACK','DEOGARH','DHENKANAL','GAJAPATI'],
-    'Bihar':          ['PATNA','GAYA','MUZAFFARPUR','BHAGALPUR','NALANDA','VAISHALI','SITAMARHI','BEGUSARAI','DARBHANGA','SAMASTIPUR'],
-    'Karnataka':      ['BENGALURU URBAN','MYSURU','HUBLI-DHARWAD','BELAGAVI','KALABURAGI','SHIVAMOGGA','TUMAKURU','DAVANAGERE'],
-    'Uttar Pradesh':  ['LUCKNOW','AGRA','VARANASI','KANPUR NAGAR','PRAYAGRAJ','MEERUT','BAREILLY','ALIGARH'],
-    'Punjab':         ['LUDHIANA','AMRITSAR','JALANDHAR','PATIALA','BATHINDA','MOHALI','GURDASPUR'],
-    'Rajasthan':      ['JAIPUR','JODHPUR','KOTA','AJMER','BIKANER','UDAIPUR','ALWAR','BHARATPUR'],
-    'Madhya Pradesh': ['BHOPAL','INDORE','JABALPUR','GWALIOR','UJJAIN','SAGAR','DEWAS','SATNA'],
-    'Jharkhand':      ['RANCHI','DHANBAD','BOKARO','DEOGHAR','HAZARIBAGH','GIRIDIH','JAMSHEDPUR'],
-    'Assam':          ['KAMRUP','DIBRUGARH','JORHAT','SIBSAGAR','LAKHIMPUR','TINSUKIA','NAGAON'],
-    'Maharashtra':    ['PUNE','NASHIK','AURANGABAD','NAGPUR','SOLAPUR','KOLHAPUR','AMRAVATI'],
-  };
+  // Use DB districts if available, fallback to hardcoded
+  const dists = getDbDistricts(prog);
   const cats = ['Primary','Upper Primary','Secondary','Higher Secondary','Primary with Upper Primary'];
-  const dists = districts[prog] || ['DISTRICT-1','DISTRICT-2','DISTRICT-3'];
   const schools = [];
   const base = 20000000000 + Math.floor(Math.random()*9000000000);
   for (let i = 0; i < n; i++) {
@@ -13265,6 +13542,36 @@ function duSwitchTab(tabKey) {
     e.target.value = '';
   });
 })();
+
+// ── Populate program dropdowns dynamically ──
+function populateProgramDropdowns() {
+  const programs = getDbPrograms();
+  const dropdowns = ['du-prog-sel', 'du-udise-prog'];
+  
+  dropdowns.forEach(id => {
+    const sel = $(id);
+    if (!sel) return;
+    
+    // Remember current selection
+    const current = sel.value;
+    
+    // Clear and repopulate
+    sel.innerHTML = '<option value="">— Select Program —</option>';
+    programs.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      sel.appendChild(opt);
+    });
+    
+    // Restore selection if it still exists
+    if (current && programs.includes(current)) {
+      sel.value = current;
+    }
+  });
+  
+  console.log('[UI] Program dropdowns populated with', programs.length, 'programs');
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // BUDGET TRACKER ENGINE
@@ -13475,6 +13782,53 @@ function btSetMonthVal(lineId, mi, et, val) {
   const key = `${mi}_${et}`;
   if (val === null || val === '') delete btStore.monthlyActuals[lineId][key];
   else btStore.monthlyActuals[lineId][key] = val;
+}
+
+// Initialize/update btStore programs from Supabase
+async function btLoadProgramsFromDb() {
+  if (!dbCache.loaded) {
+    await loadGlobalDbData();
+  }
+  
+  // If we have programs from DB, update btStore.programs
+  if (dbCache.programs.length > 0) {
+    // Keep existing grants data but update program list
+    const newPrograms = dbCache.programs.map(p => {
+      // Check if we have existing hardcoded program with this name
+      const existing = btStore.programs.find(ep => ep.name === p.program_name);
+      const id = existing ? existing.id : p.program_id.substring(0, 2).toUpperCase();
+      return {
+        id: id,
+        dbId: p.program_id, // Keep DB ID for reference
+        name: p.program_name,
+        fy: '2025-26',
+        state: p.program_name // Use program name as state for now
+      };
+    });
+    
+    // Merge with existing to preserve grant mappings
+    const merged = [];
+    const usedIds = new Set();
+    
+    // First add DB programs
+    newPrograms.forEach(np => {
+      merged.push(np);
+      usedIds.add(np.id);
+    });
+    
+    // Then add any remaining hardcoded programs that have grants
+    btStore.programs.forEach(hp => {
+      if (!usedIds.has(hp.id) && btStore.grants[hp.id]?.length > 0) {
+        merged.push(hp);
+      }
+    });
+    
+    btStore.programs = merged;
+    console.log('[BT] Programs updated from DB:', btStore.programs.length);
+  }
+  
+  // TODO: Load grants, budget lines, etc. from Supabase when tables have data
+  // For now, keep using hardcoded fallback data
 }
 
 function btShowProgSelector() {
@@ -13925,7 +14279,8 @@ const btGopState = {
 };
 
 // Seed indicator library — mirrors published M&E framework (isKeyOutcome + all others)
-const BT_GOP_INDICATORS = [
+// Will be replaced with DB data when available
+let BT_GOP_INDICATORS = [
   { id:'ind-k1', name:'% teachers demonstrating improved classroom practice',   abbr:'TICP', type:'Outcome', stk:'Teacher',   intv:'Teacher Capacity Building',        unit:'%',     freq:'quarterly', isKeyOutcome:true  },
   { id:'ind-k2', name:'% schools with functional School Management Committees', abbr:'SMC',  type:'Outcome', stk:'Leader',    intv:'School Leadership Development',    unit:'%',     freq:'annual',    isKeyOutcome:true  },
   { id:'ind-k3', name:'% students achieving grade-level reading competency',    abbr:'GRC',  type:'Impact',  stk:'Student',   intv:'Foundational Literacy & Numeracy', unit:'%',     freq:'annual',    isKeyOutcome:true  },
@@ -13943,7 +14298,31 @@ const BT_GOP_INDICATORS = [
   { id:'ind-p2', name:'Data quality score for submitted reports',               abbr:'DQS',  type:'Process', stk:'Leader',    intv:'School Leadership Development',    unit:'score', freq:'quarterly', isKeyOutcome:false },
 ];
 
+// Load indicators from DB if available
+async function loadGopIndicatorsFromDb() {
+  try {
+    const dbIndicators = await gsSbFetch('indicator', 'select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,is_key_outcome&is_active=eq.true&limit=100');
+    if (dbIndicators && dbIndicators.length > 0) {
+      BT_GOP_INDICATORS = dbIndicators.map(i => ({
+        id: i.indicator_id,
+        name: i.indicator_name,
+        abbr: i.indicator_code || i.indicator_name.substring(0, 4).toUpperCase(),
+        type: 'Output', // Default, will be updated when category linkage is available
+        stk: 'Teacher', // Default, will be updated when stakeholder linkage is available
+        intv: 'General',
+        unit: i.unit_of_measure || 'count',
+        freq: i.frequency || 'monthly',
+        isKeyOutcome: i.is_key_outcome || false
+      }));
+      console.log('[GOP] Loaded', BT_GOP_INDICATORS.length, 'indicators from DB');
+    }
+  } catch (e) {
+    console.warn('[GOP] Using fallback indicators:', e);
+  }
+}
+
 // Simulated raw_submission aggregation by grant geography
+// TODO: Load from indicator_actuals and raw_submission tables when data available
 const BT_GOP_IMPACT_SEED = {
   'Karnataka': {
     geo:'Karnataka · Bengaluru Urban, Kalaburagi, Yadgir',
