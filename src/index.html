@@ -2101,7 +2101,8 @@ select:focus:not(:focus-visible) { outline: none; }
 
         /* Stats */
         .mebk-stats{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
-        .mebk-stat{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r2);padding:12px 22px;text-align:center;min-width:110px;box-shadow:var(--shadow-xs);}
+        .mebk-stat{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r2);padding:12px 22px;text-align:center;min-width:100px;box-shadow:var(--shadow-xs);cursor:pointer;transition:box-shadow .15s,border-color .15s;}
+        .mebk-stat:hover{box-shadow:var(--shadow-sm);border-color:var(--mist-3);}
         .mebk-stat-n{font-size:24px;font-weight:700;color:var(--ink);}
         .mebk-stat-l{font-size:11px;color:var(--slate);margin-top:2px;text-transform:uppercase;letter-spacing:.4px;}
 
@@ -2271,9 +2272,16 @@ select:focus:not(:focus-visible) { outline: none; }
 
           <!-- Stats -->
           <div class="mebk-stats">
-            <div class="mebk-stat"><div class="mebk-stat-n" id="mebk-stat-oc">—</div><div class="mebk-stat-l">Outcomes</div></div>
-            <div class="mebk-stat"><div class="mebk-stat-n" id="mebk-stat-ac">—</div><div class="mebk-stat-l">Activities</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('oc')"><div class="mebk-stat-n" id="mebk-stat-oc">—</div><div class="mebk-stat-l" style="color:var(--ok);">Outcomes</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('ac')"><div class="mebk-stat-n" id="mebk-stat-ac">—</div><div class="mebk-stat-l" style="color:var(--blue);">Activities</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('im')"><div class="mebk-stat-n" id="mebk-stat-im">—</div><div class="mebk-stat-l" style="color:#7c3aed;">Impact Goals</div></div>
             <div class="mebk-stat"><div class="mebk-stat-n" id="mebk-stat-ind">—</div><div class="mebk-stat-l">Indicators</div></div>
+            <div style="width:1px;background:var(--mist-2);margin:4px 2px;align-self:stretch;"></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('env')"><div class="mebk-stat-n" id="mebk-stat-env">—</div><div class="mebk-stat-l" style="color:#f59e0b;">Environments</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('ce')"><div class="mebk-stat-n" id="mebk-stat-ce">—</div><div class="mebk-stat-l" style="color:#ec4899;">Child Exp.</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('stk')"><div class="mebk-stat-n" id="mebk-stat-stk">—</div><div class="mebk-stat-l" style="color:#0d9488;">Stakeholders</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('ocat')"><div class="mebk-stat-n" id="mebk-stat-ocat">—</div><div class="mebk-stat-l" style="color:var(--ok);">Outcome Cats</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('acat')"><div class="mebk-stat-n" id="mebk-stat-acat">—</div><div class="mebk-stat-l" style="color:var(--blue);">Activity Cats</div></div>
           </div>
 
           <!-- Tabs -->
@@ -8470,16 +8478,28 @@ function mebkShowAcForm() {
 async function mebkLoadStats() {
   try {
     const countHdr = { ...MEBK_HDR, 'Prefer': 'count=exact' };
-    const [ocRes, acRes, indRes] = await Promise.all([
-      fetch(`${MEBK_URL}/rest/v1/outcome?is_template=eq.true&is_active=eq.true&select=outcome_id&limit=1`,   { headers: countHdr }),
-      fetch(`${MEBK_URL}/rest/v1/activity?is_template=eq.true&is_active=eq.true&select=activity_id&limit=1`, { headers: countHdr }),
-      fetch(`${MEBK_URL}/rest/v1/indicator?is_template=eq.true&is_active=eq.true&select=indicator_id&limit=1`,{ headers: countHdr })
+    const [ocRes, acRes, imRes, indRes, envRes, ceRes, stkRes, ocatRes, acatRes] = await Promise.all([
+      fetch(`${MEBK_URL}/rest/v1/outcome?is_template=eq.true&is_active=eq.true&select=outcome_id&limit=1`,            { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/activity?is_template=eq.true&is_active=eq.true&select=activity_id&limit=1`,          { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/impact?is_template=eq.true&is_active=eq.true&select=impact_id&limit=1`,              { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/indicator?is_template=eq.true&is_active=eq.true&select=indicator_id&limit=1`,        { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/environment?is_active=eq.true&select=environment_id&limit=1`,                        { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/child_experience?is_active=eq.true&select=child_experience_id&limit=1`,              { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/stakeholder_type?select=stakeholder_type_id&limit=1`,                                { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id&limit=1`,            { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id&limit=1`,            { headers: countHdr }),
     ]);
     const n = r => r.headers.get('Content-Range')?.split('/')[1] ?? '?';
     const s = id => document.getElementById(id);
-    if (s('mebk-stat-oc'))  s('mebk-stat-oc').textContent  = n(ocRes);
-    if (s('mebk-stat-ac'))  s('mebk-stat-ac').textContent  = n(acRes);
-    if (s('mebk-stat-ind')) s('mebk-stat-ind').textContent = n(indRes);
+    if (s('mebk-stat-oc'))   s('mebk-stat-oc').textContent   = n(ocRes);
+    if (s('mebk-stat-ac'))   s('mebk-stat-ac').textContent   = n(acRes);
+    if (s('mebk-stat-im'))   s('mebk-stat-im').textContent   = n(imRes);
+    if (s('mebk-stat-ind'))  s('mebk-stat-ind').textContent  = n(indRes);
+    if (s('mebk-stat-env'))  s('mebk-stat-env').textContent  = n(envRes);
+    if (s('mebk-stat-ce'))   s('mebk-stat-ce').textContent   = n(ceRes);
+    if (s('mebk-stat-stk'))  s('mebk-stat-stk').textContent  = n(stkRes);
+    if (s('mebk-stat-ocat')) s('mebk-stat-ocat').textContent = n(ocatRes);
+    if (s('mebk-stat-acat')) s('mebk-stat-acat').textContent = n(acatRes);
   } catch(e) { /* decorative */ }
 }
 
