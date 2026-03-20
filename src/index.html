@@ -1472,6 +1472,11 @@ select:focus:not(:focus-visible) { outline: none; }
   .crumb-title { font-size: 13px; }
 }
 </style>
+<!-- SheetJS for XLSX import/export -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<!-- jsPDF + AutoTable for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -2198,6 +2203,39 @@ select:focus:not(:focus-visible) { outline: none; }
         /* Scrollable tab bar for 8 tabs */
         .mebk-tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
         .mebk-tabs::-webkit-scrollbar{display:none;}
+        /* Import / Export */
+        .mebk-io-wrap{position:relative;display:inline-block;}
+        .mebk-io-btn{padding:6px 12px;font-size:11px;font-weight:600;border-radius:var(--r);cursor:pointer;border:1px solid var(--mist-2);background:var(--white);color:var(--slate);display:inline-flex;align-items:center;gap:4px;font-family:var(--sans);}
+        .mebk-io-btn:hover{background:var(--mist-1);color:var(--ink);}
+        .mebk-io-btn.import-btn{border-color:#0d9488;color:#0d9488;}
+        .mebk-io-btn.import-btn:hover{background:#f0fdfa;}
+        .mebk-io-btn.export-btn{border-color:var(--blue);color:var(--blue);}
+        .mebk-io-btn.export-btn:hover{background:#eff6ff;}
+        .mebk-io-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;z-index:200;background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-md);box-shadow:var(--shadow-md);min-width:180px;overflow:hidden;}
+        .mebk-io-menu.open{display:block;}
+        .mebk-io-menu-item{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:12px;color:var(--ink);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:var(--sans);}
+        .mebk-io-menu-item:hover{background:var(--mist-1);}
+        .mebk-io-menu-item.danger{color:var(--warn);}
+        .mebk-io-menu-sep{height:1px;background:var(--mist-2);margin:4px 0;}
+        /* Import preview modal */
+        .mebk-import-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.4);align-items:center;justify-content:center;}
+        .mebk-import-modal.open{display:flex;}
+        .mebk-import-box{background:var(--white);border-radius:var(--r2);box-shadow:var(--shadow-xl);width:min(860px,96vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;}
+        .mebk-import-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--mist-2);}
+        .mebk-import-hd h3{font-size:15px;font-weight:700;margin:0;}
+        .mebk-import-body{overflow-y:auto;padding:16px 20px;flex:1;}
+        .mebk-import-table{width:100%;border-collapse:collapse;font-size:12px;}
+        .mebk-import-table th{background:var(--mist-1);padding:7px 10px;text-align:left;font-weight:600;border:1px solid var(--mist-2);}
+        .mebk-import-table td{padding:6px 10px;border:1px solid var(--mist-2);vertical-align:top;}
+        .mebk-import-table tr.new td{background:#f0fdf4;}
+        .mebk-import-table tr.update td{background:#eff6ff;}
+        .mebk-import-table tr.error td{background:#fef2f2;}
+        .mebk-import-badge{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;}
+        .mebk-import-badge.new{background:#dcfce7;color:#16a34a;}
+        .mebk-import-badge.update{background:#dbeafe;color:#2563eb;}
+        .mebk-import-badge.error{background:#fee2e2;color:#dc2626;}
+        .mebk-import-ft{display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid var(--mist-2);background:var(--mist-1);}
+        .mebk-import-summary{font-size:12px;color:var(--slate);flex:1;}
         .mebk-tab-divider{width:1px;background:var(--mist-2);margin:6px 4px;flex-shrink:0;}
         /* Reference data rows */
         .mebk-ref-row{display:grid;grid-template-columns:100px 1fr 1fr 96px;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--mist-2);font-size:13px;}
@@ -2310,6 +2348,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <option value="">All Categories</option>
               </select>
               <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;white-space:nowrap;" onclick="mebkShowOcForm()">+ Add Outcome</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','oc')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-oc"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('oc')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('oc','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('oc','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','oc')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-oc"><button class="mebk-io-menu-item" onclick="mebkExport('oc','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('oc','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('oc','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form oc-form" id="mebk-add-oc-form" style="flex-wrap:wrap;">
               <input class="mebk-inp mebk-inp-lg" id="mebk-oc-stmt" placeholder="Outcome statement…" onkeydown="if(event.key==='Enter')mebkSaveOutcome()"/>
@@ -2338,6 +2378,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <option value="">All Categories</option>
               </select>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkShowAcForm()">+ Add Activity</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','ac')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-ac"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('ac')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('ac','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('ac','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','ac')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-ac"><button class="mebk-io-menu-item" onclick="mebkExport('ac','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('ac','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('ac','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form ac-form" id="mebk-add-ac-form" style="flex-wrap:wrap;">
               <input class="mebk-inp mebk-inp-lg" id="mebk-ac-name" placeholder="Activity name…" onkeydown="if(event.key==='Enter')mebkSaveActivity()"/>
@@ -2366,6 +2408,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <option value="">All Categories</option>
               </select>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#7c3aed;color:#fff;border-color:#7c3aed;" onclick="mebkShowImForm()">+ Add Impact Goal</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','im')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-im"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('im')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('im','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('im','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','im')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-im"><button class="mebk-io-menu-item" onclick="mebkExport('im','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('im','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('im','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form im-form" id="mebk-add-im-form" style="flex-wrap:wrap;">
               <input class="mebk-inp mebk-inp-lg" id="mebk-im-stmt" placeholder="Impact goal statement…" onkeydown="if(event.key==='Enter')mebkSaveImpact()"/>
@@ -2391,6 +2435,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <button class="mebk-filter-pill"     id="mebk-fpill-ref-env-inactive" onclick="mebkRefSetFilter('env','inactive')">Inactive</button>
               </div>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#f59e0b;color:#fff;border-color:#f59e0b;" onclick="mebkRefShowForm('env')">+ Add Environment</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','env')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-env"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('env')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('env','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('env','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','env')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-env"><button class="mebk-io-menu-item" onclick="mebkExport('env','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('env','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('env','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form" id="mebk-ref-form-env" style="display:none;flex-wrap:wrap;gap:8px;">
               <input class="mebk-inp" id="mebk-ref-inp-name-env" placeholder="Environment name…" style="flex:1;min-width:200px;"/>
@@ -2411,6 +2457,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <button class="mebk-filter-pill"     id="mebk-fpill-ref-ce-inactive" onclick="mebkRefSetFilter('ce','inactive')">Inactive</button>
               </div>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#ec4899;color:#fff;border-color:#ec4899;" onclick="mebkRefShowForm('ce')">+ Add Experience</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','ce')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-ce"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('ce')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('ce','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('ce','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','ce')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-ce"><button class="mebk-io-menu-item" onclick="mebkExport('ce','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('ce','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('ce','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form" id="mebk-ref-form-ce" style="display:none;flex-wrap:wrap;gap:8px;">
               <input class="mebk-inp" id="mebk-ref-inp-name-ce" placeholder="Experience statement…" style="flex:1;min-width:200px;"/>
@@ -2426,6 +2474,8 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="mebk-toolbar">
               <input class="mebk-search" id="mebk-search-ref-stk" placeholder="Search stakeholder types…" oninput="mebkRefSearch('stk',this.value)"/>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#0d9488;color:#fff;border-color:#0d9488;" onclick="mebkRefShowForm('stk')">+ Add Stakeholder Type</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','stk')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-stk"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('stk')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('stk','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('stk','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','stk')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-stk"><button class="mebk-io-menu-item" onclick="mebkExport('stk','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('stk','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('stk','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form" id="mebk-ref-form-stk" style="display:none;flex-wrap:wrap;gap:8px;">
               <input class="mebk-inp" id="mebk-ref-inp-name-stk" placeholder="Stakeholder type name…" style="flex:1;min-width:200px;"/>
@@ -2446,6 +2496,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <button class="mebk-filter-pill"     id="mebk-fpill-ref-ocat-inactive" onclick="mebkRefSetFilter('ocat','inactive')">Inactive</button>
               </div>
               <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;white-space:nowrap;" onclick="mebkRefShowForm('ocat')">+ Add Category</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','ocat')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-ocat"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('ocat')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('ocat','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('ocat','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','ocat')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-ocat"><button class="mebk-io-menu-item" onclick="mebkExport('ocat','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('ocat','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('ocat','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form" id="mebk-ref-form-ocat" style="display:none;flex-wrap:wrap;gap:8px;">
               <input class="mebk-inp" id="mebk-ref-inp-name-ocat" placeholder="Category name…" style="flex:1;min-width:200px;"/>
@@ -2466,6 +2518,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <button class="mebk-filter-pill"     id="mebk-fpill-ref-acat-inactive" onclick="mebkRefSetFilter('acat','inactive')">Inactive</button>
               </div>
               <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkRefShowForm('acat')">+ Add Category</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','acat')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-acat"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('acat')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('acat','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('acat','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','acat')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-acat"><button class="mebk-io-menu-item" onclick="mebkExport('acat','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('acat','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('acat','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form" id="mebk-ref-form-acat" style="display:none;flex-wrap:wrap;gap:8px;">
               <input class="mebk-inp" id="mebk-ref-inp-name-acat" placeholder="Category name…" style="flex:1;min-width:200px;"/>
@@ -2478,6 +2532,24 @@ select:focus:not(:focus-visible) { outline: none; }
 
         </div>
       </section>
+
+      <!-- ═══ M&E Import Preview Modal ═══════════════ -->
+      <div class="mebk-import-modal" id="mebk-import-modal">
+        <div class="mebk-import-box">
+          <div class="mebk-import-hd">
+            <h3 id="mebk-import-modal-title">Import Preview</h3>
+            <button onclick="mebkCloseImportModal()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--slate);">✕</button>
+          </div>
+          <div class="mebk-import-body" id="mebk-import-modal-body"></div>
+          <div class="mebk-import-ft">
+            <span class="mebk-import-summary" id="mebk-import-summary"></span>
+            <button class="btn" onclick="mebkCloseImportModal()">Cancel</button>
+            <button class="btn btn-ok" id="mebk-import-confirm-btn" onclick="mebkConfirmImport()">Confirm Import</button>
+          </div>
+        </div>
+      </div>
+      <!-- hidden file inputs for import per tab -->
+      <input type="file" id="mebk-file-input" accept=".csv,.xlsx" style="display:none;" onchange="mebkHandleFileSelect(this)"/>
 
       <!-- ═══ M&E BUILDER ══════════════════════════ -->
       <section id="page-me-builder" class="hidden">
@@ -8299,6 +8371,228 @@ function mebkSwitchTab(tab) {
   }
 }
 
+// ══ Import / Export ════════════════════════════════
+const MEBK_IO_CFG = {
+  oc:   { label:'Outcomes',            cols:[{h:'Code',k:'outcome_code'},{h:'Statement',k:'outcome_statement'},{h:'Category',k:'_catName'},{h:'Active',k:'is_active'}],         dataFn:()=>window.mebkLibData?.oc||[], table:'outcome',           codeCol:'outcome_code',          nameCol:'outcome_statement', idCol:'outcome_id' },
+  ac:   { label:'Activities',          cols:[{h:'Code',k:'activity_code'},{h:'Name',k:'activity_name'},{h:'Category',k:'_catName'},{h:'Active',k:'is_active'}],                dataFn:()=>window.mebkLibData?.ac||[], table:'activity',           codeCol:'activity_code',         nameCol:'activity_name',     idCol:'activity_id' },
+  im:   { label:'Impact Goals',        cols:[{h:'Code',k:'impact_code'},{h:'Statement',k:'impact_statement'},{h:'Category',k:'_catName'},{h:'Active',k:'is_active'}],          dataFn:()=>window.mebkLibData?.im||[], table:'impact',             codeCol:'impact_code',           nameCol:'impact_statement',  idCol:'impact_id' },
+  env:  { label:'Environments',        cols:[{h:'Code',k:'environment_code'},{h:'Name',k:'environment_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],    dataFn:()=>window.mebkRefItems?.env||[], table:'environment',       codeCol:'environment_code',      nameCol:'environment_name',  idCol:'environment_id' },
+  ce:   { label:'Child Experience',    cols:[{h:'Code',k:'child_experience_code'},{h:'Experience',k:'experience_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}], dataFn:()=>window.mebkRefItems?.ce||[], table:'child_experience', codeCol:'child_experience_code', nameCol:'experience_name',   idCol:'child_experience_id' },
+  stk:  { label:'Stakeholder Types',   cols:[{h:'Code',k:'stakeholder_type_code'},{h:'Name',k:'type_name'},{h:'Description',k:'description'}],                                 dataFn:()=>window.mebkRefItems?.stk||[], table:'stakeholder_type', codeCol:'stakeholder_type_code', nameCol:'type_name',         idCol:'stakeholder_type_id' },
+  ocat: { label:'Outcome Categories',  cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],          dataFn:()=>window.mebkRefItems?.ocat||[], table:'outcome_categories', codeCol:'category_code',        nameCol:'category_name',     idCol:'outcome_category_id' },
+  acat: { label:'Activity Categories', cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],          dataFn:()=>window.mebkRefItems?.acat||[], table:'activity_category', codeCol:'category_code',        nameCol:'category_name',     idCol:'activity_category_id' },
+};
+
+window._mebkImportKey = null;
+window._mebkImportRows = [];
+
+// — Menu toggle ———————————————————————————————
+function mebkToggleMenu(type, key) {
+  const id = `mebk-${type}-menu-${key}`;
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isOpen = el.classList.contains('open');
+  mebkCloseMenus();
+  if (!isOpen) el.classList.add('open');
+}
+function mebkCloseMenus() {
+  document.querySelectorAll('.mebk-io-menu.open').forEach(m => m.classList.remove('open'));
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.mebk-io-wrap')) mebkCloseMenus();
+});
+
+// — Export ————————————————————————————————————
+function mebkExport(key, format) {
+  const cfg = MEBK_IO_CFG[key];
+  const rows = cfg.dataFn();
+  if (!rows.length) { toast('No data to export.', 2500); return; }
+  const headers = cfg.cols.map(c => c.h);
+  const data    = rows.map(r => cfg.cols.map(c => {
+    const v = r[c.k];
+    if (c.k === 'is_active') return v ? 'Yes' : 'No';
+    return v ?? '';
+  }));
+  const filename = `${cfg.label.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}`;
+
+  if (format === 'csv') {
+    const csv = [headers, ...data].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    mebkDownloadBlob(new Blob([csv], {type:'text/csv'}), `${filename}.csv`);
+  } else if (format === 'xlsx') {
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, cfg.label.slice(0,31));
+    XLSX.writeFile(wb, `${filename}.xlsx`);
+  } else if (format === 'pdf') {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: data[0]?.length > 4 ? 'landscape' : 'portrait' });
+    doc.setFontSize(14); doc.text(cfg.label, 14, 15);
+    doc.setFontSize(9);  doc.text(`Exported: ${new Date().toLocaleDateString()}`, 14, 22);
+    doc.autoTable({ head:[headers], body:data, startY:27, styles:{fontSize:9}, headStyles:{fillColor:[37,99,235]}, alternateRowStyles:{fillColor:[248,250,252]} });
+    doc.save(`${filename}.pdf`);
+  }
+  toast(`✓ Exported ${rows.length} rows as ${format.toUpperCase()}`);
+}
+
+function mebkDownloadBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// — Import: template download ————————————————
+function mebkDownloadTemplate(key) {
+  mebkCloseMenus();
+  const cfg = MEBK_IO_CFG[key];
+  const importCols = cfg.cols.filter(c => c.k !== 'is_active' || true); // include all
+  const headers = importCols.map(c => c.h);
+  const example = importCols.map(c => {
+    if (c.k === 'is_active') return 'Yes';
+    if (c.h === 'Code') return `${key.toUpperCase()}-001`;
+    if (c.h.includes('Statement') || c.h.includes('Experience')) return `Example ${cfg.label.slice(0,-1)} statement`;
+    if (c.h === 'Name') return `Example ${cfg.label.slice(0,-1)}`;
+    if (c.h === 'Category') return 'Category Name';
+    return 'Description here';
+  });
+  const csv = [headers, example].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  mebkDownloadBlob(new Blob([csv], {type:'text/csv'}), `${cfg.label.replace(/\s+/g,'_')}_template.csv`);
+  toast('✓ Template downloaded');
+}
+
+// — Import: trigger file picker ——————————————
+function mebkTriggerImport(key, fmt) {
+  mebkCloseMenus();
+  window._mebkImportKey = key;
+  window._mebkImportFmt = fmt;
+  const inp = document.getElementById('mebk-file-input');
+  if (!inp) return;
+  inp.accept = fmt === 'csv' ? '.csv' : '.xlsx,.xls';
+  inp.value = '';
+  inp.click();
+}
+
+async function mebkHandleFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const key = window._mebkImportKey;
+  const cfg = MEBK_IO_CFG[key];
+  if (!cfg) return;
+  try {
+    let rows = [];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'csv') {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+      rows = lines.slice(1).map(line => {
+        const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || line.split(',');
+        const obj = {};
+        headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+        return obj;
+      });
+    } else {
+      const buf = await file.arrayBuffer();
+      const wb  = XLSX.read(buf);
+      const ws  = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+    }
+    // Map headers to columns
+    const colMap = {};
+    cfg.cols.forEach(c => { colMap[c.h] = c.k; });
+    const existing = cfg.dataFn();
+    const existingCodes = new Set(existing.map(e => String(e[cfg.codeCol]||'').toLowerCase()));
+    const parsed = rows.filter(r => Object.values(r).some(v => v !== '')).map(r => {
+      const mapped = {};
+      Object.entries(r).forEach(([h,v]) => { if (colMap[h]) mapped[colMap[h]] = v; });
+      const code = String(mapped[cfg.codeCol]||'').toLowerCase();
+      const action = !code ? 'error' : existingCodes.has(code) ? 'update' : 'new';
+      return { ...mapped, _action: action, _error: !mapped[cfg.nameCol] ? 'Name required' : action === 'error' ? 'Code required' : '' };
+    });
+    window._mebkImportRows = parsed;
+    mebkShowImportPreview(key, parsed);
+  } catch(e) { alert('Could not parse file: ' + e.message); }
+}
+
+function mebkShowImportPreview(key, rows) {
+  const cfg = MEBK_IO_CFG[key];
+  const nNew    = rows.filter(r => r._action === 'new').length;
+  const nUpdate = rows.filter(r => r._action === 'update').length;
+  const nError  = rows.filter(r => r._action === 'error').length;
+  document.getElementById('mebk-import-modal-title').textContent = `Import Preview — ${cfg.label}`;
+  document.getElementById('mebk-import-summary').textContent =
+    `${rows.length} rows · ${nNew} new · ${nUpdate} update · ${nError} error`;
+  document.getElementById('mebk-import-confirm-btn').disabled = (nNew + nUpdate) === 0;
+  const cols = cfg.cols;
+  const body = document.getElementById('mebk-import-modal-body');
+  body.innerHTML = `
+    <table class="mebk-import-table">
+      <thead><tr><th>Action</th>${cols.map(c=>`<th>${c.h}</th>`).join('')}<th>Note</th></tr></thead>
+      <tbody>${rows.map(r => `
+        <tr class="${r._action}">
+          <td><span class="mebk-import-badge ${r._action}">${r._action.toUpperCase()}</span></td>
+          ${cols.map(c=>`<td>${r[c.k]??''}</td>`).join('')}
+          <td style="color:var(--warn);font-size:11px;">${r._error||''}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  document.getElementById('mebk-import-modal').classList.add('open');
+}
+
+function mebkCloseImportModal() {
+  document.getElementById('mebk-import-modal').classList.remove('open');
+  window._mebkImportRows = [];
+}
+
+async function mebkConfirmImport() {
+  const key = window._mebkImportKey;
+  const cfg = MEBK_IO_CFG[key];
+  const rows = window._mebkImportRows.filter(r => r._action !== 'error' && !r._error);
+  if (!rows.length) return;
+  const btn = document.getElementById('mebk-import-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Importing…';
+  let ok = 0, fail = 0;
+  for (const row of rows) {
+    try {
+      const payload = {};
+      cfg.cols.forEach(c => {
+        if (c.k === '_catName') return;
+        if (c.k === '_action' || c.k === '_error') return;
+        if (row[c.k] !== undefined && row[c.k] !== '') {
+          if (c.k === 'is_active') payload[c.k] = String(row[c.k]).toLowerCase() !== 'no';
+          else payload[c.k] = row[c.k];
+        }
+      });
+      let res;
+      if (row._action === 'update') {
+        const existing = cfg.dataFn().find(e => String(e[cfg.codeCol]).toLowerCase() === String(payload[cfg.codeCol]).toLowerCase());
+        if (existing) {
+          res = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${existing[cfg.idCol]}`, {
+            method:'PATCH', headers:MEBK_HDR, body:JSON.stringify(payload)
+          });
+        }
+      } else {
+        payload.is_template = true;
+        res = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}`, {
+          method:'POST', headers:{...MEBK_HDR,'Prefer':'return=minimal'}, body:JSON.stringify(payload)
+        });
+      }
+      res?.ok ? ok++ : fail++;
+    } catch(e) { fail++; }
+  }
+  btn.disabled = false; btn.textContent = 'Confirm Import';
+  mebkCloseImportModal();
+  toast(`✓ Import done — ${ok} saved${fail ? `, ${fail} failed` : ''}`);
+  // Reload the tab data
+  if (['env','ce','stk','ocat','acat'].includes(key)) {
+    window[`mebkRefLoaded_${key}`] = false; await mebkRefLoad(key); window[`mebkRefLoaded_${key}`] = true;
+  } else if (key === 'oc') await mebkLoadOutcomes();
+  else if (key === 'ac') await mebkLoadActivities();
+  else if (key === 'im') await mebkLoadImpacts();
+  await mebkLoadStats();
+}
+
 // ══ Reference Data — generic CRUD ══════════════════
 const MEBK_REF_CFG = {
   env:  { table:'environment',        idCol:'environment_id',       codeCol:'environment_code',      nameCol:'environment_name', descCol:'description', hasActive:true,  color:'#f59e0b' },
@@ -8527,6 +8821,8 @@ async function mebkLoadOutcomes() {
     );
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+    window.mebkLibData = window.mebkLibData || {};
+    window.mebkLibData.oc = data.map(d => ({ ...d, _catName: d.outcome_categories?.category_name || '' }));
     const el2 = document.getElementById('mebk-outcomes-list');
     if (!el2) return;
     const emptyMsg = filterVal === 'inactive'
@@ -8584,6 +8880,8 @@ async function mebkLoadActivities() {
     );
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+    window.mebkLibData = window.mebkLibData || {};
+    window.mebkLibData.ac = data.map(d => ({ ...d, _catName: d.activity_category?.category_name || '' }));
     const el2 = document.getElementById('mebk-activities-list');
     if (!el2) return;
     const emptyMsg = filterVal === 'inactive'
@@ -8837,6 +9135,8 @@ async function mebkLoadImpacts() {
     }
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+    window.mebkLibData = window.mebkLibData || {};
+    window.mebkLibData.im = data.map(d => ({ ...d, _catName: d.impact_category?.category_name || '' }));
     const el2 = document.getElementById('mebk-impacts-list');
     if (!el2) return;
     if (!data.length) {
