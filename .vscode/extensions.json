@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "formulahendry.auto-rename-tag",
+    "ritwickdey.liveserver",
+    "bradlc.vscode-tailwindcss",
+    "esbenp.prettier-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "ms-vscode.live-server",
+    "HTMLHint.vscode-htmlhint"
+  ]
+}

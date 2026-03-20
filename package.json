@@ -1,0 +1,41 @@
+{
+  "name": "mantra-imis-portal",
+  "version": "16.2.0",
+  "description": "Mantra IMIS — Impact Monitoring Information System for education programme management across Indian states",
+  "private": true,
+  "keywords": [
+    "imis",
+    "impact-monitoring",
+    "education",
+    "government-saas",
+    "m-and-e",
+    "grant-management"
+  ],
+  "homepage": "https://github.com/your-org/mantra-imis-portal",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/mantra-imis-portal.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "serve": "npx serve src -p 3000 --no-clipboard",
+    "serve:py": "python -m http.server 3000 --directory src",
+    "dev": "npx live-server src --port=3000 --open=/index.html",
+    "lint:html": "npx htmlhint src/index.html --config .htmlhintrc",
+    "validate": "npx html-validate src/index.html",
+    "build": "npm run lint:html && echo '✔ Build passed — static site requires no compilation'",
+    "deploy:gh-pages": "npx gh-pages -d src",
+    "deploy:netlify": "npx netlify-cli deploy --dir=src --prod",
+    "start": "npm run serve"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1",
+    "htmlhint": "^1.1.4",
+    "html-validate": "^9.4.0",
+    "live-server": "^1.2.2",
+    "serve": "^14.2.3"
+  }
+}

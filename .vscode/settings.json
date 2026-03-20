@@ -1,0 +1,21 @@
+{
+  "editor.formatOnSave": false,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "editor.rulers": [120],
+  "files.exclude": {
+    "node_modules": true,
+    ".cache": true
+  },
+  "liveServer.settings.port": 3000,
+  "liveServer.settings.root": "/src",
+  "liveServer.settings.open": false,
+  "html.format.wrapLineLength": 0,
+  "editor.wordWrap": "on",
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.formatOnSave": false
+  }
+}
