@@ -2478,8 +2478,12 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','stk')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-stk"><button class="mebk-io-menu-item" onclick="mebkExport('stk','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('stk','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('stk','pdf');mebkCloseMenus()">Export PDF</button></div></div>
             </div>
             <div class="mebk-add-form" id="mebk-ref-form-stk" style="display:none;flex-wrap:wrap;gap:8px;">
-              <input class="mebk-inp" id="mebk-ref-inp-name-stk" placeholder="Stakeholder type name…" style="flex:1;min-width:200px;"/>
-              <input class="mebk-inp" id="mebk-ref-inp-desc-stk" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-name-stk" placeholder="Stakeholder type name…" style="flex:1;min-width:180px;"/>
+              <select class="mebk-sel" id="mebk-ref-inp-geo-stk" style="min-width:140px;">
+                <option value="">Geography Level…</option>
+                <option value="state">State</option><option value="district">District</option><option value="block">Block</option><option value="cluster">Cluster</option><option value="school">School</option>
+              </select>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-stk" placeholder="Description (optional)…" style="flex:2;min-width:180px;"/>
               <button class="btn" style="font-size:12px;padding:7px 14px;background:#0d9488;color:#fff;border-color:#0d9488;" onclick="mebkRefSave('stk')">Save</button>
               <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('stk')">Cancel</button>
             </div>
@@ -8695,7 +8699,7 @@ async function mebkConfirmImport() {
 const MEBK_REF_CFG = {
   env:  { table:'environment',        idCol:'environment_id',       codeCol:'environment_code',      nameCol:'environment_name', descCol:'description', hasActive:true,  color:'#f59e0b' },
   ce:   { table:'child_experience',   idCol:'child_experience_id',  codeCol:'child_experience_code', nameCol:'experience_name',  descCol:'description', hasActive:true,  color:'#ec4899' },
-  stk:  { table:'stakeholder_type',   idCol:'stakeholder_type_id',  codeCol:'stakeholder_type_code', nameCol:'type_name',        descCol:'description', hasActive:false, color:'#0d9488' },
+  stk:  { table:'stakeholder_type',   idCol:'stakeholder_type_id',  codeCol:'stakeholder_type_code', nameCol:'type_name',        descCol:'description', hasActive:false, color:'#0d9488', geoCol:'allowed_geography_level' },
   ocat: { table:'outcome_categories', idCol:'outcome_category_id',  codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--ok)' },
   acat: { table:'activity_category',  idCol:'activity_category_id', codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--blue)' },
 };
@@ -8738,9 +8742,11 @@ function mebkRefRender(key) {
     const id = i[cfg.idCol];
     const badge = `<span style="font-size:10px;font-weight:700;font-family:var(--mono);background:var(--mist-2);padding:2px 7px;border-radius:4px;color:var(--slate);white-space:nowrap;">${i[cfg.codeCol]||'—'}</span>`;
     const activeDot = cfg.hasActive ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${i.is_active?'var(--ok)':'var(--mist-3)'};margin-right:4px;"></span>` : '';
-    return `<div class="mebk-ref-row" id="mebk-ref-row-${key}-${id}">
+    const geoLevel = cfg.geoCol && i[cfg.geoCol] ? `<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#ccfbf1;color:#0d9488;white-space:nowrap;">${i[cfg.geoCol]}</span>` : '';
+    return `<div class="mebk-ref-row" style="grid-template-columns:${cfg.geoCol?'100px 1fr 100px 1fr 96px':'100px 1fr 1fr 96px'};" id="mebk-ref-row-${key}-${id}">
       ${badge}
       <span style="display:flex;align-items:center;gap:6px;">${activeDot}<strong style="font-size:13px;">${i[cfg.nameCol]||'—'}</strong></span>
+      ${cfg.geoCol ? geoLevel : ''}
       <span style="color:var(--slate);font-size:12px;">${i[cfg.descCol]||''}</span>
       <span style="display:flex;gap:4px;justify-content:flex-end;">
         ${cfg.hasActive ? `<button class="mebk-action-btn edit" title="${i.is_active?'Deactivate':'Activate'}" onclick="mebkRefToggleActive('${key}','${id}',${!i.is_active})" style="font-size:10px;padding:2px 6px;">${i.is_active?'Off':'On'}</button>` : ''}
@@ -8767,7 +8773,7 @@ function mebkRefShowForm(key) {
 }
 function mebkRefHideForm(key) {
   const f = document.getElementById(`mebk-ref-form-${key}`);
-  if (f) { f.style.display = 'none'; ['name','desc'].forEach(x => { const el = document.getElementById(`mebk-ref-inp-${x}-${key}`); if(el) el.value=''; }); }
+  if (f) { f.style.display = 'none'; ['name','geo','desc'].forEach(x => { const el = document.getElementById(`mebk-ref-inp-${x}-${key}`); if(el) el.value=''; }); }
 }
 
 async function mebkRefSave(key) {
@@ -8775,9 +8781,11 @@ async function mebkRefSave(key) {
   const name = document.getElementById(`mebk-ref-inp-name-${key}`)?.value.trim();
   const desc = document.getElementById(`mebk-ref-inp-desc-${key}`)?.value.trim();
   if (!name) { alert('Name is required.'); return; }
+  const geo  = document.getElementById(`mebk-ref-inp-geo-${key}`)?.value || null;
   const payload = { [cfg.nameCol]: name };
   if (cfg.descCol && desc) payload[cfg.descCol] = desc;
   if (cfg.hasActive) payload.is_active = true;
+  if (cfg.geoCol && geo) payload[cfg.geoCol] = geo;
   try {
     const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}`, {
       method:'POST', headers:{...MEBK_HDR,'Prefer':'return=representation'}, body:JSON.stringify(payload)
@@ -8797,9 +8805,13 @@ function mebkRefEdit(key, id) {
   if (!item) return;
   const row = document.getElementById(`mebk-ref-row-${key}-${id}`);
   if (!row) return;
+  const geoOpts = cfg.geoCol ? ['state','district','block','cluster','school']
+    .map(g => `<option value="${g}" ${item[cfg.geoCol]===g?'selected':''}>${g.charAt(0).toUpperCase()+g.slice(1)}</option>`).join('') : '';
+  row.style.gridTemplateColumns = cfg.geoCol ? '100px 1fr 110px 1fr 96px' : '100px 1fr 1fr 96px';
   row.innerHTML = `
     <span style="font-size:10px;color:var(--slate);font-family:var(--mono);">${item[cfg.codeCol]||'—'}</span>
     <input id="mebk-ref-edit-name-${key}-${id}" value="${(item[cfg.nameCol]||'').replace(/"/g,'&quot;')}" placeholder="Name…" style="padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r);font-size:12px;width:100%;"/>
+    ${cfg.geoCol ? `<select id="mebk-ref-edit-geo-${key}-${id}" style="padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r);font-size:12px;"><option value="">Geography…</option>${geoOpts}</select>` : ''}
     <input id="mebk-ref-edit-desc-${key}-${id}" value="${(item[cfg.descCol]||'').replace(/"/g,'&quot;')}" placeholder="Description…" style="padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r);font-size:12px;width:100%;"/>
     <span style="display:flex;gap:4px;justify-content:flex-end;">
       <button class="mebk-action-btn edit" onclick="mebkRefSaveEdit('${key}','${id}')">${IC.check||'✓'}</button>
@@ -8814,9 +8826,10 @@ async function mebkRefSaveEdit(key, id) {
   const desc = document.getElementById(`mebk-ref-edit-desc-${key}-${id}`)?.value.trim();
   if (!name) { alert('Name cannot be empty.'); return; }
   try {
-    const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${id}`, {
+    const geo  = document.getElementById(`mebk-ref-edit-geo-${key}-${id}`)?.value || null;
+  const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${id}`, {
       method:'PATCH', headers:{...MEBK_HDR,'Prefer':'return=representation'},
-      body: JSON.stringify({ [cfg.nameCol]: name, ...(cfg.descCol ? {[cfg.descCol]: desc||null} : {}) })
+      body: JSON.stringify({ [cfg.nameCol]: name, ...(cfg.descCol ? {[cfg.descCol]: desc||null} : {}), ...(cfg.geoCol && geo ? {[cfg.geoCol]: geo} : {}) })
     });
     if (!r.ok) throw new Error(await r.text());
     const updated = await r.json();
