@@ -5676,21 +5676,29 @@ select:focus:not(:focus-visible) { outline: none; }
           try {
             const url = GS_SB_URL, h = GS_SB_HDR;
             
-            // Fetch outcomes and activities for this program
+            // First, fetch interventions for this program
+            const intRes = await fetch(`${url}/rest/v1/intervention?program_id=eq.${progId}&is_active=eq.true&select=intervention_id,intervention_name,intervention_code`, { headers: h });
+            const interventions = intRes.ok ? await intRes.json() : [];
+            
+            if (!interventions.length) {
+              // No interventions — show empty state
+              const empty = document.getElementById('lfa-interventions-empty');
+              if (empty) empty.style.display = '';
+              console.log('[lfaLoadFromPublished] No interventions found for program');
+              return;
+            }
+            
+            const intIds = interventions.map(i => i.intervention_id);
+            console.log('[lfaLoadFromPublished] Found', interventions.length, 'interventions');
+            
+            // Fetch outcomes and activities for these interventions
             const [ocRes, acRes] = await Promise.all([
-              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=*&is_active=eq.true`, { headers: h }),
-              fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=*&is_active=eq.true`, { headers: h })
+              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=in.(${intIds.join(',')})&select=*&is_active=eq.true`, { headers: h }),
+              fetch(`${url}/rest/v1/lfa_activity?intervention_id=in.(${intIds.join(',')})&select=*&is_active=eq.true`, { headers: h })
             ]);
             
             const outcomes = ocRes.ok ? await ocRes.json() : [];
             const activities = acRes.ok ? await acRes.json() : [];
-            
-            if (!outcomes.length && !activities.length) {
-              // No published data — show empty state
-              const empty = document.getElementById('lfa-interventions-empty');
-              if (empty) empty.style.display = '';
-              return;
-            }
             
             console.log('[lfaLoadFromPublished] Found', outcomes.length, 'outcomes,', activities.length, 'activities');
             
@@ -5707,71 +5715,102 @@ select:focus:not(:focus-visible) { outline: none; }
               stkTypes.forEach(s => { stkTypeMap[s.stakeholder_type_id] = s.type_name; });
             }
             
-            // Group by stakeholder type to create intervention cards
-            const byStakeholder = {};
-            outcomes.forEach(oc => {
-              const stkName = stkTypeMap[oc.stakeholder_type_id] || 'General';
-              if (!byStakeholder[stkName]) byStakeholder[stkName] = { outcomes: [], activities: [] };
-              byStakeholder[stkName].outcomes.push(oc);
-            });
-            activities.forEach(ac => {
-              const stkName = stkTypeMap[ac.stakeholder_type_id] || 'General';
-              if (!byStakeholder[stkName]) byStakeholder[stkName] = { outcomes: [], activities: [] };
-              byStakeholder[stkName].activities.push(ac);
+            // Create intervention name map
+            const intNameMap = {};
+            const intCodeMap = {};
+            interventions.forEach(i => { 
+              intNameMap[i.intervention_id] = i.intervention_name; 
+              intCodeMap[i.intervention_id] = i.intervention_code;
             });
             
-            // Build intervention card(s) - create one "Published LFA" intervention
+            // Group by intervention, then by stakeholder
+            const byIntervention = {};
+            interventions.forEach(intv => {
+              byIntervention[intv.intervention_id] = {
+                name: intv.intervention_name,
+                code: intv.intervention_code,
+                stakeholders: {}
+              };
+            });
+            
+            outcomes.forEach(oc => {
+              const intId = oc.intervention_id;
+              const stkName = stkTypeMap[oc.stakeholder_type_id] || 'General';
+              if (!byIntervention[intId]) return;
+              if (!byIntervention[intId].stakeholders[stkName]) {
+                byIntervention[intId].stakeholders[stkName] = { outcomes: [], activities: [] };
+              }
+              byIntervention[intId].stakeholders[stkName].outcomes.push(oc);
+            });
+            
+            activities.forEach(ac => {
+              const intId = ac.intervention_id;
+              const stkName = stkTypeMap[ac.stakeholder_type_id] || 'General';
+              if (!byIntervention[intId]) return;
+              if (!byIntervention[intId].stakeholders[stkName]) {
+                byIntervention[intId].stakeholders[stkName] = { outcomes: [], activities: [] };
+              }
+              byIntervention[intId].stakeholders[stkName].activities.push(ac);
+            });
+            
+            // Build intervention cards
             lfaDraftRestoring = true;
+            let cardCount = 0;
             try {
-              // Create a single intervention card for the published data
-              lfaBuildIntvCard('Published LFA', 'LFA-PUB', '', '', '', '');
-              const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
-              const card = allDynamic[allDynamic.length - 1];
-              if (!card) return;
-              
-              // Add stakeholder data
-              Object.keys(byStakeholder).forEach(stkName => {
-                const data = byStakeholder[stkName];
-                // Activate stakeholder chip
-                card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
-                  if (chip.textContent.trim() === stkName) {
-                    chip.classList.add('on');
-                    lfaToggleStk(chip, card.id, stkName);
-                  }
+              for (const intId of Object.keys(byIntervention)) {
+                const intv = byIntervention[intId];
+                
+                // Create intervention card
+                lfaBuildIntvCard(intv.name, intv.code, '', '', '', '');
+                const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
+                const card = allDynamic[allDynamic.length - 1];
+                if (!card) continue;
+                cardCount++;
+                
+                // Add stakeholder data
+                Object.keys(intv.stakeholders).forEach(stkName => {
+                  const data = intv.stakeholders[stkName];
+                  // Activate stakeholder chip
+                  card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
+                    if (chip.textContent.trim() === stkName) {
+                      chip.classList.add('on');
+                      lfaToggleStk(chip, card.id, stkName);
+                    }
+                  });
+                  // Add outcomes and activities
+                  const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stkName.toLowerCase().replace(/[^a-z0-9]/g,'-');
+                  data.outcomes.forEach(oc => {
+                    const inp = document.getElementById('lfa-oc-inp-'+rowId);
+                    const catSel = document.getElementById('lfa-oc-cat-'+rowId);
+                    if (inp) { 
+                      inp.value = oc.outcome_statement; 
+                      if (catSel && oc.outcome_category) catSel.value = oc.outcome_category; 
+                      lfaConfirmAddOC(rowId); 
+                    }
+                  });
+                  data.activities.forEach(ac => {
+                    const inp = document.getElementById('lfa-ac-inp-'+rowId);
+                    const catSel = document.getElementById('lfa-ac-cat-'+rowId);
+                    if (inp) { 
+                      inp.value = ac.activity_statement; 
+                      if (catSel && ac.activity_category) catSel.value = ac.activity_category; 
+                      lfaConfirmAddAC(rowId); 
+                    }
+                  });
                 });
-                // Add outcomes and activities
-                const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stkName.toLowerCase().replace(/[^a-z0-9]/g,'-');
-                data.outcomes.forEach(oc => {
-                  const inp = document.getElementById('lfa-oc-inp-'+rowId);
-                  const catSel = document.getElementById('lfa-oc-cat-'+rowId);
-                  if (inp) { 
-                    inp.value = oc.outcome_statement; 
-                    if (catSel && oc.outcome_category) catSel.value = oc.outcome_category; 
-                    lfaConfirmAddOC(rowId); 
-                  }
-                });
-                data.activities.forEach(ac => {
-                  const inp = document.getElementById('lfa-ac-inp-'+rowId);
-                  const catSel = document.getElementById('lfa-ac-cat-'+rowId);
-                  if (inp) { 
-                    inp.value = ac.activity_statement; 
-                    if (catSel && ac.activity_category) catSel.value = ac.activity_category; 
-                    lfaConfirmAddAC(rowId); 
-                  }
-                });
-              });
+              }
             } finally {
               lfaDraftRestoring = false;
             }
             
             // Update count
             const cnt = document.getElementById('lfa-intv-count');
-            if (cnt) cnt.textContent = '1';
+            if (cnt) cnt.textContent = cardCount;
             
             // Show indicator
             const ind = document.getElementById('lfa-draft-saved-ind');
             if (ind) {
-              ind.textContent = `Loaded from published LFA · ${outcomes.length} outcomes, ${activities.length} activities`;
+              ind.textContent = `Loaded ${cardCount} intervention(s) · ${outcomes.length} outcomes, ${activities.length} activities`;
               ind.style.opacity = '1';
               setTimeout(() => { ind.style.opacity = '0'; }, 5000);
             }
