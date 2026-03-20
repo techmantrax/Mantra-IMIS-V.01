@@ -5003,12 +5003,18 @@ select:focus:not(:focus-visible) { outline: none; }
         async function lfaFetchProgramId(progName) {
           if (window.lfaCurrentProgId) return window.lfaCurrentProgId;
           try {
+            console.log('[lfaFetchProgramId] Looking up:', progName);
             // Try to fetch existing program
-            const r = await fetch(`${GS_SB_URL}/rest/v1/program?program_name=eq.${encodeURIComponent(progName)}&select=program_id&limit=1`, { headers: GS_SB_HDR });
+            const fetchUrl = `${GS_SB_URL}/rest/v1/program?program_name=eq.${encodeURIComponent(progName)}&select=program_id&limit=1`;
+            console.log('[lfaFetchProgramId] Fetch URL:', fetchUrl);
+            const r = await fetch(fetchUrl, { headers: GS_SB_HDR });
+            console.log('[lfaFetchProgramId] Fetch response:', r.status, r.statusText);
             if (r.ok) {
               const rows = await r.json();
+              console.log('[lfaFetchProgramId] Found programs:', rows.length);
               if (rows.length > 0) {
                 window.lfaCurrentProgId = rows[0].program_id;
+                console.log('[lfaFetchProgramId] Using existing:', window.lfaCurrentProgId);
                 return window.lfaCurrentProgId;
               }
             }
@@ -5020,11 +5026,17 @@ select:focus:not(:focus-visible) { outline: none; }
               headers: { ...GS_SB_HDR, 'Prefer': 'return=representation' },
               body: JSON.stringify({ program_name: progName, is_active: true })
             });
+            console.log('[lfaFetchProgramId] Create response:', createRes.status, createRes.statusText);
             if (createRes.ok) {
-              const [newProg] = await createRes.json();
-              window.lfaCurrentProgId = newProg.program_id;
+              const body = await createRes.json();
+              console.log('[lfaFetchProgramId] Create response body:', body);
+              const newProg = Array.isArray(body) ? body[0] : body;
+              window.lfaCurrentProgId = newProg?.program_id;
               console.log('[lfaFetchProgramId] Program created:', window.lfaCurrentProgId);
               return window.lfaCurrentProgId;
+            } else {
+              const errBody = await createRes.text();
+              console.error('[lfaFetchProgramId] Create failed:', createRes.status, errBody);
             }
             return null;
           } catch(e) {
