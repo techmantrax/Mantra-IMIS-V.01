@@ -13308,63 +13308,93 @@ async function mrSubmitToDB() {
 }
 
 // ── Load published indicators from DB for all programs ───────────────────────
+// This properly filters indicators by program through LFA outcome/activity links
 async function mrLoadAllPublishedIndicators() {
   if (!GS_SB_URL) return;
   try {
-    // Fetch all indicators linked to LFA outcomes/activities
-    const res = await fetch(
-      `${GS_SB_URL}/rest/v1/indicator?or=(lfa_outcome_id.not.is.null,lfa_activity_id.not.is.null)&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id,is_active&is_active=eq.true`,
-      { headers: GS_SB_HDR }
-    );
-    if (!res.ok) return;
-    const indicators = await res.json();
-    if (!indicators.length) {
-      console.log('[mrLoadAllPublishedIndicators] No indicators with LFA links found');
-      return;
-    }
-
-    // Get all programs - try dbCache first, then fetch directly
-    let programs = [];
+    // Get all programs with their IDs
+    let programsData = [];
     if (typeof dbCache !== 'undefined' && dbCache.programs && dbCache.programs.length > 0) {
-      programs = dbCache.programs.map(p => p.program_name);
+      programsData = dbCache.programs;
     } else {
-      const progRes = await fetch(`${GS_SB_URL}/rest/v1/program?select=program_name`, { headers: GS_SB_HDR });
+      const progRes = await fetch(`${GS_SB_URL}/rest/v1/program?select=program_id,program_name`, { headers: GS_SB_HDR });
       if (progRes.ok) {
-        const progData = await progRes.json();
-        programs = progData.map(x => x.program_name);
+        programsData = await progRes.json();
       }
     }
 
-    if (!programs.length) {
+    if (!programsData.length) {
       console.log('[mrLoadAllPublishedIndicators] No programs found');
       return;
     }
 
-    // For now, assign all indicators to all programs (since there's no direct program link)
-    // In future, this should be filtered by intervention-program scope
-    programs.forEach(program => {
-      if (!publishedFrameworkByProg[program]) {
-        const rows = indicators.map((ind, idx) => ({
-          id: ind.indicator_id || (Date.now() + idx),
-          prog: program,
-          fy: '2025-26',
-          name: ind.indicator_name,
-          code: ind.indicator_code || '',
-          unit: ind.unit_of_measure || 'count',
-          freq: ind.frequency || 'monthly',
-          active: true,
-          target: '',
-          type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
-          sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
-          dir: ind.direction || 'increase',
-        }));
-        publishedFrameworkByProg[program] = {
-          rows, refs: {}, ts: new Date(), count: rows.length, prog: program
-        };
+    // For each program, load its LFA outcomes/activities and linked indicators
+    for (const prog of programsData) {
+      const progId = prog.program_id;
+      const progName = prog.program_name;
+      
+      if (!progId) continue;
+      
+      // Skip if already loaded
+      if (publishedFrameworkByProg[progName]) continue;
+
+      // Fetch LFA outcomes for this program (intervention_id = program_id in current schema)
+      const [ocRes, acRes] = await Promise.all([
+        fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&is_active=eq.true&select=lfa_outcome_id`, { headers: GS_SB_HDR }),
+        fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=eq.${progId}&is_active=eq.true&select=lfa_activity_id`, { headers: GS_SB_HDR })
+      ]);
+
+      const outcomes = ocRes.ok ? await ocRes.json() : [];
+      const activities = acRes.ok ? await acRes.json() : [];
+
+      const outcomeIds = outcomes.map(o => o.lfa_outcome_id);
+      const activityIds = activities.map(a => a.lfa_activity_id);
+
+      if (!outcomeIds.length && !activityIds.length) {
+        console.log(`[mrLoadAllPublishedIndicators] No LFA data for ${progName}`);
+        publishedFrameworkByProg[progName] = { rows: [], refs: {}, ts: new Date(), count: 0, prog: progName };
+        continue;
       }
-    });
+
+      // Build query for indicators linked to this program's outcomes/activities
+      const orClauses = [];
+      if (outcomeIds.length) {
+        orClauses.push(`lfa_outcome_id.in.(${outcomeIds.join(',')})`);
+      }
+      if (activityIds.length) {
+        orClauses.push(`lfa_activity_id.in.(${activityIds.join(',')})`);
+      }
+
+      const indRes = await fetch(
+        `${GS_SB_URL}/rest/v1/indicator?or=(${orClauses.join(',')})&is_active=eq.true&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id`,
+        { headers: GS_SB_HDR }
+      );
+
+      const indicators = indRes.ok ? await indRes.json() : [];
+      
+      const rows = indicators.map((ind, idx) => ({
+        id: ind.indicator_id || (Date.now() + idx),
+        prog: progName,
+        fy: '2025-26',
+        name: ind.indicator_name,
+        code: ind.indicator_code || '',
+        unit: ind.unit_of_measure || 'count',
+        freq: ind.frequency || 'monthly',
+        active: true,
+        target: '',
+        type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
+        sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
+        dir: ind.direction || 'increase',
+      }));
+
+      publishedFrameworkByProg[progName] = {
+        rows, refs: {}, ts: new Date(), count: rows.length, prog: progName
+      };
+      
+      console.log(`[mrLoadAllPublishedIndicators] ${progName}: ${rows.length} indicators`);
+    }
     
-    console.log('[mrLoadAllPublishedIndicators] Loaded', indicators.length, 'indicators for', programs.length, 'programs');
+    console.log('[mrLoadAllPublishedIndicators] Completed loading for', programsData.length, 'programs');
   } catch (e) { 
     console.warn('[mrLoadAllPublishedIndicators] Error:', e); 
   }
