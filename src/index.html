@@ -11150,6 +11150,37 @@ let ME_PROGRAMS_MAP = {}; // program_name → program_id
 let lfa_outcome_cache = {}; // program_id → outcome count (for LFA badge check)
 let lfa_activity_cache = {}; // program_id → activity count (for LFA badge check)
 
+// Pre-load LFA cache for all programs to show correct badges
+async function preloadLfaCache() {
+  if (!GS_SB_URL) return;
+  try {
+    // Get all program IDs
+    const progIds = Object.values(ME_PROGRAMS_MAP).filter(Boolean);
+    if (!progIds.length) return;
+
+    // Fetch outcome counts per program (intervention_id = program_id in current schema)
+    const [ocRes, acRes] = await Promise.all([
+      fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
+      fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR })
+    ]);
+
+    const outcomes = ocRes.ok ? await ocRes.json() : [];
+    const activities = acRes.ok ? await acRes.json() : [];
+
+    // Count per program
+    outcomes.forEach(o => {
+      lfa_outcome_cache[o.intervention_id] = (lfa_outcome_cache[o.intervention_id] || 0) + 1;
+    });
+    activities.forEach(a => {
+      lfa_activity_cache[a.intervention_id] = (lfa_activity_cache[a.intervention_id] || 0) + 1;
+    });
+
+    console.log('[preloadLfaCache] Loaded LFA counts:', { outcomes: outcomes.length, activities: activities.length });
+  } catch (e) {
+    console.warn('[preloadLfaCache] Error:', e);
+  }
+}
+
 // Cache for indicator category IDs — used when publishing to DB
 var meb2CatIds = {};  // { 'IC-001': uuid, 'IC-002': uuid }
 
@@ -11198,6 +11229,9 @@ async function renderMEProgSelector() {
       return;
     }
   }
+
+  // Pre-load LFA cache for all programs to show correct badge
+  await preloadLfaCache();
 
   const dotCss = c => `display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:3px;`;
   grid.innerHTML = ME_PROGRAMS.map(prog => {
