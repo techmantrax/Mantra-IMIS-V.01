@@ -2188,6 +2188,22 @@ select:focus:not(:focus-visible) { outline: none; }
         .mebk-tab.im{color:#7c3aed;}
         .mebk-tab.im.active,.mebk-tab.im:hover{color:#7c3aed;border-color:#7c3aed;}
         #mebk-filter-im .mebk-filter-pill.sel{color:#7c3aed;}
+        /* Reference data tab colours */
+        .mebk-tab.env.active,.mebk-tab.env:hover{color:#f59e0b;border-color:#f59e0b;}
+        .mebk-tab.ce.active,.mebk-tab.ce:hover{color:#ec4899;border-color:#ec4899;}
+        .mebk-tab.stk.active,.mebk-tab.stk:hover{color:#0d9488;border-color:#0d9488;}
+        .mebk-tab.ocat.active,.mebk-tab.ocat:hover{color:var(--ok);border-color:var(--ok);}
+        .mebk-tab.acat.active,.mebk-tab.acat:hover{color:var(--blue);border-color:var(--blue);}
+        /* Scrollable tab bar for 8 tabs */
+        .mebk-tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
+        .mebk-tabs::-webkit-scrollbar{display:none;}
+        .mebk-tab-divider{width:1px;background:var(--mist-2);margin:6px 4px;flex-shrink:0;}
+        /* Reference data rows */
+        .mebk-ref-row{display:grid;grid-template-columns:100px 1fr 1fr 96px;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--mist-2);font-size:13px;}
+        .mebk-ref-row:last-child{border-bottom:none;}
+        .mebk-ref-list{border:1px solid var(--mist-2);border-radius:var(--r-md);background:var(--white);overflow:hidden;}
+        .mebk-ref-edit-row{display:grid;grid-template-columns:100px 1fr 1fr 96px;align-items:center;gap:8px;padding:8px 14px;background:var(--sky-bg);border-bottom:1px solid var(--mist-2);}
+        .mebk-ref-edit-row input{padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r);font-size:12px;width:100%;}
         .mebk-im-code{font-size:10px;font-weight:700;color:#7c3aed;font-family:var(--mono);background:#f5f3ff;padding:2px 7px;border-radius:4px;flex-shrink:0;}
         .mebk-im-card{border:1px solid var(--mist-2);border-radius:var(--r-md);margin-bottom:8px;overflow:hidden;background:var(--white);}
         .mebk-im-card.inactive{opacity:.6;}
@@ -2265,6 +2281,12 @@ select:focus:not(:focus-visible) { outline: none; }
             <button class="mebk-tab oc active" id="mebk-tab-oc" onclick="mebkSwitchTab('oc')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg> Outcomes</button>
             <button class="mebk-tab ac" id="mebk-tab-ac" onclick="mebkSwitchTab('ac')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Activities</button>
             <button class="mebk-tab im" id="mebk-tab-im" onclick="mebkSwitchTab('im')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Impact / Goals</button>
+            <div class="mebk-tab-divider"></div>
+            <button class="mebk-tab env" id="mebk-tab-env" onclick="mebkSwitchTab('env')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Environments</button>
+            <button class="mebk-tab ce"  id="mebk-tab-ce"  onclick="mebkSwitchTab('ce')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Child Experience</button>
+            <button class="mebk-tab stk" id="mebk-tab-stk" onclick="mebkSwitchTab('stk')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg> Stakeholder Types</button>
+            <button class="mebk-tab ocat" id="mebk-tab-ocat" onclick="mebkSwitchTab('ocat')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg> Outcome Categories</button>
+            <button class="mebk-tab acat" id="mebk-tab-acat" onclick="mebkSwitchTab('acat')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Activity Categories</button>
           </div>
 
           <!-- ── OUTCOMES PANEL ── -->
@@ -2349,6 +2371,101 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
             </div>
             <div id="mebk-impacts-list"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── ENVIRONMENTS PANEL ── -->
+          <div id="mebk-panel-env" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-env" placeholder="Search environments…" oninput="mebkRefSearch('env',this.value)"/>
+              <div class="mebk-filter-pills">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-ref-env-active"   onclick="mebkRefSetFilter('env','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-env-all"      onclick="mebkRefSetFilter('env','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-env-inactive" onclick="mebkRefSetFilter('env','inactive')">Inactive</button>
+              </div>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#f59e0b;color:#fff;border-color:#f59e0b;" onclick="mebkRefShowForm('env')">+ Add Environment</button>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-env" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-env" placeholder="Environment name…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-env" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#f59e0b;color:#fff;border-color:#f59e0b;" onclick="mebkRefSave('env')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('env')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-env"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── CHILD EXPERIENCE PANEL ── -->
+          <div id="mebk-panel-ce" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-ce" placeholder="Search child experience…" oninput="mebkRefSearch('ce',this.value)"/>
+              <div class="mebk-filter-pills">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-ref-ce-active"   onclick="mebkRefSetFilter('ce','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-ce-all"      onclick="mebkRefSetFilter('ce','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-ce-inactive" onclick="mebkRefSetFilter('ce','inactive')">Inactive</button>
+              </div>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#ec4899;color:#fff;border-color:#ec4899;" onclick="mebkRefShowForm('ce')">+ Add Experience</button>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-ce" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-ce" placeholder="Experience statement…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-ce" placeholder="Short label (optional)…" style="flex:1;min-width:150px;"/>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#ec4899;color:#fff;border-color:#ec4899;" onclick="mebkRefSave('ce')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('ce')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-ce"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── STAKEHOLDER TYPES PANEL ── -->
+          <div id="mebk-panel-stk" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-stk" placeholder="Search stakeholder types…" oninput="mebkRefSearch('stk',this.value)"/>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#0d9488;color:#fff;border-color:#0d9488;" onclick="mebkRefShowForm('stk')">+ Add Stakeholder Type</button>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-stk" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-stk" placeholder="Stakeholder type name…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-stk" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#0d9488;color:#fff;border-color:#0d9488;" onclick="mebkRefSave('stk')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('stk')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-stk"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── OUTCOME CATEGORIES PANEL ── -->
+          <div id="mebk-panel-ocat" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-ocat" placeholder="Search outcome categories…" oninput="mebkRefSearch('ocat',this.value)"/>
+              <div class="mebk-filter-pills">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-ref-ocat-active"   onclick="mebkRefSetFilter('ocat','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-ocat-all"      onclick="mebkRefSetFilter('ocat','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-ocat-inactive" onclick="mebkRefSetFilter('ocat','inactive')">Inactive</button>
+              </div>
+              <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;white-space:nowrap;" onclick="mebkRefShowForm('ocat')">+ Add Category</button>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-ocat" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-ocat" placeholder="Category name…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-ocat" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <button class="btn btn-ok" style="font-size:12px;padding:7px 14px;" onclick="mebkRefSave('ocat')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('ocat')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-ocat"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── ACTIVITY CATEGORIES PANEL ── -->
+          <div id="mebk-panel-acat" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-acat" placeholder="Search activity categories…" oninput="mebkRefSearch('acat',this.value)"/>
+              <div class="mebk-filter-pills">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-ref-acat-active"   onclick="mebkRefSetFilter('acat','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-acat-all"      onclick="mebkRefSetFilter('acat','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-acat-inactive" onclick="mebkRefSetFilter('acat','inactive')">Inactive</button>
+              </div>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkRefShowForm('acat')">+ Add Category</button>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-acat" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-acat" placeholder="Category name…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-acat" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="mebkRefSave('acat')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('acat')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-acat"><div class="mebk-loading">Loading…</div></div>
           </div>
 
         </div>
@@ -8162,12 +8279,181 @@ async function mebkSaveNewCat(tab) {
 }
 
 // ── Tab switch ──────────────────────────────────────
+const MEBK_ALL_TABS = ['oc','ac','im','env','ce','stk','ocat','acat'];
 function mebkSwitchTab(tab) {
-  ['oc','ac','im'].forEach(t => {
+  MEBK_ALL_TABS.forEach(t => {
     document.getElementById(`mebk-panel-${t}`).style.display = tab === t ? '' : 'none';
     document.getElementById(`mebk-tab-${t}`).classList.toggle('active', tab === t);
   });
-  if (tab === 'im' && !window.mebkImLoaded) { mebkLoadImpacts(); window.mebkImLoaded = true; }
+  if (tab === 'im'   && !window.mebkImLoaded)   { mebkLoadImpacts(); window.mebkImLoaded = true; }
+  if (['env','ce','stk','ocat','acat'].includes(tab) && !window[`mebkRefLoaded_${tab}`]) {
+    mebkRefLoad(tab); window[`mebkRefLoaded_${tab}`] = true;
+  }
+}
+
+// ══ Reference Data — generic CRUD ══════════════════
+const MEBK_REF_CFG = {
+  env:  { table:'environment',        idCol:'environment_id',       codeCol:'environment_code',      nameCol:'environment_name', descCol:'description', hasActive:true,  color:'#f59e0b' },
+  ce:   { table:'child_experience',   idCol:'child_experience_id',  codeCol:'child_experience_code', nameCol:'experience_name',  descCol:'description', hasActive:true,  color:'#ec4899' },
+  stk:  { table:'stakeholder_type',   idCol:'stakeholder_type_id',  codeCol:'stakeholder_type_code', nameCol:'type_name',        descCol:'description', hasActive:false, color:'#0d9488' },
+  ocat: { table:'outcome_categories', idCol:'outcome_category_id',  codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--ok)' },
+  acat: { table:'activity_category',  idCol:'activity_category_id', codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--blue)' },
+};
+
+window.mebkRefItems = {}; // key → array
+window.mebkRefFilter = {}; // key → 'active'|'all'|'inactive'
+
+async function mebkRefLoad(key) {
+  const cfg = MEBK_REF_CFG[key];
+  const list = document.getElementById(`mebk-ref-list-${key}`);
+  if (!list) return;
+  list.innerHTML = '<div class="mebk-loading">Loading…</div>';
+  try {
+    const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?select=*&order=${cfg.codeCol}.asc`, { headers: MEBK_HDR });
+    const items = r.ok ? await r.json() : [];
+    if (!Array.isArray(items)) throw new Error('bad response');
+    window.mebkRefItems[key] = items;
+    mebkRefRender(key);
+  } catch(e) { list.innerHTML = '<div class="mebk-empty">Error loading data.</div>'; }
+}
+
+function mebkRefRender(key) {
+  const cfg = MEBK_REF_CFG[key];
+  const list = document.getElementById(`mebk-ref-list-${key}`);
+  if (!list) return;
+  const search = (document.getElementById(`mebk-search-ref-${key}`)?.value || '').toLowerCase();
+  const filter = window.mebkRefFilter[key] || 'active';
+  let items = (window.mebkRefItems[key] || []).filter(i => {
+    const name = (i[cfg.nameCol] || '').toLowerCase();
+    const code = (i[cfg.codeCol] || '').toLowerCase();
+    if (search && !name.includes(search) && !code.includes(search)) return false;
+    if (cfg.hasActive) {
+      if (filter === 'active'   && !i.is_active) return false;
+      if (filter === 'inactive' &&  i.is_active) return false;
+    }
+    return true;
+  });
+  if (!items.length) { list.innerHTML = '<div class="mebk-empty">No items found.</div>'; return; }
+  list.innerHTML = items.map(i => {
+    const id = i[cfg.idCol];
+    const badge = `<span style="font-size:10px;font-weight:700;font-family:var(--mono);background:var(--mist-2);padding:2px 7px;border-radius:4px;color:var(--slate);white-space:nowrap;">${i[cfg.codeCol]||'—'}</span>`;
+    const activeDot = cfg.hasActive ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${i.is_active?'var(--ok)':'var(--mist-3)'};margin-right:4px;"></span>` : '';
+    return `<div class="mebk-ref-row" id="mebk-ref-row-${key}-${id}">
+      ${badge}
+      <span style="display:flex;align-items:center;gap:6px;">${activeDot}<strong style="font-size:13px;">${i[cfg.nameCol]||'—'}</strong></span>
+      <span style="color:var(--slate);font-size:12px;">${i[cfg.descCol]||''}</span>
+      <span style="display:flex;gap:4px;justify-content:flex-end;">
+        ${cfg.hasActive ? `<button class="mebk-action-btn edit" title="${i.is_active?'Deactivate':'Activate'}" onclick="mebkRefToggleActive('${key}','${id}',${!i.is_active})" style="font-size:10px;padding:2px 6px;">${i.is_active?'Off':'On'}</button>` : ''}
+        <button class="mebk-action-btn edit" title="Edit" onclick="mebkRefEdit('${key}','${id}')">${IC.edit}</button>
+        <button class="mebk-action-btn del"  title="Delete" onclick="mebkRefDelete('${key}','${id}')">${IC.trash}</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function mebkRefSearch(key, val) { mebkRefRender(key); }
+
+function mebkRefSetFilter(key, f) {
+  window.mebkRefFilter[key] = f;
+  ['active','all','inactive'].forEach(v => {
+    document.getElementById(`mebk-fpill-ref-${key}-${v}`)?.classList.toggle('sel', v === f);
+  });
+  mebkRefRender(key);
+}
+
+function mebkRefShowForm(key) {
+  const f = document.getElementById(`mebk-ref-form-${key}`);
+  if (f) { f.style.display = 'flex'; document.getElementById(`mebk-ref-inp-name-${key}`)?.focus(); }
+}
+function mebkRefHideForm(key) {
+  const f = document.getElementById(`mebk-ref-form-${key}`);
+  if (f) { f.style.display = 'none'; ['name','desc'].forEach(x => { const el = document.getElementById(`mebk-ref-inp-${x}-${key}`); if(el) el.value=''; }); }
+}
+
+async function mebkRefSave(key) {
+  const cfg = MEBK_REF_CFG[key];
+  const name = document.getElementById(`mebk-ref-inp-name-${key}`)?.value.trim();
+  const desc = document.getElementById(`mebk-ref-inp-desc-${key}`)?.value.trim();
+  if (!name) { alert('Name is required.'); return; }
+  const payload = { [cfg.nameCol]: name };
+  if (cfg.descCol && desc) payload[cfg.descCol] = desc;
+  if (cfg.hasActive) payload.is_active = true;
+  try {
+    const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}`, {
+      method:'POST', headers:{...MEBK_HDR,'Prefer':'return=representation'}, body:JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    mebkRefHideForm(key);
+    window[`mebkRefLoaded_${key}`] = false;
+    await mebkRefLoad(key);
+    window[`mebkRefLoaded_${key}`] = true;
+    toast(`✓ ${name} added`);
+  } catch(e) { alert('Error saving: ' + e.message); }
+}
+
+function mebkRefEdit(key, id) {
+  const cfg = MEBK_REF_CFG[key];
+  const item = (window.mebkRefItems[key]||[]).find(i => i[cfg.idCol] === id);
+  if (!item) return;
+  const row = document.getElementById(`mebk-ref-row-${key}-${id}`);
+  if (!row) return;
+  row.innerHTML = `
+    <span style="font-size:10px;color:var(--slate);font-family:var(--mono);">${item[cfg.codeCol]||'—'}</span>
+    <input id="mebk-ref-edit-name-${key}-${id}" value="${(item[cfg.nameCol]||'').replace(/"/g,'&quot;')}" placeholder="Name…" style="padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r);font-size:12px;width:100%;"/>
+    <input id="mebk-ref-edit-desc-${key}-${id}" value="${(item[cfg.descCol]||'').replace(/"/g,'&quot;')}" placeholder="Description…" style="padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r);font-size:12px;width:100%;"/>
+    <span style="display:flex;gap:4px;justify-content:flex-end;">
+      <button class="mebk-action-btn edit" onclick="mebkRefSaveEdit('${key}','${id}')">${IC.check||'✓'}</button>
+      <button class="mebk-action-btn" onclick="mebkRefRender('${key}')">${IC.x||'✕'}</button>
+    </span>`;
+  document.getElementById(`mebk-ref-edit-name-${key}-${id}`)?.focus();
+}
+
+async function mebkRefSaveEdit(key, id) {
+  const cfg = MEBK_REF_CFG[key];
+  const name = document.getElementById(`mebk-ref-edit-name-${key}-${id}`)?.value.trim();
+  const desc = document.getElementById(`mebk-ref-edit-desc-${key}-${id}`)?.value.trim();
+  if (!name) { alert('Name cannot be empty.'); return; }
+  try {
+    const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${id}`, {
+      method:'PATCH', headers:{...MEBK_HDR,'Prefer':'return=representation'},
+      body: JSON.stringify({ [cfg.nameCol]: name, ...(cfg.descCol ? {[cfg.descCol]: desc||null} : {}) })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const updated = await r.json();
+    const items = window.mebkRefItems[key] || [];
+    const idx = items.findIndex(i => i[cfg.idCol] === id);
+    if (idx >= 0 && updated[0]) items[idx] = updated[0];
+    mebkRefRender(key);
+    toast('✓ Updated');
+  } catch(e) { alert('Error updating: ' + e.message); }
+}
+
+async function mebkRefToggleActive(key, id, active) {
+  const cfg = MEBK_REF_CFG[key];
+  try {
+    await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${id}`, {
+      method:'PATCH', headers:MEBK_HDR, body:JSON.stringify({is_active:active})
+    });
+    const items = window.mebkRefItems[key] || [];
+    const item = items.find(i => i[cfg.idCol] === id);
+    if (item) item.is_active = active;
+    mebkRefRender(key);
+  } catch(e) { alert('Error updating status.'); }
+}
+
+async function mebkRefDelete(key, id) {
+  const cfg = MEBK_REF_CFG[key];
+  const item = (window.mebkRefItems[key]||[]).find(i => i[cfg.idCol] === id);
+  if (!confirm(`Delete "${item?.[cfg.nameCol]}"? This cannot be undone.`)) return;
+  try {
+    const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${id}`, {
+      method:'DELETE', headers:MEBK_HDR
+    });
+    if (!r.ok) throw new Error(await r.text());
+    window.mebkRefItems[key] = (window.mebkRefItems[key]||[]).filter(i => i[cfg.idCol] !== id);
+    mebkRefRender(key);
+    toast('✓ Deleted');
+  } catch(e) { alert('Cannot delete — item may be in use.'); }
 }
 
 // ── Show add forms ──────────────────────────────────
