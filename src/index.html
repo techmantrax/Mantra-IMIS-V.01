@@ -3957,12 +3957,9 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="lfa-dp-title">Child Experience Types</div>
               <div class="lfa-dp-desc">Org-wide master. Each intervention is tagged with one of these.</div>
               <div class="lfa-chip-grid" id="lfa-cg-childexp">
-                <span class="lfa-chip"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg> Classroom Engagement<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg> Foundational Literacy<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg> Numeracy<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg> Holistic Development<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading from M&amp;E Book…</span>
               </div>
-              <div class="lfa-add-row"><input class="lfa-add-inp" placeholder="New child experience…" id="lfa-inp-ce"/><button class="lfa-btn-add" onclick="lfaAddChip('lfa-cg-childexp','lfa-inp-ce')">+ Add</button></div>
+              <div class="lfa-add-row"><input class="lfa-add-inp" placeholder="New child experience…" id="lfa-inp-ce"/><button class="lfa-btn-add" onclick="lfaAddRefChip('ce','lfa-inp-ce')">+ Add</button></div>
             </div>
 
             <!-- Stakeholder Types -->
@@ -3970,14 +3967,9 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="lfa-dp-title">Stakeholder Types</div>
               <div class="lfa-dp-desc">Org-wide master. These appear as toggle chips on each intervention.</div>
               <div class="lfa-chip-grid" id="lfa-cg-stk">
-                <span class="lfa-chip">DIET<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip">Teacher<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip">HM / Principal<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip">CRC<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip">BEO<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip">Student<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading from M&amp;E Book…</span>
               </div>
-              <div class="lfa-add-row"><input class="lfa-add-inp" placeholder="New stakeholder type…" id="lfa-inp-stk"/><button class="lfa-btn-add" onclick="lfaAddChip('lfa-cg-stk','lfa-inp-stk')">+ Add</button></div>
+              <div class="lfa-add-row"><input class="lfa-add-inp" placeholder="New stakeholder type…" id="lfa-inp-stk"/><button class="lfa-btn-add" onclick="lfaAddRefChip('stk','lfa-inp-stk')">+ Add</button></div>
             </div>
 
             <!-- Outcome Categories -->
@@ -3985,14 +3977,12 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="lfa-dp-title">Outcome Categories</div>
               <div class="lfa-dp-desc">Theory-of-Change classification for outcomes. Code must be unique.</div>
               <div class="lfa-chip-grid" id="lfa-cg-outcat">
-                <span class="lfa-chip"><span class="lfa-chip-code">CAP_BUILD</span> Capacity Building<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><span class="lfa-chip-code">STR_PROC</span> Structures &amp; Process<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><span class="lfa-chip-code">SYS_TOOLS</span> Systemic Tools<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading from M&amp;E Book…</span>
               </div>
               <div class="lfa-add-row">
                 <input class="lfa-add-inp" placeholder="Category name…" id="lfa-inp-outcat-n"/>
                 <input class="lfa-add-inp lfa-code" placeholder="CODE" id="lfa-inp-outcat-c"/>
-                <button class="lfa-btn-add" onclick="lfaAddCodeChip('lfa-cg-outcat','lfa-inp-outcat-n','lfa-inp-outcat-c')">+ Add</button>
+                <button class="lfa-btn-add" onclick="lfaAddRefChip('ocat','lfa-inp-outcat-n','lfa-inp-outcat-c')">+ Add</button>
               </div>
             </div>
 
@@ -4001,14 +3991,12 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="lfa-dp-title">Activity Categories</div>
               <div class="lfa-dp-desc">Classification for activities.</div>
               <div class="lfa-chip-grid" id="lfa-cg-actcat">
-                <span class="lfa-chip"><span class="lfa-chip-code">TRAINING</span> Training<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><span class="lfa-chip-code">FIELD</span> Field Visit<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
-                <span class="lfa-chip"><span class="lfa-chip-code">REVIEW</span> Review &amp; Planning<button class="lfa-chip-x" onclick="this.parentElement.remove()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></span>
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading from M&amp;E Book…</span>
               </div>
               <div class="lfa-add-row">
                 <input class="lfa-add-inp" placeholder="Category name…" id="lfa-inp-actcat-n"/>
                 <input class="lfa-add-inp lfa-code" placeholder="CODE" id="lfa-inp-actcat-c"/>
-                <button class="lfa-btn-add" onclick="lfaAddCodeChip('lfa-cg-actcat','lfa-inp-actcat-n','lfa-inp-actcat-c')">+ Add</button>
+                <button class="lfa-btn-add" onclick="lfaAddRefChip('acat','lfa-inp-actcat-n','lfa-inp-actcat-c')">+ Add</button>
               </div>
             </div>
 
@@ -4270,22 +4258,13 @@ select:focus:not(:focus-visible) { outline: none; }
                   <div>
                     <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Environment <span style="color:var(--danger);">*</span></label>
                     <select class="lfa-add-inp" id="lfa-ni-env" style="width:100%;">
-                      <option value="">— select —</option>
-                      <option>School</option>
-                      <option>Cluster</option>
-                      <option>Block</option>
-                      <option>District</option>
-                      <option>State</option>
+                      <option value="">— loading… —</option>
                     </select>
                   </div>
                   <div>
                     <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Child Experience <span style="color:var(--danger);">*</span></label>
                     <select class="lfa-add-inp" id="lfa-ni-child" style="width:100%;">
-                      <option value="">— select —</option>
-                      <option>Classroom Engagement</option>
-                      <option>Foundational Literacy</option>
-                      <option>Numeracy</option>
-                      <option>Holistic Development</option>
+                      <option value="">— loading… —</option>
                     </select>
                   </div>
                 </div>
@@ -4418,6 +4397,102 @@ select:focus:not(:focus-visible) { outline: none; }
             window.lfaLib.activities = (activities||[]).map(a=>({ id:a.activity_id, code:a.activity_code||'', stmt:a.activity_name||'' }));
             window.lfaLib.loaded = true;
           } catch(e) { console.warn('[lfaLib] Library load failed:', e); }
+        }
+
+        // ── Reference data loader (syncs LFA Setup from M&E Book DB tables) ──
+        window.lfaRefData = { envs:[], ces:[], stks:[], ocats:[], acats:[] };
+        async function lfaLoadRefData() {
+          const url = GS_SB_URL, h = GS_SB_HDR;
+          try {
+            const [envR, ceR, stkR, ocatR, acatR] = await Promise.all([
+              fetch(`${url}/rest/v1/environment?is_active=eq.true&select=environment_id,environment_code,environment_name&order=environment_code.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/child_experience?is_active=eq.true&select=child_experience_id,child_experience_code,experience_name&order=experience_name.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/stakeholder_type?select=stakeholder_type_id,stakeholder_type_code,type_name&order=stakeholder_type_code.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id,category_code,category_name&order=sort_order.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id,category_code,category_name&order=sort_order.asc&limit=100`, { headers: h }),
+            ]);
+            const envs  = envR.ok  ? await envR.json()  : [];
+            const ces   = ceR.ok   ? await ceR.json()   : [];
+            const stks  = stkR.ok  ? await stkR.json()  : [];
+            const ocats = ocatR.ok ? await ocatR.json() : [];
+            const acats = acatR.ok ? await acatR.json() : [];
+            window.lfaRefData = { envs, ces, stks, ocats, acats };
+
+            // Environment select
+            const envSel = document.getElementById('lfa-ni-env');
+            if (envSel) {
+              envSel.innerHTML = '<option value="">— select —</option>' +
+                envs.map(e => `<option value="${e.environment_id}">${lfaEsc(e.environment_name)}</option>`).join('');
+            }
+
+            // Child experience select
+            const ceSel = document.getElementById('lfa-ni-child');
+            if (ceSel) {
+              ceSel.innerHTML = '<option value="">— select —</option>' +
+                ces.map(c => `<option value="${c.child_experience_id}">${lfaEsc(c.experience_name)}</option>`).join('');
+            }
+
+            // Child experience chips
+            const ceGrid = document.getElementById('lfa-cg-childexp');
+            if (ceGrid) {
+              ceGrid.innerHTML = ces.length
+                ? ces.map(c => `<span class="lfa-chip" data-ce-id="${c.child_experience_id}">${lfaEsc(c.experience_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+            }
+
+            // Stakeholder chips
+            const stkGrid = document.getElementById('lfa-cg-stk');
+            if (stkGrid) {
+              stkGrid.innerHTML = stks.length
+                ? stks.map(s => `<span class="lfa-chip" data-stk-id="${s.stakeholder_type_id}"><span class="lfa-chip-code" style="font-size:10px;">${lfaEsc(s.stakeholder_type_code)}</span> ${lfaEsc(s.type_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+            }
+
+            // Outcome category chips
+            const ocatGrid = document.getElementById('lfa-cg-outcat');
+            if (ocatGrid) {
+              ocatGrid.innerHTML = ocats.length
+                ? ocats.map(o => `<span class="lfa-chip" data-ocat-id="${o.outcome_category_id}"><span class="lfa-chip-code">${lfaEsc(o.category_code)}</span> ${lfaEsc(o.category_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+            }
+
+            // Activity category chips
+            const acatGrid = document.getElementById('lfa-cg-actcat');
+            if (acatGrid) {
+              acatGrid.innerHTML = acats.length
+                ? acats.map(a => `<span class="lfa-chip" data-acat-id="${a.activity_category_id}"><span class="lfa-chip-code">${lfaEsc(a.category_code)}</span> ${lfaEsc(a.category_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+            }
+          } catch(e) { console.warn('[lfaRefData] Load failed:', e); }
+        }
+
+        // ── Add reference item from LFA Setup → saves to M&E Book DB ──
+        async function lfaAddRefChip(type, nameId, codeId) {
+          const name = document.getElementById(nameId)?.value.trim();
+          const code = codeId ? (document.getElementById(codeId)?.value.trim().toUpperCase() || '') : '';
+          if (!name) return;
+          const url = GS_SB_URL;
+          const h = { ...GS_SB_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+          const autoCode = name.substring(0, 8).toUpperCase().replace(/[^A-Z0-9]/g, '_');
+          const cfgMap = {
+            ce:   { table:'child_experience',   body:{ child_experience_code: code || autoCode, experience_name: name } },
+            stk:  { table:'stakeholder_type',   body:{ stakeholder_type_code: code || autoCode, type_name: name } },
+            ocat: { table:'outcome_categories', body:{ category_code: code || autoCode, category_name: name } },
+            acat: { table:'activity_category',  body:{ category_code: code || autoCode, category_name: name } },
+          };
+          const cfg = cfgMap[type];
+          if (!cfg) return;
+          try {
+            const r = await fetch(`${url}/rest/v1/${cfg.table}`, { method:'POST', headers:h, body:JSON.stringify(cfg.body) });
+            if (r.ok || r.status === 201) {
+              document.getElementById(nameId).value = '';
+              if (codeId) document.getElementById(codeId).value = '';
+              await lfaLoadRefData();
+            } else {
+              const err = await r.json().catch(() => ({}));
+              alert('Save failed: ' + (err.message || err.details || r.status));
+            }
+          } catch(e) { alert('Network error: ' + e.message); }
         }
 
         // Attach combobox behaviour to an input element
@@ -4716,6 +4791,8 @@ select:focus:not(:focus-visible) { outline: none; }
           if(cp) cp.textContent='LFA Setup';
           if(ct) ct.textContent='LFA \u2014 '+prog;
           lfaShowDict('interventions');
+          // Refresh reference data every time a program opens
+          if (typeof lfaLoadRefData === 'function') lfaLoadRefData();
         }
         (function(){
           const btn=document.getElementById('lfa-back-btn');
@@ -9759,6 +9836,8 @@ function showPage(route) {
     lfaRenderProgCards();
     // Pre-load M&E Book library so comboboxes are ready immediately
     if (typeof lfaLoadLibrary === 'function') lfaLoadLibrary();
+    // Sync reference data from M&E Book tables
+    if (typeof lfaLoadRefData === 'function') lfaLoadRefData();
   } else if (route === 'data-upload') {
     $('page-data-upload').classList.remove('hidden');
     $('crumb-path').textContent = 'Data Upload';
