@@ -3859,7 +3859,12 @@ select:focus:not(:focus-visible) { outline: none; }
         // ── Wire buttons ─────────────────────────────────────────────
         (function(){
           document.getElementById('builder-publish-btn')?.addEventListener('click', meb2Publish);
-          document.getElementById('meb2-publish-btn')?.addEventListener('click', meb2Publish);
+          document.getElementById('meb2-publish-btn')?.addEventListener('click', async () => {
+            // Save indicators from LFA Setup framework first
+            await meb2SaveIndicatorsToDB();
+            // Then proceed with publish
+            meb2Publish();
+          });
           document.getElementById('dismiss-publish-banner')?.addEventListener('click', ()=>{
             document.getElementById('publish-success-banner')?.classList.add('hidden');
           });
@@ -5275,6 +5280,63 @@ select:focus:not(:focus-visible) { outline: none; }
             console.log('[lfaSaveFrameworkToDB] Framework saved to DB');
           } catch(e) {
             console.error('[lfaSaveFrameworkToDB] Error:', e);
+          }
+        }
+
+        // ── Save M&E Builder indicators from LFA framework to DB ──────
+        async function meb2SaveIndicatorsToDB() {
+          if (!window.meb2FrameworkConfirmed) { toast('Confirm framework first'); return false; }
+          try {
+            const progId = await lfaFetchProgramId(meb2Prog);
+            if (!progId) { toast('Program not found'); return false; }
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            let saved = 0, updated = 0;
+
+            for (const g of meb2Groups) {
+              for (const ind of g.indicators) {
+                if (!ind.name && !ind.abbr) continue; // Skip blank
+                const payload = {
+                  indicator_name: ind.name || ind.abbr,
+                  unit_of_measure: ind.unit || 'count',
+                  frequency: ind.freq || 'monthly',
+                  baseline_value: ind.baseline ? Number(ind.baseline) : null,
+                  direction: 'increase',
+                  is_active: true,
+                  is_template: false
+                };
+                try {
+                  if (ind.indicator_id) {
+                    // UPDATE
+                    await fetch(`${url}/rest/v1/indicator?indicator_id=eq.${ind.indicator_id}`, {
+                      method: 'PATCH',
+                      headers: { ...h, 'Prefer': 'return=minimal' },
+                      body: JSON.stringify(payload)
+                    });
+                    updated++;
+                  } else {
+                    // INSERT
+                    const res = await fetch(`${url}/rest/v1/indicator`, {
+                      method: 'POST',
+                      headers: { ...h, 'Prefer': 'return=representation' },
+                      body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                      const [newInd] = await res.json();
+                      ind.indicator_id = newInd.indicator_id;
+                      saved++;
+                    }
+                  }
+                } catch(e) { console.warn('Indicator save failed:', e); }
+              }
+            }
+            const msg = `Saved ${saved} new, updated ${updated} indicators`;
+            console.log('[meb2SaveIndicatorsToDB]', msg);
+            toast(msg);
+            return true;
+          } catch(e) {
+            console.error('[meb2SaveIndicatorsToDB] Error:', e);
+            toast('Error saving indicators');
+            return false;
           }
         }
         </script>
