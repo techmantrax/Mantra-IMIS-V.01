@@ -2200,7 +2200,9 @@ select:focus:not(:focus-visible) { outline: none; }
         .mebk-tab.stk.active,.mebk-tab.stk:hover{color:#0d9488;border-color:#0d9488;}
         .mebk-tab.ocat.active,.mebk-tab.ocat:hover{color:var(--ok);border-color:var(--ok);}
         .mebk-tab.acat.active,.mebk-tab.acat:hover{color:var(--blue);border-color:var(--blue);}
-        /* Scrollable tab bar for 8 tabs */
+        .mebk-tab.inttype.active,.mebk-tab.inttype:hover{color:#ec4899;border-color:#ec4899;}
+        .mebk-tab.intcat.active,.mebk-tab.intcat:hover{color:#14b8a6;border-color:#14b8a6;}
+        /* Scrollable tab bar for 10 tabs */
         .mebk-tabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
         .mebk-tabs::-webkit-scrollbar{display:none;}
         /* Import / Export */
@@ -2320,6 +2322,9 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="mebk-stat" onclick="mebkSwitchTab('stk')"><div class="mebk-stat-n" id="mebk-stat-stk">—</div><div class="mebk-stat-l" style="color:#0d9488;">Stakeholders</div></div>
             <div class="mebk-stat" onclick="mebkSwitchTab('ocat')"><div class="mebk-stat-n" id="mebk-stat-ocat">—</div><div class="mebk-stat-l" style="color:var(--ok);">Outcome Cats</div></div>
             <div class="mebk-stat" onclick="mebkSwitchTab('acat')"><div class="mebk-stat-n" id="mebk-stat-acat">—</div><div class="mebk-stat-l" style="color:var(--blue);">Activity Cats</div></div>
+            <div style="width:1px;background:var(--mist-2);margin:4px 2px;align-self:stretch;"></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('inttype')"><div class="mebk-stat-n" id="mebk-stat-inttype">—</div><div class="mebk-stat-l" style="color:#ec4899;">Intv Types</div></div>
+            <div class="mebk-stat" onclick="mebkSwitchTab('intcat')"><div class="mebk-stat-n" id="mebk-stat-intcat">—</div><div class="mebk-stat-l" style="color:#14b8a6;">Intv Cats</div></div>
           </div>
 
           <!-- Tabs -->
@@ -2333,6 +2338,9 @@ select:focus:not(:focus-visible) { outline: none; }
             <button class="mebk-tab stk" id="mebk-tab-stk" onclick="mebkSwitchTab('stk')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg> Stakeholders</button>
             <button class="mebk-tab ocat" id="mebk-tab-ocat" onclick="mebkSwitchTab('ocat')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg> Outcome Cats</button>
             <button class="mebk-tab acat" id="mebk-tab-acat" onclick="mebkSwitchTab('acat')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Activity Cats</button>
+            <div class="mebk-tab-divider"></div>
+            <button class="mebk-tab inttype" id="mebk-tab-inttype" onclick="mebkSwitchTab('inttype')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1"/><path d="M14 12s-1-1-2-1-2 1-2 1"/></svg> Intv Types</button>
+            <button class="mebk-tab intcat" id="mebk-tab-intcat" onclick="mebkSwitchTab('intcat')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Intv Cats</button>
           </div>
 
           <!-- ── OUTCOMES PANEL ── -->
@@ -2532,6 +2540,50 @@ select:focus:not(:focus-visible) { outline: none; }
               <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('acat')">Cancel</button>
             </div>
             <div class="mebk-ref-list" id="mebk-ref-list-acat"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── INTERVENTION TYPES PANEL ── -->
+          <div id="mebk-panel-inttype" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-inttype" placeholder="Search intervention types…" oninput="mebkRefSearch('inttype',this.value)"/>
+              <div class="mebk-filter-pills">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-ref-inttype-active"   onclick="mebkRefSetFilter('inttype','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-inttype-all"      onclick="mebkRefSetFilter('inttype','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-inttype-inactive" onclick="mebkRefSetFilter('inttype','inactive')">Inactive</button>
+              </div>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#ec4899;color:#fff;border-color:#ec4899;" onclick="mebkRefShowForm('inttype')">+ Add Type</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','inttype')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-inttype"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('inttype')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('inttype','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('inttype','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','inttype')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-inttype"><button class="mebk-io-menu-item" onclick="mebkExport('inttype','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('inttype','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('inttype','pdf');mebkCloseMenus()">Export PDF</button></div></div>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-inttype" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-inttype" placeholder="Intervention type name…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-inttype" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#ec4899;color:#fff;border-color:#ec4899;" onclick="mebkRefSave('inttype')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('inttype')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-inttype"><div class="mebk-loading">Loading…</div></div>
+          </div>
+
+          <!-- ── INTERVENTION CATEGORIES PANEL ── -->
+          <div id="mebk-panel-intcat" style="display:none;">
+            <div class="mebk-toolbar">
+              <input class="mebk-search" id="mebk-search-ref-intcat" placeholder="Search intervention categories…" oninput="mebkRefSearch('intcat',this.value)"/>
+              <div class="mebk-filter-pills">
+                <button class="mebk-filter-pill sel" id="mebk-fpill-ref-intcat-active"   onclick="mebkRefSetFilter('intcat','active')">Active</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-intcat-all"      onclick="mebkRefSetFilter('intcat','all')">All</button>
+                <button class="mebk-filter-pill"     id="mebk-fpill-ref-intcat-inactive" onclick="mebkRefSetFilter('intcat','inactive')">Inactive</button>
+              </div>
+              <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#14b8a6;color:#fff;border-color:#14b8a6;" onclick="mebkRefShowForm('intcat')">+ Add Category</button>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','intcat')">↑ Import ▾</button><div class="mebk-io-menu" id="mebk-import-menu-intcat"><button class="mebk-io-menu-item" onclick="mebkDownloadTemplate('intcat')">↓ Download Template</button><div class="mebk-io-menu-sep"></div><button class="mebk-io-menu-item" onclick="mebkTriggerImport('intcat','csv')">Upload CSV</button><button class="mebk-io-menu-item" onclick="mebkTriggerImport('intcat','xlsx')">Upload XLSX</button></div></div>
+              <div class="mebk-io-wrap"><button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','intcat')">↓ Export ▾</button><div class="mebk-io-menu" id="mebk-export-menu-intcat"><button class="mebk-io-menu-item" onclick="mebkExport('intcat','csv');mebkCloseMenus()">Export CSV</button><button class="mebk-io-menu-item" onclick="mebkExport('intcat','xlsx');mebkCloseMenus()">Export XLSX</button><button class="mebk-io-menu-item" onclick="mebkExport('intcat','pdf');mebkCloseMenus()">Export PDF</button></div></div>
+            </div>
+            <div class="mebk-add-form" id="mebk-ref-form-intcat" style="display:none;flex-wrap:wrap;gap:8px;">
+              <input class="mebk-inp" id="mebk-ref-inp-name-intcat" placeholder="Category name…" style="flex:1;min-width:200px;"/>
+              <input class="mebk-inp" id="mebk-ref-inp-desc-intcat" placeholder="Description (optional)…" style="flex:2;min-width:200px;"/>
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#14b8a6;color:#fff;border-color:#14b8a6;" onclick="mebkRefSave('intcat')">Save</button>
+              <button class="btn" style="font-size:12px;padding:7px 14px;" onclick="mebkRefHideForm('intcat')">Cancel</button>
+            </div>
+            <div class="mebk-ref-list" id="mebk-ref-list-intcat"><div class="mebk-loading">Loading…</div></div>
           </div>
 
         </div>
@@ -2931,6 +2983,10 @@ select:focus:not(:focus-visible) { outline: none; }
           <div class="meb2-pub-bar">
             <div class="meb2-pub-status" id="meb2-pub-status">Not published yet — complete indicators above then publish.</div>
             <button class="btn btn-ok" style="font-size:12px;" id="meb2-add-manual-row">+ Add indicator manually</button>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="meb2DownloadTemplate()">📋 Template</button>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="meb2ExportFramework()">↓ Export</button>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="meb2ImportFramework()">↑ Import</button>
+            <input type="file" id="meb2-import-file" style="display:none;" accept=".csv,.xlsx" onchange="meb2ProcessImport(event)"/>
             <button class="btn btn-primary" id="meb2-publish-btn" style="font-size:13px;padding:8px 18px;display:inline-flex;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish to Reporting</button>
           </div>
 
@@ -3000,7 +3056,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 const resolvedOutcome = ocStmts[0] || (stk.outcomes || []).find(o => o.code === ocCodes[0])?.stmt || '';
                 groups.push({
                   id: 'g-' + (meb2NextId++),
-                  prog, fy: '2025-26',
+                  prog, fy: builderFilterFY || '2025-26',
                   intv: intv.name, intvCode: intv.code,
                   env: intv.env, child: intv.child,
                   stk: stk.name,
@@ -3015,7 +3071,7 @@ select:focus:not(:focus-visible) { outline: none; }
               (stk.outcomes || []).forEach(oc => {
                 groups.push({
                   id: 'g-' + (meb2NextId++),
-                  prog, fy: '2025-26',
+                  prog, fy: builderFilterFY || '2025-26',
                   intv: intv.name, intvCode: intv.code,
                   env: intv.env, child: intv.child,
                   stk: stk.name,
@@ -3175,17 +3231,18 @@ select:focus:not(:focus-visible) { outline: none; }
             const groupMap = {}; // Track groups by (stkTypeId, activity/outcome)
 
             outcomes.forEach(oc => {
-              const key = oc.stakeholder_type_id;
+              const key = oc.stakeholder_type_id + '|oc|' + oc.outcome_code;
               if (!groupMap[key]) {
                 groupMap[key] = {
                   id: 'g-' + (meb2NextId++),
-                  prog, fy: '2025-26',
+                  prog, fy: builderFilterFY || '2025-26',
                   intv: prog,
                   stk: stkMap[oc.stakeholder_type_id] || 'Unknown',
                   sourceType: 'outcome',
-                  sourceCode: oc.outcome_code,
+                  sourceCode: (oc.outcome_code && oc.outcome_code !== 'Auto') ? oc.outcome_code : '',
                   sourceStmt: oc.outcome_statement,
                   sourceCat: oc.outcome_category,
+                  sourceDbId: oc.lfa_outcome_id,  // store lfa_outcome_id for indicator linking
                   outcome: oc.outcome_statement,
                   indicators: [meb2NewIndRow('')]
                 };
@@ -3194,17 +3251,18 @@ select:focus:not(:focus-visible) { outline: none; }
             });
 
             activities.forEach(ac => {
-              const key = ac.stakeholder_type_id;
+              const key = ac.stakeholder_type_id + '|ac|' + ac.activity_code;
               if (!groupMap[key]) {
                 groupMap[key] = {
                   id: 'g-' + (meb2NextId++),
-                  prog, fy: '2025-26',
+                  prog, fy: builderFilterFY || '2025-26',
                   intv: prog,
                   stk: stkMap[ac.stakeholder_type_id] || 'Unknown',
                   sourceType: 'activity',
-                  sourceCode: ac.activity_code,
+                  sourceCode: (ac.activity_code && ac.activity_code !== 'Auto') ? ac.activity_code : '',
                   sourceStmt: ac.activity_statement,
                   sourceCat: ac.activity_category,
+                  sourceDbId: ac.lfa_activity_id,  // store lfa_activity_id for indicator linking
                   outcome: '',
                   indicators: [meb2NewIndRow('')]
                 };
@@ -3213,6 +3271,9 @@ select:focus:not(:focus-visible) { outline: none; }
             });
 
             console.log('[meb2LoadProgramFromDB] Built', groups.length, 'groups from DB');
+            // Cache outcome/activity counts for LFA badge check
+            lfa_outcome_cache[progId] = outcomes.length;
+            lfa_activity_cache[progId] = activities.length;
             return groups.length ? groups : null;
           } catch(e) {
             console.error('[meb2LoadProgramFromDB] Error:', e);
@@ -3702,13 +3763,16 @@ select:focus:not(:focus-visible) { outline: none; }
           const ok = doPublish();
           if (!ok) return;
 
+          // Also load indicators from DB (for POC who skips M&E Builder)
+          await mrLoadPublishedIndicators(prog);
+
           const status = document.getElementById('meb2-pub-status');
           if (status) { status.className='meb2-pub-status published'; status.textContent=`Published ${rows.length} indicators · ${new Date().toLocaleTimeString()} · POC can now submit data`; }
           const banner = document.getElementById('publish-success-banner');
           if (banner) {
             banner.classList.remove('hidden');
             const p = banner.querySelector('#pub-banner-msg');
-            if (p) p.textContent = `${rows.length} indicators for ${prog} are now live in Monthly Reporting.`;
+            if (p) p.textContent = `${rows.length} indicators for ${prog} are now live in Monthly Reporting. POC can submit data now.`;
           }
           toast('Published '+rows.length+' indicators for '+prog);
           // Refresh selector cards so status dot turns green
@@ -4056,7 +4120,14 @@ select:focus:not(:focus-visible) { outline: none; }
             </div>
           </div>
           <span style="font-size:11px;font-weight:700;padding:6px 10px;background:rgba(110,231,255,.08);border:1px solid rgba(110,231,255,.18);border-radius:8px;color:var(--blue);" id="lfa-fy-badge">FY: 2025-26</span>
-          <button class="btn btn-primary" style="font-size:12px;padding:7px 16px;display:inline-flex;align-items:center;gap:5px;" onclick="lfaPublishToStore()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish LFA</button>
+          <span id="lfa-draft-saved-ind" style="font-size:11px;color:var(--ok);opacity:0;transition:opacity .4s;white-space:nowrap;">Draft saved ✓</span>
+          <div style="display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="lfaDownloadTemplate()">📋 Template</button>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="lfaExportCSV()">↓ Export</button>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="lfaImportCSV()">↑ Import</button>
+            <input type="file" id="lfa-import-file" style="display:none;" accept=".csv,.xlsx" onchange="lfaProcessImport(event)"/>
+            <button class="btn btn-primary" style="font-size:12px;padding:7px 16px;display:inline-flex;align-items:center;gap:5px;" onclick="lfaPublishToStore()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish LFA</button>
+          </div>
         </div>
 
         <!-- dict layout -->
@@ -4070,9 +4141,13 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="lfa-nav-item" onclick="lfaShowDict('stk')">Stakeholder Types <span class="lnc" id="lfa-nc-stk">—</span></div>
             <div class="lfa-nav-item" onclick="lfaShowDict('outcat')">Outcome Categories <span class="lnc" id="lfa-nc-ocat">—</span></div>
             <div class="lfa-nav-item" onclick="lfaShowDict('actcat')">Activity Categories <span class="lnc" id="lfa-nc-acat">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('inttype')">Intervention Types <span class="lnc" id="lfa-nc-inttype">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('intcat')">Intervention Categories <span class="lnc" id="lfa-nc-intcat">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('outcomes')">Outcomes (Global) <span class="lnc" id="lfa-nc-outcomes">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('activities')">Activities (Global) <span class="lnc" id="lfa-nc-activities">—</span></div>
             <div class="lfa-nav-sep">Program framework</div>
             <div class="lfa-nav-item" id="lfa-nav-goals" onclick="lfaShowDict('goals');lfaLoadProgramGoals();">Program Goals <span class="lnc" id="lfa-goals-count">—</span></div>
-            <div class="lfa-nav-item active" onclick="lfaShowDict('interventions')">Interventions <span class="lnc" id="lfa-intv-count">2</span></div>
+            <div class="lfa-nav-item active" onclick="lfaShowDict('interventions')">Interventions <span class="lnc" id="lfa-intv-count">0</span></div>
           </div>
 
           <!-- right panels -->
@@ -4134,6 +4209,38 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
             </div>
 
+            <!-- Intervention Types -->
+            <div class="lfa-dict-panel" id="lfa-dict-inttype">
+              <div class="lfa-dp-title">Intervention Types</div>
+              <div class="lfa-chip-grid" id="lfa-cg-inttype">
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading…</span>
+              </div>
+            </div>
+
+            <!-- Intervention Categories -->
+            <div class="lfa-dict-panel" id="lfa-dict-intcat">
+              <div class="lfa-dp-title">Intervention Categories</div>
+              <div class="lfa-chip-grid" id="lfa-cg-intcat">
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading…</span>
+              </div>
+            </div>
+
+            <!-- Outcomes -->
+            <div class="lfa-dict-panel" id="lfa-dict-outcomes">
+              <div class="lfa-dp-title">Outcomes (Global)</div>
+              <div class="lfa-chip-grid" id="lfa-cg-outcomes">
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading…</span>
+              </div>
+            </div>
+
+            <!-- Activities -->
+            <div class="lfa-dict-panel" id="lfa-dict-activities">
+              <div class="lfa-dp-title">Activities (Global)</div>
+              <div class="lfa-chip-grid" id="lfa-cg-activities">
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading…</span>
+              </div>
+            </div>
+
             <!-- ══ Interventions (main panel) ══ -->
             <!-- Program Goals -->
             <div class="lfa-dict-panel" id="lfa-dict-goals">
@@ -4162,191 +4269,12 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
               <div class="lfa-dp-desc">Create each intervention — set its Environment and Child Experience (fixed per intervention), assign stakeholder types. Then expand each stakeholder to define their Outcomes and Activities, and connect activities to the outcomes they contribute to.</div>
 
-              <!-- Intervention 1: FLN Program -->
-              <div class="lfa-intv-card open" id="lfa-intv-fln">
-                <div class="lfa-intv-card-hd" onclick="lfaToggleIntv('lfa-intv-fln')">
-                  <span class="lfa-intv-code">FLN</span>
-                  <span class="lfa-intv-name">FLN Program</span>
-                  <span class="lfa-itag env"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> School</span>
-                  <span class="lfa-itag child"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg> Classroom Engagement</span>
-                  <button class="btn" style="font-size:10px;padding:2px 8px;" onclick="event.stopPropagation()">Edit</button>
-                  <span class="lfa-intv-chev"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m6 9 6 6 6-6"/></svg></span>
-                </div>
-                <div class="lfa-intv-body">
-                  <div class="lfa-stk-lbl">Assigned stakeholders — click to toggle (each creates one ISTM context below)</div>
-                  <div class="lfa-stk-chips" id="lfa-stk-fln">
-                    <span class="lfa-stk-chip on" onclick="lfaToggleStk(this,'lfa-intv-fln','DIET')">DIET</span>
-                    <span class="lfa-stk-chip on" onclick="lfaToggleStk(this,'lfa-intv-fln','Teacher')">Teacher</span>
-                    <span class="lfa-stk-chip" onclick="lfaToggleStk(this,'lfa-intv-fln','HM / Principal')">HM / Principal</span>
-                    <span class="lfa-stk-chip on" onclick="lfaToggleStk(this,'lfa-intv-fln','CRC')">CRC</span>
-                    <span class="lfa-stk-chip" onclick="lfaToggleStk(this,'lfa-intv-fln','BEO')">BEO</span>
-                    <span class="lfa-stk-chip" onclick="lfaToggleStk(this,'lfa-intv-fln','Student')">Student</span>
-                  </div>
-
-                  <!-- ISTM workspaces for each assigned stakeholder -->
-                  <div class="lfa-istm-workspace" id="lfa-istm-fln">
-
-                    <!-- FLN × DIET -->
-                    <div class="lfa-istm-row open" id="lfa-ir-fln-diet">
-                      <div class="lfa-istm-row-hd" onclick="lfaToggleISTMRow('lfa-ir-fln-diet')">
-                        <span class="lfa-ir-stk">DIET</span>
-                        <span style="font-size:11px;color:var(--muted);">2 outcomes · 2 activities · 2 links</span>
-                        <span class="lfa-ir-count" style="margin-left:auto;"></span>
-                        <span class="lfa-ir-chev"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m6 9 6 6 6-6"/></svg></span>
-                      </div>
-                      <div class="lfa-istm-row-body">
-                        <div class="lfa-oa-grid">
-                          <!-- activities col (LEFT) -->
-                          <div class="lfa-oa-col">
-                            <div class="lfa-oa-col-head"><span class="lfa-oa-title">Activities</span><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="lfaShowAddAC('lfa-ir-fln-diet')">+ Add activity</button></div>
-                            <div class="lfa-empty-state" id="lfa-ac-empty-lfa-ir-fln-diet" style="display:none;">No activities yet for DIET.</div>
-                            <div id="lfa-ac-list-lfa-ir-fln-diet"><div class="lfa-ac-row" id="lfa-ac-fln-diet-1">
-                              <div class="lfa-ac-row-hd">
-                                <span class="lfa-ac-code">ACT-CB</span>
-                                <span class="lfa-ac-stmt">Capacity Building sessions</span>
-                                <span class="lfa-ac-cat lfa-lcat lfa-lcat-cb">Training</span>
-                                <button class="lfa-ac-del" title="Remove">&#x2715;</button>
-                              </div>
-                              <div class="lfa-ac-links">
-                                <span class="lfa-ac-links-lbl">&#x2192; outcomes:</span>
-                                <span class="lfa-link-chip linked" onclick="this.classList.toggle('linked')" title="Toggle link to OUT-01">OUT-01</span>
-                                <span class="lfa-link-chip" onclick="this.classList.toggle('linked')" title="Toggle link to OUT-02">OUT-02</span>
-                              </div>
-                            </div>
-                            <div class="lfa-ac-row" id="lfa-ac-fln-diet-2">
-                              <div class="lfa-ac-row-hd">
-                                <span class="lfa-ac-code">ACT-OV</span>
-                                <span class="lfa-ac-stmt">Observation Visits to schools</span>
-                                <span class="lfa-ac-cat lfa-lcat lfa-lcat-sp">Field Visit</span>
-                                <button class="lfa-ac-del" title="Remove">&#x2715;</button>
-                              </div>
-                              <div class="lfa-ac-links">
-                                <span class="lfa-ac-links-lbl">&#x2192; outcomes:</span>
-                                <span class="lfa-link-chip linked" onclick="this.classList.toggle('linked')" title="Toggle link to OUT-01">OUT-01</span>
-                                <span class="lfa-link-chip" onclick="this.classList.toggle('linked')" title="Toggle link to OUT-02">OUT-02</span>
-                              </div>
-                            </div></div>
-                            <div class="lfa-add-item-row" id="lfa-add-ac-lfa-ir-fln-diet" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-diet" placeholder="Search library or type new activity…" autocomplete="off"/>
-                              <select class="lfa-add-item-cat" id="lfa-ac-cat-lfa-ir-fln-diet"><option value="">Category…</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
-                              <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('lfa-ir-fln-diet')">Add</button>
-                              <button onclick="lfaHideAddAC('lfa-ir-fln-diet')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                          </div>
-                          <!-- outcomes col (RIGHT) -->
-                          <div class="lfa-oa-col">
-                            <div class="lfa-oa-col-head"><span class="lfa-oa-title">Outcomes</span><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="lfaShowAddOC('lfa-ir-fln-diet')">+ Add outcome</button></div>
-                            <div class="lfa-empty-state" id="lfa-oc-empty-lfa-ir-fln-diet" style="display:none;">No outcomes yet for DIET.</div>
-                            <div id="lfa-oc-list-lfa-ir-fln-diet"><div class="lfa-oc-row" id="lfa-oc-fln-diet-1">
-                              <div class="lfa-oc-row-hd">
-                                <span class="lfa-oc-code">OUT-01</span>
-                                <span class="lfa-oc-stmt">Teachers demonstrate improved instructional practices</span>
-                                <span class="lfa-oc-cat cb">Capacity Building</span>
-                                <button class="lfa-oc-del" title="Remove">&#x2715;</button>
-                              </div>
-                            </div>
-                            <div class="lfa-oc-row" id="lfa-oc-fln-diet-2">
-                              <div class="lfa-oc-row-hd">
-                                <span class="lfa-oc-code">OUT-02</span>
-                                <span class="lfa-oc-stmt">DIET faculty demonstrates facilitation competency</span>
-                                <span class="lfa-oc-cat sp">Structures &amp; Process</span>
-                                <button class="lfa-oc-del" title="Remove">&#x2715;</button>
-                              </div>
-                            </div></div>
-                            <div class="lfa-add-item-row" id="lfa-add-oc-lfa-ir-fln-diet" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-diet" placeholder="Search library or type new outcome…" autocomplete="off"/>
-                              <select class="lfa-add-item-cat" id="lfa-oc-cat-lfa-ir-fln-diet"><option value="">Category…</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
-                              <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('lfa-ir-fln-diet')">Add</button>
-                              <button onclick="lfaHideAddOC('lfa-ir-fln-diet')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                          </div>
-                        </div><!-- /lfa-oa-grid -->
-                      </div><!-- /lfa-istm-row-body -->
-                    </div><!-- /FLN × DIET -->
-
-                    <!-- FLN × Teacher (collapsed, empty) -->
-                    <div class="lfa-istm-row" id="lfa-ir-fln-teacher">
-                      <div class="lfa-istm-row-hd" onclick="lfaToggleISTMRow('lfa-ir-fln-teacher')">
-                        <span class="lfa-ir-stk">Teacher</span>
-                        <span class="lfa-ir-warn">0 outcomes · 0 activities</span>
-                        <span class="lfa-ir-chev" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m6 9 6 6 6-6"/></svg></span>
-                      </div>
-                      <div class="lfa-istm-row-body">
-                        <div class="lfa-oa-grid">
-                          <!-- activities col (LEFT) -->
-                          <div class="lfa-oa-col">
-                            <div class="lfa-oa-col-head"><span class="lfa-oa-title">Activities</span><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="lfaShowAddAC('lfa-ir-fln-teacher')">+ Add activity</button></div>
-                            <div class="lfa-empty-state" id="lfa-ac-empty-lfa-ir-fln-teacher">No activities yet for Teacher.</div>
-                            <div id="lfa-ac-list-lfa-ir-fln-teacher"></div>
-                            <div class="lfa-add-item-row" id="lfa-add-ac-lfa-ir-fln-teacher" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-teacher" placeholder="Search library or type new activity…" autocomplete="off"/>
-
-                              <select class="lfa-add-item-cat" id="lfa-ac-cat-lfa-ir-fln-teacher"><option value="">Category…</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
-                              <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('lfa-ir-fln-teacher')">Add</button>
-                              <button onclick="lfaHideAddAC('lfa-ir-fln-teacher')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                          </div>
-                          <!-- outcomes col (RIGHT) -->
-                          <div class="lfa-oa-col">
-                            <div class="lfa-oa-col-head"><span class="lfa-oa-title">Outcomes</span><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="lfaShowAddOC('lfa-ir-fln-teacher')">+ Add outcome</button></div>
-                            <div class="lfa-empty-state" id="lfa-oc-empty-lfa-ir-fln-teacher">No outcomes yet for Teacher.</div>
-                            <div id="lfa-oc-list-lfa-ir-fln-teacher"></div>
-                            <div class="lfa-add-item-row" id="lfa-add-oc-lfa-ir-fln-teacher" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-teacher" placeholder="Search library or type new outcome…" autocomplete="off"/>
-
-                              <select class="lfa-add-item-cat" id="lfa-oc-cat-lfa-ir-fln-teacher"><option value="">Category…</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
-                              <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('lfa-ir-fln-teacher')">Add</button>
-                              <button onclick="lfaHideAddOC('lfa-ir-fln-teacher')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div><!-- /FLN × Teacher -->
-
-                    <!-- FLN × CRC (collapsed, empty) -->
-                    <div class="lfa-istm-row" id="lfa-ir-fln-crc">
-                      <div class="lfa-istm-row-hd" onclick="lfaToggleISTMRow('lfa-ir-fln-crc')">
-                        <span class="lfa-ir-stk">CRC</span>
-                        <span class="lfa-ir-warn">0 outcomes · 0 activities</span>
-                        <span class="lfa-ir-chev" style="margin-left:auto;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m6 9 6 6 6-6"/></svg></span>
-                      </div>
-                      <div class="lfa-istm-row-body">
-                        <div class="lfa-oa-grid">
-                          <!-- activities col (LEFT) -->
-                          <div class="lfa-oa-col">
-                            <div class="lfa-oa-col-head"><span class="lfa-oa-title">Activities</span><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="lfaShowAddAC('lfa-ir-fln-crc')">+ Add activity</button></div>
-                            <div class="lfa-empty-state" id="lfa-ac-empty-lfa-ir-fln-crc">No activities yet for CRC.</div>
-                            <div id="lfa-ac-list-lfa-ir-fln-crc"></div>
-                            <div class="lfa-add-item-row" id="lfa-add-ac-lfa-ir-fln-crc" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-ac-inp-lfa-ir-fln-crc" placeholder="Search library or type new activity…" autocomplete="off"/>
-
-                              <select class="lfa-add-item-cat" id="lfa-ac-cat-lfa-ir-fln-crc"><option value="">Category…</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
-                              <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('lfa-ir-fln-crc')">Add</button>
-                              <button onclick="lfaHideAddAC('lfa-ir-fln-crc')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                          </div>
-                          <!-- outcomes col (RIGHT) -->
-                          <div class="lfa-oa-col">
-                            <div class="lfa-oa-col-head"><span class="lfa-oa-title">Outcomes</span><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="lfaShowAddOC('lfa-ir-fln-crc')">+ Add outcome</button></div>
-                            <div class="lfa-empty-state" id="lfa-oc-empty-lfa-ir-fln-crc">No outcomes yet for CRC.</div>
-                            <div id="lfa-oc-list-lfa-ir-fln-crc"></div>
-                            <div class="lfa-add-item-row" id="lfa-add-oc-lfa-ir-fln-crc" style="display:none;">
-                              <input class="lfa-add-item-inp" id="lfa-oc-inp-lfa-ir-fln-crc" placeholder="Search library or type new outcome…" autocomplete="off"/>
-                              <select class="lfa-add-item-cat" id="lfa-oc-cat-lfa-ir-fln-crc"><option value="">Category…</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
-                              <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('lfa-ir-fln-crc')">Add</button>
-                              <button onclick="lfaHideAddOC('lfa-ir-fln-crc')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div><!-- /FLN × CRC -->
-
-                  </div><!-- /lfa-istm-workspace fln -->
-                </div><!-- /lfa-intv-body fln -->
-              </div><!-- /lfa-intv-card fln -->
-
-              <!-- Intervention 2: Teacher Development -->
-              <div class="lfa-intv-card" id="lfa-intv-tch">
+              <!-- Interventions loaded from DB draft (lfaLoadDraft) -->
+              <div id="lfa-interventions-empty" style="display:none;padding:24px;text-align:center;border:1px dashed var(--border2);border-radius:var(--r2);color:var(--muted);font-size:13px;">
+                No interventions yet. Click <strong>+ New intervention</strong> to start building your LFA.
+              </div>
+              <!-- Intervention samples removed - users create new interventions -->
+              <div class="lfa-intv-card" id="lfa-intv-tch" data-lfa-sample="true" style="display:none">
                 <div class="lfa-intv-card-hd" onclick="lfaToggleIntv('lfa-intv-tch')">
                   <span class="lfa-intv-code">TCH</span>
                   <span class="lfa-intv-name">Teacher Development</span>
@@ -4370,7 +4298,7 @@ select:focus:not(:focus-visible) { outline: none; }
                     <div class="lfa-empty-state" style="padding:12px;">Expand stakeholder rows below to add outcomes and activities.</div>
                   </div>
                 </div>
-              </div><!-- /lfa-intv-card tch -->
+              </div><!-- /lfa-intv-card tch (hidden) -->
 
               <!-- Add intervention trigger -->
               <div id="lfa-new-intv-area"></div>
@@ -4381,11 +4309,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
                   <div>
                     <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Intervention name <span style="color:var(--danger);">*</span></label>
-                    <input class="lfa-add-inp" id="lfa-ni-name" placeholder="e.g. FLN Program" style="width:100%;"/>
-                  </div>
-                  <div>
-                    <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Short code <span style="color:var(--danger);">*</span></label>
-                    <input class="lfa-add-inp lfa-code" id="lfa-ni-code" placeholder="e.g. FLN" style="width:100%;font-family:var(--mono);"/>
+                    <input class="lfa-add-inp" id="lfa-ni-name" placeholder="Intervention name…" style="width:100%;"/>
                   </div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
@@ -4399,6 +4323,20 @@ select:focus:not(:focus-visible) { outline: none; }
                     <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Child Experience <span style="color:var(--danger);">*</span></label>
                     <select class="lfa-add-inp" id="lfa-ni-child" style="width:100%;">
                       <option value="">— loading… —</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+                  <div>
+                    <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Intervention Type</label>
+                    <select class="lfa-add-inp" id="lfa-ni-type" style="width:100%;">
+                      <option value="">— Select type —</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Intervention Category</label>
+                    <select class="lfa-add-inp" id="lfa-ni-category" style="width:100%;">
+                      <option value="">— Select category —</option>
                     </select>
                   </div>
                 </div>
@@ -4475,7 +4413,7 @@ select:focus:not(:focus-visible) { outline: none; }
                       <div id="lfa-ac-list-${rowId}"></div>
                       <div class="lfa-add-item-row" id="lfa-add-ac-${rowId}" style="display:none;">
                         <input class="lfa-add-item-inp" id="lfa-ac-inp-${rowId}" placeholder="Search library or type new activity\u2026" autocomplete="off"/>
-                        <select class="lfa-add-item-cat" id="lfa-ac-cat-${rowId}"><option value="">Category\u2026</option><option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option></select>
+                        <select class="lfa-add-item-cat" id="lfa-ac-cat-${rowId}"><option value="">Category\u2026</option>${(window.lfaRefData?.acats||[]).map(a=>`<option value="${a.category_name}">${a.category_name}</option>`).join('')||'<option>Training</option><option>Field Visit</option><option>Review &amp; Planning</option>'}</select>
                         <button class="lfa-btn-add-item" onclick="lfaConfirmAddAC('${rowId}')">Add</button>
                         <button onclick="lfaHideAddAC('${rowId}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">\u2715</button>
                       </div>
@@ -4486,7 +4424,7 @@ select:focus:not(:focus-visible) { outline: none; }
                       <div id="lfa-oc-list-${rowId}"></div>
                       <div class="lfa-add-item-row" id="lfa-add-oc-${rowId}" style="display:none;">
                         <input class="lfa-add-item-inp" id="lfa-oc-inp-${rowId}" placeholder="Search library or type new outcome\u2026" autocomplete="off"/>
-                        <select class="lfa-add-item-cat" id="lfa-oc-cat-${rowId}"><option value="">Category\u2026</option><option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option></select>
+                        <select class="lfa-add-item-cat" id="lfa-oc-cat-${rowId}"><option value="">Category\u2026</option>${(window.lfaRefData?.ocats||[]).map(o=>`<option value="${o.category_name}">${o.category_name}</option>`).join('')||'<option>Capacity Building</option><option>Structures &amp; Process</option><option>Systemic Tools</option>'}</select>
                         <button class="lfa-btn-add-item" onclick="lfaConfirmAddOC('${rowId}')">Add</button>
                         <button onclick="lfaHideAddOC('${rowId}')" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;padding:2px 5px;">\u2715</button>
                       </div>
@@ -4503,6 +4441,7 @@ select:focus:not(:focus-visible) { outline: none; }
             const row = document.getElementById(rowId);
             if(row) row.style.display='none';
           }
+          if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
         }
 
         // ── ISTM row toggle ───────────────────────────────
@@ -4522,41 +4461,53 @@ select:focus:not(:focus-visible) { outline: none; }
             const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZGNka2Vjdnpla2pzYmRlb2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDY0ODAsImV4cCI6MjA4ODM4MjQ4MH0.ys-Nx9GU0D4wyP9xkXMqDnkitHOgpOGWWOe-uP-NMOw';
             const hdr  = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
             const [ocRes, acRes] = await Promise.all([
-              fetch(`${SB_URL}/rest/v1/outcome?is_active=eq.true&select=outcome_id,outcome_code,outcome_statement&order=outcome_statement.asc&limit=500`, { headers: hdr }),
-              fetch(`${SB_URL}/rest/v1/activity?is_active=eq.true&select=activity_id,activity_code,activity_name&order=activity_name.asc&limit=500`, { headers: hdr })
+              fetch(`${SB_URL}/rest/v1/outcome?is_active=eq.true&select=outcome_id,outcome_code,outcome_statement,outcome_categories(category_name)&order=outcome_statement.asc&limit=500`, { headers: hdr }),
+              fetch(`${SB_URL}/rest/v1/activity?is_active=eq.true&select=activity_id,activity_code,activity_name,activity_category(category_name)&order=activity_name.asc&limit=500`, { headers: hdr })
             ]);
             const outcomes   = ocRes.ok  ? await ocRes.json()  : [];
             const activities = acRes.ok  ? await acRes.json()  : [];
-            window.lfaLib.outcomes   = (outcomes  ||[]).map(o=>({ id:o.outcome_id,  code:o.outcome_code||'',  stmt:o.outcome_statement||'' }));
-            window.lfaLib.activities = (activities||[]).map(a=>({ id:a.activity_id, code:a.activity_code||'', stmt:a.activity_name||'' }));
+            window.lfaLib.outcomes   = (outcomes  ||[]).map(o=>({ id:o.outcome_id,  code:o.outcome_code||'',  stmt:o.outcome_statement||'', cat:o.outcome_categories?.category_name||'' }));
+            window.lfaLib.activities = (activities||[]).map(a=>({ id:a.activity_id, code:a.activity_code||'', stmt:a.activity_name||'',     cat:a.activity_category?.category_name||'' }));
             window.lfaLib.loaded = true;
           } catch(e) { console.warn('[lfaLib] Library load failed:', e); }
         }
 
         // ── Reference data loader (syncs LFA Setup from M&E Book DB tables) ──
-        window.lfaRefData = { envs:[], ces:[], stks:[], ocats:[], acats:[] };
+        window.lfaRefData = { envs:[], ces:[], stks:[], ocats:[], acats:[], inttypes:[], intcats:[] };
         async function lfaLoadRefData() {
           const url = GS_SB_URL, h = GS_SB_HDR;
           try {
-            const [envR, ceR, stkR, ocatR, acatR] = await Promise.all([
+            const [envR, ceR, stkR, ocatR, acatR, inttypeR, intcatR, ocR, acR] = await Promise.all([
               fetch(`${url}/rest/v1/environment?is_active=eq.true&select=environment_id,environment_code,environment_name&order=environment_code.asc&limit=100`, { headers: h }),
               fetch(`${url}/rest/v1/child_experience?is_active=eq.true&select=child_experience_id,child_experience_code,experience_name&order=experience_name.asc&limit=100`, { headers: h }),
               fetch(`${url}/rest/v1/stakeholder_type?select=stakeholder_type_id,stakeholder_type_code,type_name&order=stakeholder_type_code.asc&limit=100`, { headers: h }),
               fetch(`${url}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id,category_code,category_name&order=sort_order.asc&limit=100`, { headers: h }),
               fetch(`${url}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id,category_code,category_name&order=sort_order.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/intervention_type?is_active=eq.true&select=intervention_type_id,type_code,type_name&order=sort_order.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/intervention_category?is_active=eq.true&select=intervention_category_id,category_code,category_name&order=sort_order.asc&limit=100`, { headers: h }),
+              fetch(`${url}/rest/v1/outcome?is_template=eq.true&is_active=eq.true&select=outcome_id,outcome_code,outcome_statement&order=outcome_code.asc&limit=200`, { headers: h }),
+              fetch(`${url}/rest/v1/activity?is_template=eq.true&is_active=eq.true&select=activity_id,activity_code,activity_statement&order=activity_code.asc&limit=200`, { headers: h }),
             ]);
-            const envs  = envR.ok  ? await envR.json()  : [];
-            const ces   = ceR.ok   ? await ceR.json()   : [];
-            const stks  = stkR.ok  ? await stkR.json()  : [];
-            const ocats = ocatR.ok ? await ocatR.json() : [];
-            const acats = acatR.ok ? await acatR.json() : [];
+            const envs      = envR.ok  ? await envR.json()  : [];
+            const ces       = ceR.ok   ? await ceR.json()   : [];
+            const stks      = stkR.ok  ? await stkR.json()  : [];
+            const ocats     = ocatR.ok ? await ocatR.json() : [];
+            const acats     = acatR.ok ? await acatR.json() : [];
+            const inttypes  = inttypeR.ok ? await inttypeR.json() : [];
+            const intcats   = intcatR.ok ? await intcatR.json() : [];
+            const ocs       = ocR.ok ? await ocR.json() : [];
+            const acs       = acR.ok ? await acR.json() : [];
             if (!envR.ok)  console.warn('[lfaLoadRefData] environment fetch failed:', envR.status);
             if (!ceR.ok)   console.warn('[lfaLoadRefData] child_experience fetch failed:', ceR.status);
             if (!stkR.ok)  console.warn('[lfaLoadRefData] stakeholder_type fetch failed:', stkR.status);
             if (!ocatR.ok) console.warn('[lfaLoadRefData] outcome_categories fetch failed:', ocatR.status);
             if (!acatR.ok) console.warn('[lfaLoadRefData] activity_category fetch failed:', acatR.status);
-            console.log('[lfaLoadRefData]', { envs: envs.length, ces: ces.length, stks: stks.length, ocats: ocats.length, acats: acats.length });
-            window.lfaRefData = { envs, ces, stks, ocats, acats };
+            if (!inttypeR.ok) console.warn('[lfaLoadRefData] intervention_type fetch failed:', inttypeR.status);
+            if (!intcatR.ok) console.warn('[lfaLoadRefData] intervention_category fetch failed:', intcatR.status);
+            if (!ocR.ok) console.warn('[lfaLoadRefData] outcome fetch failed:', ocR.status);
+            if (!acR.ok) console.warn('[lfaLoadRefData] activity fetch failed:', acR.status);
+            console.log('[lfaLoadRefData]', { envs: envs.length, ces: ces.length, stks: stks.length, ocats: ocats.length, acats: acats.length, inttypes: inttypes.length, intcats: intcats.length });
+            window.lfaRefData = { envs, ces, stks, ocats, acats, inttypes, intcats };
 
             // Environment chip grid (read-only)
             const envGrid = document.getElementById('lfa-cg-env');
@@ -4586,6 +4537,26 @@ select:focus:not(:focus-visible) { outline: none; }
               console.warn('[lfaLoadRefData] lfa-ni-child select not found');
             }
 
+            // Intervention Type select
+            const typeSel = document.getElementById('lfa-ni-type');
+            if (typeSel) {
+              typeSel.innerHTML = '<option value="">— Select type —</option>' +
+                inttypes.map(t => `<option value="${t.intervention_type_id}">${lfaEsc(t.type_name)}</option>`).join('');
+              console.log('[lfaLoadRefData] Intervention type select populated with', inttypes.length, 'items');
+            } else {
+              console.warn('[lfaLoadRefData] lfa-ni-type select not found');
+            }
+
+            // Intervention Category select
+            const catSel = document.getElementById('lfa-ni-category');
+            if (catSel) {
+              catSel.innerHTML = '<option value="">— Select category —</option>' +
+                intcats.map(c => `<option value="${c.intervention_category_id}">${lfaEsc(c.category_name)}</option>`).join('');
+              console.log('[lfaLoadRefData] Intervention category select populated with', intcats.length, 'items');
+            } else {
+              console.warn('[lfaLoadRefData] lfa-ni-category select not found');
+            }
+
             // Nav counts
             const nc = id => document.getElementById(id);
             if (nc('lfa-nc-env'))  nc('lfa-nc-env').textContent  = envs.length  || '0';
@@ -4593,6 +4564,10 @@ select:focus:not(:focus-visible) { outline: none; }
             if (nc('lfa-nc-stk'))  nc('lfa-nc-stk').textContent  = stks.length  || '0';
             if (nc('lfa-nc-ocat')) nc('lfa-nc-ocat').textContent = ocats.length || '0';
             if (nc('lfa-nc-acat')) nc('lfa-nc-acat').textContent = acats.length || '0';
+            if (nc('lfa-nc-inttype')) nc('lfa-nc-inttype').textContent = inttypes.length || '0';
+            if (nc('lfa-nc-intcat'))  nc('lfa-nc-intcat').textContent  = intcats.length  || '0';
+            if (nc('lfa-nc-outcomes')) nc('lfa-nc-outcomes').textContent = ocs.length || '0';
+            if (nc('lfa-nc-activities')) nc('lfa-nc-activities').textContent = acs.length || '0';
 
             // Child experience chips
             const ceGrid = document.getElementById('lfa-cg-childexp');
@@ -4628,6 +4603,42 @@ select:focus:not(:focus-visible) { outline: none; }
                 ? acats.map(a => `<span class="lfa-chip" data-acat-id="${a.activity_category_id}"><span class="lfa-chip-code">${lfaEsc(a.category_code)}</span> ${lfaEsc(a.category_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
                 : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
               console.log('[lfaLoadRefData] Activity category chips populated with', acats.length, 'items');
+            }
+
+            // Intervention Type chips (read-only, from M&E Book)
+            const inttypeGrid = document.getElementById('lfa-cg-inttype');
+            if (inttypeGrid) {
+              inttypeGrid.innerHTML = inttypes.length
+                ? inttypes.map(t => `<span class="lfa-chip">${lfaEsc(t.type_name)}</span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No intervention types defined in M&amp;E Book yet.</span>';
+              console.log('[lfaLoadRefData] Intervention type chips populated with', inttypes.length, 'items');
+            }
+
+            // Intervention Category chips (read-only, from M&E Book)
+            const intcatGrid = document.getElementById('lfa-cg-intcat');
+            if (intcatGrid) {
+              intcatGrid.innerHTML = intcats.length
+                ? intcats.map(c => `<span class="lfa-chip">${lfaEsc(c.category_name)}</span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No intervention categories defined in M&amp;E Book yet.</span>';
+              console.log('[lfaLoadRefData] Intervention category chips populated with', intcats.length, 'items');
+            }
+
+            // Outcomes chips (global template outcomes from M&E Book)
+            const ocGrid = document.getElementById('lfa-cg-outcomes');
+            if (ocGrid) {
+              ocGrid.innerHTML = ocs.length
+                ? ocs.map(o => `<span class="lfa-chip">${lfaEsc(o.outcome_code)} ${lfaEsc(o.outcome_statement)}</span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No template outcomes defined in M&amp;E Book yet.</span>';
+              console.log('[lfaLoadRefData] Outcome chips populated with', ocs.length, 'items');
+            }
+
+            // Activities chips (global template activities from M&E Book)
+            const acGrid = document.getElementById('lfa-cg-activities');
+            if (acGrid) {
+              acGrid.innerHTML = acs.length
+                ? acs.map(a => `<span class="lfa-chip">${lfaEsc(a.activity_code)} ${lfaEsc(a.activity_statement)}</span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No template activities defined in M&amp;E Book yet.</span>';
+              console.log('[lfaLoadRefData] Activity chips populated with', acs.length, 'items');
             }
           } catch(e) { console.error('[lfaLoadRefData] Load failed:', e); }
         }
@@ -4767,16 +4778,22 @@ select:focus:not(:focus-visible) { outline: none; }
         function lfaConfirmAddOC(rowId){
           const ocInp=document.getElementById('lfa-oc-inp-'+rowId);
           const stmt=ocInp?.value.trim();
-          const cat=document.getElementById('lfa-oc-cat-'+rowId)?.value||'';
           if(!stmt) return;
-          const dbId = ocInp?._selectedLib?.id || '';
+          const lib = ocInp?._selectedLib;
+          const code = lib?.code || '';
+          const dbId = lib?.id || '';
+          // Auto-fill category from M&E Book library if available
+          const catSel = document.getElementById('lfa-oc-cat-'+rowId);
+          if (lib?.cat && catSel && !catSel.value) catSel.value = lib.cat;
+          const cat = catSel?.value || '';
           const catCls=({'Capacity Building':'cb','Structures & Process':'sp','Systemic Tools':'st'})[cat]||'cb';
 
           const ocId='lfa-oc-dyn-'+Date.now();
           const el=document.createElement('div'); el.className='lfa-oc-row'; el.id=ocId;
           el.dataset.dbId = dbId;
+          el.dataset.code = code;
           el.innerHTML=`<div class="lfa-oc-row-hd">
-            <span class="lfa-oc-code lfa-auto-badge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Auto</span>
+            ${code ? `<span class="lfa-oc-code">${lfaEsc(code)}</span>` : ''}
             <span class="lfa-oc-stmt">${lfaEsc(stmt)}</span>
             ${cat?`<span class="lfa-oc-cat ${catCls}">${lfaEsc(cat)}</span>`:''}
             <button class="lfa-oc-del" onclick="lfaRemoveOC('${ocId}','${rowId}')">&#x2715;</button>
@@ -4791,10 +4808,12 @@ select:focus:not(:focus-visible) { outline: none; }
           lfaRefreshLinkChips(rowId);
           document.getElementById('lfa-oc-inp-'+rowId).value='';
           lfaHideAddOC(rowId);
+          if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
         }
         function lfaRemoveOC(ocId,rowId){
           document.getElementById(ocId)?.remove();
           lfaRefreshLinkChips(rowId);
+          if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
         }
 
         // ── Add activity ──────────────────────────────────
@@ -4807,20 +4826,26 @@ select:focus:not(:focus-visible) { outline: none; }
         function lfaConfirmAddAC(rowId){
           const acInp=document.getElementById('lfa-ac-inp-'+rowId);
           const stmt=acInp?.value.trim();
-          const cat=document.getElementById('lfa-ac-cat-'+rowId)?.value||'';
           if(!stmt) return;
-          const dbId = acInp?._selectedLib?.id || '';
+          const lib = acInp?._selectedLib;
+          const code = lib?.code || '';
+          const dbId = lib?.id || '';
+          // Auto-fill category from M&E Book library if available
+          const catSel = document.getElementById('lfa-ac-cat-'+rowId);
+          if (lib?.cat && catSel && !catSel.value) catSel.value = lib.cat;
+          const cat = catSel?.value || '';
           const catCls=({'Training':'lfa-lcat-cb','Field Visit':'lfa-lcat-sp','Review & Planning':'lfa-lcat-st'})[cat]||'lfa-lcat-cb';
 
           const linkChips = lfaGetOutcomeCodes(rowId);
           const acId='lfa-ac-dyn-'+Date.now();
           const el=document.createElement('div'); el.className='lfa-ac-row'; el.id=acId;
           el.dataset.dbId = dbId;
+          el.dataset.code = code;
           const chipsHtml = linkChips.length
             ? linkChips.map(oc=>`<span class="lfa-link-chip" onclick="this.classList.toggle('linked')" title="Link to ${lfaEsc(oc)}">${lfaEsc(oc)}</span>`).join('')
             : '<span class="lfa-link-none">No outcomes defined yet</span>';
           el.innerHTML=`<div class="lfa-ac-row-hd">
-            <span class="lfa-ac-code lfa-auto-badge"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> Auto</span>
+            ${code ? `<span class="lfa-ac-code">${lfaEsc(code)}</span>` : ''}
             <span class="lfa-ac-stmt">${lfaEsc(stmt)}</span>
             ${cat?`<span class="lfa-ac-cat lfa-lcat ${catCls}">${lfaEsc(cat)}</span>`:''}
             <button class="lfa-ac-del" onclick="document.getElementById('${acId}').remove()">&#x2715;</button>
@@ -4838,6 +4863,7 @@ select:focus:not(:focus-visible) { outline: none; }
           const empty=document.getElementById('lfa-ac-empty-'+rowId); if(empty) empty.style.display='none';
           document.getElementById('lfa-ac-inp-'+rowId).value='';
           lfaHideAddAC(rowId);
+          if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
         }
 
         // ── Link chip helpers ─────────────────────────────
@@ -4881,26 +4907,40 @@ select:focus:not(:focus-visible) { outline: none; }
         function lfaCancelNewIntervention(){
           document.getElementById('lfa-new-intv-form').style.display='none';
           document.getElementById('lfa-show-new-intv-btn').style.display='';
-          ['lfa-ni-name','lfa-ni-code'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-          ['lfa-ni-env','lfa-ni-child'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+          ['lfa-ni-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+          ['lfa-ni-env','lfa-ni-child','lfa-ni-type','lfa-ni-category'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
         }
         function lfaConfirmNewIntervention(){
           const name=document.getElementById('lfa-ni-name')?.value.trim();
-          const code=(document.getElementById('lfa-ni-code')?.value.trim()||'').toUpperCase();
-          const env=document.getElementById('lfa-ni-env')?.value;
-          const child=document.getElementById('lfa-ni-child')?.value;
+          const envSel=document.getElementById('lfa-ni-env');
+          const ceSel=document.getElementById('lfa-ni-child');
+          const typeSel=document.getElementById('lfa-ni-type');
+          const catSel=document.getElementById('lfa-ni-category');
+          const env=envSel?.value;
+          const child=ceSel?.value;
+          const type=typeSel?.value;
+          const cat=catSel?.value;
           if(!name){toast('Intervention name is required'); document.getElementById('lfa-ni-name')?.focus(); return;}
-          if(!code){toast('Short code is required'); document.getElementById('lfa-ni-code')?.focus(); return;}
           if(!env){toast('Please select an environment'); return;}
           if(!child){toast('Please select a child experience'); return;}
-          lfaBuildIntvCard(name, code, env, child);
+          if(!type){toast('Please select an intervention type'); return;}
+          if(!cat){toast('Please select an intervention category'); return;}
+          // Resolve display names from selected options
+          const envName = envSel.options[envSel.selectedIndex]?.text || env;
+          const ceName  = ceSel.options[ceSel.selectedIndex]?.text || child;
+          const typeName = typeSel.options[typeSel.selectedIndex]?.text || type;
+          const catName = catSel.options[catSel.selectedIndex]?.text || cat;
+          lfaBuildIntvCard(name, '', envName, ceName, typeName, catName);
           lfaCancelNewIntervention();
         }
-        function lfaBuildIntvCard(name, code, env, child){
+        function lfaBuildIntvCard(name, code, env, child, type, cat){
           const safeId='lfa-intv-'+Date.now();
           const workId='lfa-istm-'+safeId.replace('lfa-intv-','');
-          const stkNames=['DIET','Teacher','HM / Principal','CRC','BEO','Student'];
-          const chipsHtml=stkNames.map(s=>`<span class="lfa-stk-chip" onclick="lfaToggleStk(this,'${safeId}','${lfaEsc(s)}')">${lfaEsc(s)}</span>`).join('');
+          // Load stakeholder names from DB cache or fallback
+          const stkNames = (window.lfaRefData?.stks||[]).map(s=>s.type_name).filter(Boolean);
+          const fallbackStks = ['DIET','Teacher','HM / Principal','CRC','BEO','Student'];
+          const finalStks = stkNames.length ? stkNames : fallbackStks;
+          const chipsHtml=finalStks.map(s=>`<span class="lfa-stk-chip" onclick="lfaToggleStk(this,'${safeId}','${lfaEsc(s)}')">${lfaEsc(s)}</span>`).join('');
           const card=document.createElement('div');
           card.className='lfa-intv-card open';
           card.id=safeId;
@@ -4910,6 +4950,8 @@ select:focus:not(:focus-visible) { outline: none; }
               <span class="lfa-intv-name">${lfaEsc(name)}</span>
               <span class="lfa-itag env">${lfaEsc(env)}</span>
               <span class="lfa-itag child">${lfaEsc(child)}</span>
+              ${type ? `<span class="lfa-itag type" style="background:#ec4899;color:#fff;font-size:11px;">${lfaEsc(type)}</span>` : ''}
+              ${cat ? `<span class="lfa-itag category" style="background:#14b8a6;color:#fff;font-size:11px;">${lfaEsc(cat)}</span>` : ''}
               <button class="btn" style="font-size:10px;padding:2px 8px;" onclick="event.stopPropagation()">Edit</button>
               <span class="lfa-intv-chev">${IC['chevron-down']}</span>
             </div>
@@ -4923,8 +4965,12 @@ select:focus:not(:focus-visible) { outline: none; }
           const area=document.getElementById('lfa-new-intv-area');
           if(area) area.parentNode.insertBefore(card,area);
           const cnt=document.getElementById('lfa-intv-count');
-          if(cnt) cnt.textContent=parseInt(cnt.textContent||'2')+1;
+          if(cnt) cnt.textContent=parseInt(cnt.textContent||'0')+1;
           toast('✓ Intervention “'+name+'” created');
+          // Hide empty state when first intervention is created
+          const emptyEl = document.getElementById('lfa-interventions-empty');
+          if (emptyEl) emptyEl.style.display = 'none';
+          if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
         }
 
         // ── Program selector ──────────────────────────────
@@ -4971,8 +5017,17 @@ select:focus:not(:focus-visible) { outline: none; }
           if(cp) cp.textContent='LFA Setup';
           if(ct) ct.textContent='LFA \u2014 '+prog;
           lfaShowDict('interventions');
-          // Refresh reference data every time a program opens
-          if (typeof lfaLoadRefData === 'function') lfaLoadRefData();
+          // Clear any existing dynamic intervention cards before loading draft (keep sample cards)
+          document.querySelectorAll('.lfa-intv-card').forEach(c => { if (!c.dataset.lfaSample) c.remove(); });
+          // Reset empty state
+          const _emptyEl = document.getElementById('lfa-interventions-empty');
+          if (_emptyEl) _emptyEl.style.display = '';
+          // Refresh reference data, then load draft
+          if (typeof lfaLoadRefData === 'function') {
+            lfaLoadRefData().then(() => {
+              if (progId && typeof lfaLoadDraft === 'function') lfaLoadDraft(prog, progId);
+            });
+          }
         }
         (function(){
           const btn=document.getElementById('lfa-back-btn');
@@ -5154,6 +5209,7 @@ select:focus:not(:focus-visible) { outline: none; }
           const frameworkData = []; // For DB save
 
           document.querySelectorAll('.lfa-intv-card').forEach(card => {
+            if (card.dataset.lfaSample || card.style.display === 'none') return; // skip hidden sample cards
             const nameEl = card.querySelector('.lfa-intv-name');
             const codeEl = card.querySelector('.lfa-intv-code');
             const envEl  = card.querySelector('.lfa-itag.env');
@@ -5173,7 +5229,7 @@ select:focus:not(:focus-visible) { outline: none; }
 
               const activities = [];
               row.querySelectorAll('.lfa-ac-list-' + row.id + ' .lfa-ac-row, #lfa-ac-list-' + row.id + ' .lfa-ac-row').forEach(acRow => {
-                const code = acRow.querySelector('.lfa-ac-code')?.textContent.trim() || '';
+                const code = acRow.dataset.code || '';
                 const stmt = acRow.querySelector('.lfa-ac-stmt')?.textContent.trim() || '';
                 const cat  = acRow.querySelector('.lfa-ac-cat')?.textContent.trim() || '';
                 if (stmt) activities.push({ code, stmt, cat, dbId: acRow.dataset.dbId || '' });
@@ -5181,7 +5237,7 @@ select:focus:not(:focus-visible) { outline: none; }
 
               const outcomes = [];
               row.querySelectorAll('.lfa-oc-list-' + row.id + ' .lfa-oc-row, #lfa-oc-list-' + row.id + ' .lfa-oc-row').forEach(ocRow => {
-                const code = ocRow.querySelector('.lfa-oc-code')?.textContent.trim() || '';
+                const code = ocRow.dataset.code || '';
                 const stmt = ocRow.querySelector('.lfa-oc-stmt')?.textContent.trim() || '';
                 const cat  = ocRow.querySelector('.lfa-oc-cat')?.textContent.trim() || '';
                 if (stmt) outcomes.push({ code, stmt, cat, dbId: ocRow.dataset.dbId || '' });
@@ -5283,16 +5339,508 @@ select:focus:not(:focus-visible) { outline: none; }
           }
         }
 
+        // ── LFA Draft Auto-Save ───────────────────────────────────────
+        let lfaDraftSaveTimer = null;
+        let lfaDraftRestoring = false; // suppress auto-save during draft restore
+
+        function lfaScheduleAutoSave() {
+          if (lfaDraftRestoring) return;
+          // Debounce: save 2s after last change
+          clearTimeout(lfaDraftSaveTimer);
+          lfaDraftSaveTimer = setTimeout(() => lfaSaveDraft(), 2000);
+        }
+
+        async function lfaSaveDraft() {
+          const prog = document.getElementById('lfa-prog-title')?.textContent?.trim();
+          if (!prog) return;
+          const progId = await lfaFetchProgramId(prog);
+          if (!progId) return;
+
+          // Capture current LFA state from DOM
+          const interventions = lfaCaptureDraftData();
+          const draftData = { interventions, savedAt: new Date().toISOString() };
+
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            // Upsert on program_id unique constraint
+            const res = await fetch(`${url}/rest/v1/lfa_draft?on_conflict=program_id`, {
+              method: 'POST',
+              headers: { ...h, 'Prefer': 'return=minimal,resolution=merge-duplicates' },
+              body: JSON.stringify({ program_id: progId, draft_data: draftData, saved_at: new Date().toISOString() })
+            });
+            if (!res.ok && res.status !== 204) {
+              console.warn('[lfaSaveDraft] Upsert failed:', res.status, await res.text().catch(()=>''));
+              return;
+            }
+            // Show saved indicator
+            const ind = document.getElementById('lfa-draft-saved-ind');
+            if (ind) { ind.textContent = 'Draft saved ✓'; ind.style.opacity='1'; setTimeout(()=>{ ind.style.opacity='0'; }, 2000); }
+            console.log('[lfaSaveDraft] Draft saved for', prog);
+          } catch(e) { console.warn('[lfaSaveDraft] Failed:', e); }
+        }
+
+        function lfaCaptureDraftData() {
+          const interventions = [];
+          document.querySelectorAll('.lfa-intv-card').forEach(card => {
+            if (card.dataset.lfaSample || card.style.display === 'none') return; // Skip hidden sample cards
+            const nameEl  = card.querySelector('.lfa-intv-name');
+            const codeEl  = card.querySelector('.lfa-intv-code');
+            const envEl   = card.querySelector('.lfa-itag.env');
+            const childEl = card.querySelector('.lfa-itag.child');
+            const typeEl  = card.querySelector('.lfa-itag.type');
+            const catEl   = card.querySelector('.lfa-itag.category');
+            if (!nameEl) return;
+            const stakeholders = [];
+            card.querySelectorAll('.lfa-istm-row').forEach(row => {
+              if (row.style.display === 'none') return;
+              const stkEl = row.querySelector('.lfa-ir-stk');
+              const activities = [];
+              row.querySelectorAll('[class*="lfa-ac-list"] .lfa-ac-row, [id*="lfa-ac-list"] .lfa-ac-row').forEach(acRow => {
+                const code = acRow.dataset.code || '';
+                const stmt = acRow.querySelector('.lfa-ac-stmt')?.textContent.trim() || '';
+                const cat  = acRow.querySelector('.lfa-ac-cat')?.textContent.trim() || '';
+                if (stmt) activities.push({ code, stmt, cat });
+              });
+              const outcomes = [];
+              row.querySelectorAll('[class*="lfa-oc-list"] .lfa-oc-row, [id*="lfa-oc-list"] .lfa-oc-row').forEach(ocRow => {
+                const code = ocRow.dataset.code || '';
+                const stmt = ocRow.querySelector('.lfa-oc-stmt')?.textContent.trim() || '';
+                const cat  = ocRow.querySelector('.lfa-oc-cat')?.textContent.trim() || '';
+                if (stmt) outcomes.push({ code, stmt, cat });
+              });
+              if (stkEl?.textContent.trim()) stakeholders.push({ name: stkEl.textContent.trim(), activities, outcomes });
+            });
+            interventions.push({
+              name: nameEl.textContent.trim(),
+              code: codeEl?.textContent.trim() || '',
+              env:  envEl?.textContent.trim()  || '',
+              child: childEl?.textContent.trim() || '',
+              type: typeEl?.textContent.trim() || '',
+              cat:  catEl?.textContent.trim() || '',
+              stakeholders
+            });
+          });
+          return interventions;
+        }
+
+        async function lfaLoadDraft(prog, progId) {
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            const res = await fetch(`${url}/rest/v1/lfa_draft?program_id=eq.${progId}&select=draft_data,saved_at,is_published&limit=1`, { headers: h });
+            if (!res.ok) return;
+            const rows = await res.json();
+            if (!rows.length || !rows[0].draft_data?.interventions?.length) {
+              // No draft — show empty state
+              const empty = document.getElementById('lfa-interventions-empty');
+              if (empty) empty.style.display = '';
+              return;
+            }
+            const { draft_data } = rows[0];
+            console.log('[lfaLoadDraft] Restoring', draft_data.interventions.length, 'interventions');
+
+            // Hide empty state
+            const empty = document.getElementById('lfa-interventions-empty');
+            if (empty) empty.style.display = 'none';
+
+            // Rebuild intervention cards from draft (suppress auto-save during restore)
+            lfaDraftRestoring = true;
+            try {
+              draft_data.interventions.forEach(intv => {
+                lfaBuildIntvCard(intv.name, intv.code, intv.env, intv.child, intv.type || '', intv.cat || '');
+                // Get the newly created card (last non-sample card)
+                const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
+                const card = allDynamic[allDynamic.length - 1];
+                if (!card) return;
+                intv.stakeholders?.forEach(stk => {
+                  // Activate stakeholder chip
+                  card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
+                    if (chip.textContent.trim() === stk.name) {
+                      chip.classList.add('on');
+                      lfaToggleStk(chip, card.id, stk.name);
+                    }
+                  });
+                  // Re-add activities and outcomes into the ISTM row
+                  const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stk.name.toLowerCase().replace(/[^a-z0-9]/g,'-');
+                  stk.outcomes?.forEach(oc => {
+                    const inp = document.getElementById('lfa-oc-inp-'+rowId);
+                    const catSel = document.getElementById('lfa-oc-cat-'+rowId);
+                    if (inp) { inp.value = oc.stmt; if (catSel) catSel.value = oc.cat || ''; lfaConfirmAddOC(rowId); }
+                  });
+                  stk.activities?.forEach(ac => {
+                    const inp = document.getElementById('lfa-ac-inp-'+rowId);
+                    const catSel = document.getElementById('lfa-ac-cat-'+rowId);
+                    if (inp) { inp.value = ac.stmt; if (catSel) catSel.value = ac.cat || ''; lfaConfirmAddAC(rowId); }
+                  });
+                });
+              });
+            } finally {
+              lfaDraftRestoring = false;
+            }
+            // Update count
+            const cnt = document.getElementById('lfa-intv-count');
+            if (cnt) cnt.textContent = draft_data.interventions.length;
+
+            // Show saved time
+            const ind = document.getElementById('lfa-draft-saved-ind');
+            if (ind && rows[0].saved_at) {
+              const t = new Date(rows[0].saved_at);
+              ind.textContent = `Draft restored · saved ${t.toLocaleTimeString()}`;
+              ind.style.opacity = '1';
+              setTimeout(() => { ind.style.opacity = '0'; }, 4000);
+            }
+          } catch(e) { console.warn('[lfaLoadDraft] Failed:', e); }
+        }
+
+        // ── LFA IMPORT / EXPORT ────────────────────────────────────
+        function lfaDownloadBlob(blob, name) {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = name;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        }
+
+        function lfaDownloadTemplate() {
+          const wb = XLSX.utils.book_new();
+
+          // Sheet 1: Instructions
+          const instrSheet = [
+            ['LFA SETUP BULK IMPORT TEMPLATE'],
+            [''],
+            ['HOW TO USE THIS TEMPLATE:'],
+            ['1. Fill in the "Interventions" sheet with your intervention details'],
+            ['2. Fill in the "Outcomes" sheet with outcome codes & statements'],
+            ['3. Fill in the "Activities" sheet with activity codes & statements'],
+            ['4. Fill in the "Mapping" sheet to link stakeholders to outcomes/activities'],
+            ['5. Save the file and import it back to LFA Setup'],
+            [''],
+            ['IMPORTANT:'],
+            ['- CODES must be UNIQUE (they identify each item)'],
+            ['- STATEMENTS are required for each outcome/activity'],
+            ['- Use CODES in Mapping sheet to link items'],
+            ['- CATEGORIES must match M&E Book categories'],
+            [''],
+            ['EXAMPLE DATA:'],
+            ['Intervention Code: INT-001 or leave blank for auto-code'],
+            ['Outcome Code: OC-001, OC-002, etc.'],
+            ['Activity Code: AC-001, AC-002, etc.'],
+            ['Category: Early Childhood Development, Health, etc.'],
+          ];
+          const wsInstr = XLSX.utils.aoa_to_sheet(instrSheet);
+          wsInstr['!cols'] = [{wch:50}];
+          XLSX.utils.book_append_sheet(wb, wsInstr, 'README');
+
+          // Sheet 2: Interventions (blank template)
+          const intrRows = [['Intervention Code','Intervention Name','Environment','Child Experience','Intervention Type','Intervention Category']];
+          const wsIntr = XLSX.utils.aoa_to_sheet(intrRows);
+          wsIntr['!cols'] = [{wch:20}, {wch:35}, {wch:20}, {wch:20}, {wch:25}, {wch:25}];
+          wsIntr['!data'] = [{b:true,sz:11}]; // header bold
+          XLSX.utils.book_append_sheet(wb, wsIntr, 'Interventions');
+
+          // Sheet 3: Outcomes (blank template)
+          const ocRows = [['Outcome Code','Outcome Statement','Category','Status']];
+          const wsOc = XLSX.utils.aoa_to_sheet(ocRows);
+          wsOc['!cols'] = [{wch:15}, {wch:40}, {wch:20}, {wch:10}];
+          XLSX.utils.book_append_sheet(wb, wsOc, 'Outcomes');
+
+          // Sheet 4: Activities (blank template)
+          const acRows = [['Activity Code','Activity Statement','Category','Status']];
+          const wsAc = XLSX.utils.aoa_to_sheet(acRows);
+          wsAc['!cols'] = [{wch:15}, {wch:40}, {wch:20}, {wch:10}];
+          XLSX.utils.book_append_sheet(wb, wsAc, 'Activities');
+
+          // Sheet 5: Mapping (blank template)
+          const mapRows = [['Intervention Code','Stakeholder Type','Outcome Codes (comma-separated)','Activity Codes (comma-separated)']];
+          const wsMap = XLSX.utils.aoa_to_sheet(mapRows);
+          wsMap['!cols'] = [{wch:20}, {wch:25}, {wch:40}, {wch:40}];
+          XLSX.utils.book_append_sheet(wb, wsMap, 'Mapping');
+
+          const filename = `LFA_Template_Blank_${new Date().toISOString().slice(0,10)}.xlsx`;
+          XLSX.writeFile(wb, filename);
+          toast('✓ Blank LFA template downloaded · Fill and import back');
+        }
+
+        function lfaExportCSV() {
+          const prog = document.getElementById('lfa-prog-title')?.textContent?.trim();
+          if (!prog) { toast('No program selected'); return; }
+          const interventions = lfaCaptureDraftData();
+          if (!interventions.length) { toast('No data to export'); return; }
+
+          // Use XLSX for better multi-sheet support
+          const wb = XLSX.utils.book_new();
+
+          // Sheet 1: Instructions/Mapping
+          const instrSheet = [
+            ['LFA SETUP BULK IMPORT TEMPLATE'],
+            ['Program', prog],
+            ['Generated', new Date().toLocaleString()],
+            [''],
+            ['HOW TO USE:'],
+            ['1. Fill "Interventions" sheet with intervention details (use codes as identifiers)'],
+            ['2. Fill "Outcomes" sheet with outcome codes, statements, and categories'],
+            ['3. Fill "Activities" sheet with activity codes, statements, and categories'],
+            ['4. Fill "Mapping" sheet to link stakeholders to interventions, outcomes, activities'],
+            ['5. Download this file, edit it, then import it back to LFA Setup'],
+            [''],
+            ['IMPORTANT NOTES:'],
+            ['- Codes must be UNIQUE (used to match/update existing items)'],
+            ['- Statements are required for each outcome/activity'],
+            ['- Categories should match exactly with M&E Book categories'],
+            ['- Use codes in Mapping sheet to link items together'],
+          ];
+          const wsInstr = XLSX.utils.aoa_to_sheet(instrSheet);
+          wsInstr['!cols'] = [{wch:30}, {wch:50}];
+          XLSX.utils.book_append_sheet(wb, wsInstr, 'README');
+
+          // Sheet 2: Interventions
+          const intrRows = [['Intervention Code','Intervention Name','Environment','Child Experience','Intervention Type','Intervention Category']];
+          const intrData = [];
+          interventions.forEach(intv => {
+            intrData.push([intv.code || `AUTO-${intv.name.substring(0,5).toUpperCase()}`, intv.name, intv.env||'', intv.child||'', intv.type||'', intv.cat||'']);
+          });
+          const wsIntr = XLSX.utils.aoa_to_sheet([...intrRows, ...intrData]);
+          wsIntr['!cols'] = [{wch:20}, {wch:35}, {wch:20}, {wch:20}, {wch:25}, {wch:25}];
+          XLSX.utils.book_append_sheet(wb, wsIntr, 'Interventions');
+
+          // Sheet 3: Outcomes
+          const ocRows = [['Outcome Code','Outcome Statement','Category','Status']];
+          const ocData = [];
+          const seen = new Set();
+          interventions.forEach(intv => {
+            intv.stakeholders?.forEach(stk => {
+              stk.outcomes?.forEach(oc => {
+                const key = (oc.code || oc.stmt).toLowerCase();
+                if (!seen.has(key)) {
+                  seen.add(key);
+                  ocData.push([oc.code||'', oc.stmt||'', oc.cat||'', 'Active']);
+                }
+              });
+            });
+          });
+          const wsOc = XLSX.utils.aoa_to_sheet([...ocRows, ...ocData]);
+          wsOc['!cols'] = [{wch:15}, {wch:40}, {wch:20}, {wch:10}];
+          XLSX.utils.book_append_sheet(wb, wsOc, 'Outcomes');
+
+          // Sheet 4: Activities
+          const acRows = [['Activity Code','Activity Statement','Category','Status']];
+          const acData = [];
+          seen.clear();
+          interventions.forEach(intv => {
+            intv.stakeholders?.forEach(stk => {
+              stk.activities?.forEach(ac => {
+                const key = (ac.code || ac.stmt).toLowerCase();
+                if (!seen.has(key)) {
+                  seen.add(key);
+                  acData.push([ac.code||'', ac.stmt||'', ac.cat||'', 'Active']);
+                }
+              });
+            });
+          });
+          const wsAc = XLSX.utils.aoa_to_sheet([...acRows, ...acData]);
+          wsAc['!cols'] = [{wch:15}, {wch:40}, {wch:20}, {wch:10}];
+          XLSX.utils.book_append_sheet(wb, wsAc, 'Activities');
+
+          // Sheet 5: Mapping (Stakeholder → Intervention → Outcomes/Activities)
+          const mapRows = [['Intervention Code','Stakeholder Type','Outcome Codes (comma-separated)','Activity Codes (comma-separated)']];
+          const mapData = [];
+          interventions.forEach(intv => {
+            intv.stakeholders?.forEach(stk => {
+              const ocCodes = stk.outcomes?.map(o => o.code||'').filter(c=>c).join(',') || '';
+              const acCodes = stk.activities?.map(a => a.code||'').filter(c=>c).join(',') || '';
+              mapData.push([intv.code||intv.name, stk.name, ocCodes, acCodes]);
+            });
+          });
+          const wsMap = XLSX.utils.aoa_to_sheet([...mapRows, ...mapData]);
+          wsMap['!cols'] = [{wch:20}, {wch:25}, {wch:40}, {wch:40}];
+          XLSX.utils.book_append_sheet(wb, wsMap, 'Mapping');
+
+          const filename = `LFA_Template_${prog.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+          XLSX.writeFile(wb, filename);
+          toast(`✓ Exported LFA template with ${interventions.length} interventions as XLSX`);
+        }
+
+        function lfaImportCSV() {
+          const inp = document.getElementById('lfa-import-file');
+          if (inp) { inp.click(); }
+        }
+
+        async function lfaProcessImport(evt) {
+          const file = evt.target.files?.[0];
+          if (!file) return;
+          try {
+            let rows = [];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'csv') {
+              const text = await file.text();
+              const lines = text.split(/\r?\n/).filter(l => l.trim());
+              if (!lines.length) { toast('Empty file'); return; }
+              const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+              rows = lines.slice(1).map(line => {
+                const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || line.split(',');
+                const obj = {};
+                headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+                return obj;
+              });
+            } else if (ext === 'xlsx' || ext === 'xls') {
+              const buf = await file.arrayBuffer();
+              const wb = XLSX.read(buf);
+              const ws = wb.Sheets[wb.SheetNames[0]];
+              rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+            } else {
+              toast('Only CSV and XLSX formats supported'); return;
+            }
+
+            if (!rows.length) { toast('No data rows found'); return; }
+            const validated = lfaValidateImportRows(rows);
+            if (!validated.valid) { toast('Validation error: ' + validated.errors.join(', ')); return; }
+
+            // Show preview
+            lfaShowImportPreview(validated.interventions);
+          } catch(e) {
+            alert('Could not parse file: ' + e.message);
+          }
+        }
+
+        function lfaValidateImportRows(rows) {
+          const errors = [];
+          const interventions = [];
+          let currentIntv = null;
+          let currentStk = null;
+
+          rows.forEach((row, idx) => {
+            const intvName = (row['Intervention'] || row['intervention'] || '').trim();
+            const stkName = (row['Stakeholder Type'] || row['stakeholder_type'] || '').trim();
+            const ocCode = (row['Outcome Code'] || row['outcome_code'] || '').trim();
+            const ocStmt = (row['Outcome Statement'] || row['outcome_statement'] || '').trim();
+            const acCode = (row['Activity Code'] || row['activity_code'] || '').trim();
+            const acStmt = (row['Activity Statement'] || row['activity_statement'] || '').trim();
+
+            if (intvName) {
+              const code = (row['Code'] || row['code'] || '').trim();
+              const env = (row['Environment'] || row['environment'] || '').trim();
+              const child = (row['Child Experience'] || row['child_experience'] || '').trim();
+              const type = (row['Intervention Type'] || row['intervention_type'] || '').trim();
+              const cat = (row['Intervention Category'] || row['intervention_category'] || '').trim();
+              const existing = interventions.find(i => i.name === intvName);
+              if (existing) {
+                currentIntv = existing;
+              } else {
+                currentIntv = { name: intvName, code, env, child, type, cat, stakeholders: [] };
+                interventions.push(currentIntv);
+              }
+            }
+
+            if (stkName && currentIntv) {
+              const existing = currentIntv.stakeholders.find(s => s.name === stkName);
+              if (existing) {
+                currentStk = existing;
+              } else {
+                currentStk = { name: stkName, outcomes: [], activities: [] };
+                currentIntv.stakeholders.push(currentStk);
+              }
+            }
+
+            if (ocStmt && currentStk) {
+              const cat = (row['Outcome Category'] || row['outcome_category'] || '').trim();
+              currentStk.outcomes.push({ code: ocCode, stmt: ocStmt, cat });
+            }
+
+            if (acStmt && currentStk) {
+              const cat = (row['Activity Category'] || row['activity_category'] || '').trim();
+              currentStk.activities.push({ code: acCode, stmt: acStmt, cat });
+            }
+          });
+
+          if (!interventions.some(i => i.name)) errors.push('No interventions found');
+          return { valid: errors.length === 0, errors, interventions };
+        }
+
+        function lfaShowImportPreview(interventions) {
+          const totalStk = interventions.reduce((s, i) => s + i.stakeholders.length, 0);
+          const totalOc = interventions.reduce((s, i) => s + i.stakeholders.reduce((ss, stk) => ss + stk.outcomes.length, 0), 0);
+          const totalAc = interventions.reduce((s, i) => s + i.stakeholders.reduce((ss, stk) => ss + stk.activities.length, 0), 0);
+
+          const summary = `Import Preview\n\n${interventions.length} interventions\n${totalStk} stakeholders\n${totalOc} outcomes\n${totalAc} activities\n\nProceed with import?`;
+          if (confirm(summary)) {
+            window._lfaImportData = interventions;
+            lfaConfirmImport(interventions);
+          }
+        }
+
+        async function lfaConfirmImport(interventions) {
+          if (!interventions || !interventions.length) { toast('No data to import'); return; }
+
+          const prog = document.getElementById('lfa-prog-title')?.textContent?.trim();
+          if (!prog) { toast('No program selected'); return; }
+
+          // Suppress auto-save during import
+          lfaDraftRestoring = true;
+          try {
+            // Clear existing interventions
+            document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])').forEach(card => {
+              const delBtn = card.querySelector('[onclick*="lfaDeleteIntv"]');
+              if (delBtn) delBtn.click();
+            });
+
+            // Rebuild from imported data
+            for (const intv of interventions) {
+              lfaBuildIntvCard(intv.name, intv.code, intv.env, intv.child, intv.type || '', intv.cat || '');
+              const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
+              const card = allDynamic[allDynamic.length - 1];
+              if (!card) continue;
+
+              for (const stk of intv.stakeholders) {
+                card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
+                  if (chip.textContent.trim() === stk.name) {
+                    chip.classList.add('on');
+                    lfaToggleStk(chip, card.id, stk.name);
+                  }
+                });
+
+                const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stk.name.toLowerCase().replace(/[^a-z0-9]/g,'-');
+                for (const oc of (stk.outcomes || [])) {
+                  const inp = document.getElementById('lfa-oc-inp-'+rowId);
+                  const catSel = document.getElementById('lfa-oc-cat-'+rowId);
+                  if (inp) { inp.value = oc.stmt; if (catSel) catSel.value = oc.cat || ''; lfaConfirmAddOC(rowId); }
+                }
+                for (const ac of (stk.activities || [])) {
+                  const inp = document.getElementById('lfa-ac-inp-'+rowId);
+                  const catSel = document.getElementById('lfa-ac-cat-'+rowId);
+                  if (inp) { inp.value = ac.stmt; if (catSel) catSel.value = ac.cat || ''; lfaConfirmAddAC(rowId); }
+                }
+              }
+            }
+
+            // Update count
+            const cnt = document.getElementById('lfa-intv-count');
+            if (cnt) cnt.textContent = interventions.length;
+
+            toast(`✓ Imported ${interventions.length} interventions`);
+          } finally {
+            lfaDraftRestoring = false;
+            document.getElementById('lfa-import-file').value = '';
+          }
+        }
+
         // ── Save M&E Builder indicators from LFA framework to DB ──────
         async function meb2SaveIndicatorsToDB() {
           if (!window.meb2FrameworkConfirmed) { toast('Confirm framework first'); return false; }
+          // Snapshot groups immediately before any async yield — prevents a concurrent
+          // meb2LoadProgramFromDB from overwriting meb2Groups mid-save.
+          const groupsSnapshot = meb2Groups.map(g => ({
+            ...g, indicators: g.indicators.map(i => ({ ...i }))
+          }));
           try {
             const progId = await lfaFetchProgramId(meb2Prog);
             if (!progId) { toast('Program not found'); return false; }
             const url = GS_SB_URL, h = GS_SB_HDR;
             let saved = 0, updated = 0;
 
-            for (const g of meb2Groups) {
+            // Fetch a default indicator_category_id (Outcome category)
+            await meb2EnsureCatIds();
+            const defaultCatId = meb2CatIds['IC-002'] || meb2CatIds['IC-001'] || null;
+
+            for (const g of groupsSnapshot) {
               for (const ind of g.indicators) {
                 if (!ind.name && !ind.abbr) continue; // Skip blank
                 const payload = {
@@ -5302,7 +5850,11 @@ select:focus:not(:focus-visible) { outline: none; }
                   baseline_value: ind.baseline ? Number(ind.baseline) : null,
                   direction: 'increase',
                   is_active: true,
-                  is_template: false
+                  is_template: false,
+                  indicator_category_id: defaultCatId,
+                  // Link to lfa_outcome or lfa_activity for the constraint
+                  lfa_outcome_id:  g.sourceType === 'outcome'  ? g.sourceDbId : null,
+                  lfa_activity_id: g.sourceType === 'activity' ? g.sourceDbId : null,
                 };
                 try {
                   if (ind.indicator_id) {
@@ -5339,6 +5891,251 @@ select:focus:not(:focus-visible) { outline: none; }
             return false;
           }
         }
+
+        // ── M&E BUILDER IMPORT / EXPORT ────────────────────────────
+        function meb2DownloadTemplate() {
+          const wb = XLSX.utils.book_new();
+
+          // Sheet 1: README
+          const instrSheet = [
+            ['M&E BUILDER INDICATOR FRAMEWORK TEMPLATE'],
+            [''],
+            ['HOW TO USE THIS TEMPLATE:'],
+            ['1. Fill in the "Framework" sheet with your indicators'],
+            ['2. Each row = ONE indicator under a stakeholder/output type'],
+            ['3. Use CODES to identify indicators (e.g., IND-001, IND-002)'],
+            ['4. Save and import back to M&E Builder'],
+            [''],
+            ['COLUMNS TO FILL:'],
+            ['Stakeholder Name', 'Who manages this indicator (from LFA Setup)'],
+            ['Source Type', 'Output or Outcome (from LFA)'],
+            ['Source Code', 'Code from LFA Setup'],
+            ['Indicator Code', 'UNIQUE code (e.g., IND-001, IND-042)'],
+            ['Indicator Name', 'Full name/statement (REQUIRED)'],
+            ['Unit of Measure', 'count, percentage, amount, number, score, ratio'],
+            ['Baseline Value', 'Starting value (optional)'],
+            ['Frequency', 'monthly, quarterly, semi-annual, annual'],
+            ['Status', 'Active or Inactive'],
+            [''],
+            ['EXAMPLE:'],
+            ['Health Services', 'Output', 'HLTH-001', 'IND-001', 'Number of patients served', 'count', '500', 'monthly', 'Active'],
+          ];
+          const wsInstr = XLSX.utils.aoa_to_sheet(instrSheet);
+          wsInstr['!cols'] = [{wch:25}, {wch:50}];
+          XLSX.utils.book_append_sheet(wb, wsInstr, 'README');
+
+          // Sheet 2: Framework (blank template)
+          const rows = [['Stakeholder Name','Source Type','Source Code','Indicator Code','Indicator Name','Unit of Measure','Baseline Value','Frequency','Status']];
+          const wsFramework = XLSX.utils.aoa_to_sheet(rows);
+          wsFramework['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:15}, {wch:35}, {wch:18}, {wch:15}, {wch:12}, {wch:10}];
+          XLSX.utils.book_append_sheet(wb, wsFramework, 'Framework');
+
+          // Sheet 3: Reference (to help users)
+          const refData = [
+            ['UNIT TYPES', 'FREQUENCY OPTIONS', 'STATUS'],
+            ['count', 'monthly', 'Active'],
+            ['percentage', 'quarterly', 'Inactive'],
+            ['amount', 'semi-annual', ''],
+            ['number', 'annual', ''],
+            ['score', '', ''],
+            ['ratio', '', ''],
+          ];
+          const wsRef = XLSX.utils.aoa_to_sheet(refData);
+          wsRef['!cols'] = [{wch:20}, {wch:20}, {wch:15}];
+          XLSX.utils.book_append_sheet(wb, wsRef, 'Reference');
+
+          const filename = `ME_Framework_Template_Blank_${new Date().toISOString().slice(0,10)}.xlsx`;
+          XLSX.writeFile(wb, filename);
+          toast('✓ Blank M&E Framework template downloaded · Fill and import');
+        }
+
+        function meb2ExportFramework() {
+          if (!meb2Groups || !meb2Groups.length) { toast('No framework to export'); return; }
+          const prog = document.getElementById('meb2-prog-name')?.value || document.getElementById('meb2-filter-prog')?.value || 'Framework';
+
+          const wb = XLSX.utils.book_new();
+
+          // Sheet 1: README
+          const instrSheet = [
+            ['M&E BUILDER INDICATOR FRAMEWORK TEMPLATE'],
+            ['Program', prog],
+            ['Generated', new Date().toLocaleString()],
+            [''],
+            ['HOW TO USE:'],
+            ['1. Review "Framework" sheet showing all indicators grouped by stakeholder'],
+            ['2. Edit indicator codes, names, units, baselines, frequencies as needed'],
+            ['3. Each row represents ONE indicator'],
+            ['4. Download, edit, upload back to M&E Builder'],
+            [''],
+            ['FIELD DEFINITIONS:'],
+            ['Stakeholder Name', 'Who is responsible for this indicator (from LFA Setup)'],
+            ['Indicator Code', 'Unique code identifier (e.g., IND-001)'],
+            ['Indicator Name', 'Full name/statement of the indicator (required)'],
+            ['Unit of Measure', 'What is being measured (e.g., count, percentage, number)'],
+            ['Baseline Value', 'Starting value for tracking progress'],
+            ['Frequency', 'How often reported (monthly, quarterly, annual)'],
+            [''],
+            ['TIPS FOR BULK UPLOAD:'],
+            ['- Codes should be UNIQUE across the framework'],
+            ['- Names are required for each indicator'],
+            ['- Use standard units: count, percentage, number, amount, score, ratio'],
+            ['- Frequencies: monthly, quarterly, semi-annual, annual'],
+          ];
+          const wsInstr = XLSX.utils.aoa_to_sheet(instrSheet);
+          wsInstr['!cols'] = [{wch:30}, {wch:50}];
+          XLSX.utils.book_append_sheet(wb, wsInstr, 'README');
+
+          // Sheet 2: Framework (all indicators)
+          const rows = [['Stakeholder Name','Source Type','Source Code','Indicator Code','Indicator Name','Unit of Measure','Baseline Value','Frequency','Status']];
+          const data = [];
+          meb2Groups.forEach(g => {
+            if (!g.indicators.length) {
+              data.push([g.name || '', g.sourceType || '', g.sourceCode || '', '', '', '', '', '', 'Active']);
+            } else {
+              g.indicators.forEach((ind, i) => {
+                data.push([
+                  i === 0 ? (g.name || '') : '',
+                  i === 0 ? (g.sourceType || '') : '',
+                  i === 0 ? (g.sourceCode || '') : '',
+                  ind.code || `IND-${Math.random().toString(36).substr(2,6).toUpperCase()}`,
+                  ind.name || '',
+                  ind.unit || 'count',
+                  ind.baseline || '',
+                  ind.freq || 'monthly',
+                  'Active'
+                ]);
+              });
+            }
+          });
+          const wsFramework = XLSX.utils.aoa_to_sheet([...rows, ...data]);
+          wsFramework['!cols'] = [{wch:20}, {wch:15}, {wch:15}, {wch:15}, {wch:35}, {wch:18}, {wch:15}, {wch:12}, {wch:10}];
+          XLSX.utils.book_append_sheet(wb, wsFramework, 'Framework');
+
+          // Sheet 3: Summary by Stakeholder
+          const summaryData = [['Stakeholder','Indicator Count','Outcome Type?']];
+          meb2Groups.forEach(g => {
+            summaryData.push([g.name || '', g.indicators?.length || 0, (g.sourceType || 'output').toUpperCase()]);
+          });
+          const wsSummary = XLSX.utils.aoa_to_sheet([...summaryData]);
+          wsSummary['!cols'] = [{wch:25}, {wch:15}, {wch:15}];
+          XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+          const filename = `ME_Framework_${prog.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+          XLSX.writeFile(wb, filename);
+          toast(`✓ Exported M&E framework as XLSX template · ${meb2Groups.length} groups · ${data.length} indicators`);
+        }
+
+        function meb2ImportFramework() {
+          const inp = document.getElementById('meb2-import-file');
+          if (inp) { inp.click(); }
+        }
+
+        async function meb2ProcessImport(evt) {
+          const file = evt.target.files?.[0];
+          if (!file) return;
+          try {
+            let rows = [];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'csv') {
+              const text = await file.text();
+              const lines = text.split(/\r?\n/).filter(l => l.trim());
+              if (!lines.length) { toast('Empty file'); return; }
+              const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+              rows = lines.slice(1).map(line => {
+                const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || line.split(',');
+                const obj = {};
+                headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+                return obj;
+              });
+            } else if (ext === 'xlsx' || ext === 'xls') {
+              const buf = await file.arrayBuffer();
+              const wb = XLSX.read(buf);
+              const ws = wb.Sheets[wb.SheetNames[0]];
+              rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+            } else {
+              toast('Only CSV and XLSX formats supported'); return;
+            }
+
+            if (!rows.length) { toast('No data rows found'); return; }
+            const groups = meb2ParseImportRows(rows);
+            if (!groups.length) { toast('No valid data found'); return; }
+
+            const summary = `Import Preview\n\n${groups.length} stakeholders\n${groups.reduce((s,g)=>s+g.indicators.length,0)} indicators\n\nProceed with import?`;
+            if (confirm(summary)) {
+              meb2ConfirmImport(groups);
+            }
+          } catch(e) {
+            alert('Could not parse file: ' + e.message);
+          }
+        }
+
+        function meb2ParseImportRows(rows) {
+          const groups = [];
+          let currentGroup = null;
+
+          rows.forEach(row => {
+            const stkName = (row['Stakeholder'] || row['stakeholder'] || '').trim();
+            const srcType = (row['Source Type'] || row['source_type'] || '').trim();
+            const srcCode = (row['Source Code'] || row['source_code'] || '').trim();
+            const srcDb   = (row['Source'] || row['source'] || '').trim();
+            const indCode = (row['Indicator Code'] || row['indicator_code'] || '').trim();
+            const indName = (row['Indicator Name'] || row['indicator_name'] || '').trim();
+
+            if (stkName) {
+              const existing = groups.find(g => g.name === stkName);
+              if (existing) {
+                currentGroup = existing;
+              } else {
+                currentGroup = { name: stkName, sourceType: srcType, sourceCode: srcCode, sourceDb: srcDb, indicators: [] };
+                groups.push(currentGroup);
+              }
+            }
+
+            if (indName && currentGroup) {
+              const unit = (row['Unit'] || row['unit'] || '').trim();
+              const baseline = (row['Baseline'] || row['baseline'] || '').trim();
+              const freq = (row['Frequency'] || row['frequency'] || 'monthly').trim();
+              currentGroup.indicators.push({ code: indCode, name: indName, unit, baseline, freq });
+            }
+          });
+
+          return groups;
+        }
+
+        async function meb2ConfirmImport(groups) {
+          if (!groups || !groups.length) { toast('No data to import'); return; }
+
+          try {
+            // Clear existing groups
+            meb2Groups = [];
+            // Rebuild from imported data
+            groups.forEach(g => {
+              meb2Groups.push({
+                name: g.name || '',
+                sourceType: g.sourceType || '',
+                sourceCode: g.sourceCode || '',
+                sourceDb: g.sourceDb || '',
+                sourceDbId: null,
+                indicators: (g.indicators || []).map(ind => ({
+                  indicator_id: null,
+                  code: ind.code || '',
+                  name: ind.name || '',
+                  abbr: ind.code || '',
+                  unit: ind.unit || 'count',
+                  baseline: ind.baseline || '',
+                  freq: ind.freq || 'monthly'
+                }))
+              });
+            });
+
+            // Refresh the UI
+            meb2RenderFramework();
+            toast(`✓ Imported ${groups.length} stakeholder groups`);
+          } finally {
+            document.getElementById('meb2-import-file').value = '';
+          }
+        }
+
         </script>
 
       </section><!-- /page-lfa -->
@@ -6638,11 +7435,15 @@ select:focus:not(:focus-visible) { outline: none; }
                   <div class="bt-table-title" id="bt-monthly-title">Monthly Actuals</div>
                   <div class="bt-table-meta">Enter actual spend per budget line per month · auto-saves on blur</div>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center;">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                   <select id="bt-monthly-type-sel" style="font-size:12px;padding:5px 9px;border-radius:var(--r);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);font-family:var(--sans);outline:none;">
                     <option value="actual">Actual Spend</option>
                     <option value="planned">Planned Forecast</option>
                   </select>
+                  <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="mrDownloadTemplate()">📋 Template</button>
+                  <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="mrExportSubmission()">↓ Export</button>
+                  <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="mrImportSubmission()">↑ Import</button>
+                  <input type="file" id="mr-import-file" style="display:none;" accept=".csv,.xlsx" onchange="mrProcessImport(event)"/>
                   <button class="btn btn-ok" id="bt-save-monthly-btn" style="font-size:12px;display:inline-flex;align-items:center;gap:4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     Save
@@ -7378,202 +8179,6 @@ const gsSbQuery = async (table, params = '') => {
   const r = await fetch(`${GS_SB_URL}/rest/v1/${table}?${params}`, { headers: GS_SB_HDR });
   return r.ok ? await r.json() : [];
 };
-
-// ═══════════════════════════════════════════════════════════════════
-// GLOBAL DATA LOADER — Fetches reference data from Supabase
-// Replaces hardcoded values with live database content
-// ═══════════════════════════════════════════════════════════════════
-
-// Global cache for database-loaded reference data
-const dbCache = {
-  programs: [],
-  states: [],
-  districts: [],
-  interventions: [],
-  stakeholderTypes: [],
-  stakeholderLevels: [],
-  outcomeCategories: [],
-  environments: [],
-  childExperiences: [],
-  financialYears: [],
-  periods: [],
-  donors: [],
-  grants: [],
-  loaded: false
-};
-
-// Load all reference data from Supabase
-async function loadGlobalDbData() {
-  if (dbCache.loaded) return dbCache;
-  console.log('[DB] Loading global reference data from Supabase...');
-  
-  try {
-    const [
-      programs,
-      states,
-      districts,
-      interventions,
-      stakeholderTypes,
-      stakeholderLevels,
-      outcomeCategories,
-      environments,
-      childExperiences,
-      financialYears,
-      periods,
-      donors,
-      grants
-    ] = await Promise.all([
-      gsSbFetch('program', 'select=program_id,program_name,state_id&order=program_name.asc&limit=100'),
-      gsSbFetch('state', 'select=state_id,state_name&order=state_name.asc&limit=50'),
-      gsSbFetch('district', 'select=district_id,district_name,state_id&order=district_name.asc&limit=500'),
-      gsSbFetch('intervention', 'select=intervention_id,intervention_name,intervention_code&is_active=eq.true&order=intervention_name.asc&limit=100'),
-      gsSbFetch('stakeholder_type', 'select=stakeholder_type_id,type_name&order=type_name.asc&limit=50'),
-      gsSbFetch('stakeholder_level', 'select=stakeholder_level_id,level_name&order=level_name.asc&limit=20'),
-      gsSbFetch('outcome_categories', 'select=outcome_category_id,category_name,category_code,sort_order&is_active=eq.true&order=sort_order.asc&limit=50'),
-      gsSbFetch('environment', 'select=environment_id,environment_name,environment_code&is_active=eq.true&order=sort_order.asc&limit=20'),
-      gsSbFetch('child_experience', 'select=child_experience_id,experience_name,short_label,child_experience_code&is_active=eq.true&order=sort_order.asc&limit=50'),
-      gsSbFetch('financial_year', 'select=financial_year_id,fy_name,start_date,end_date,is_current&order=start_date.desc&limit=10'),
-      gsSbFetch('period', 'select=period_id,period_name,period_type,start_date,end_date,financial_year_id&order=start_date.asc&limit=50'),
-      gsSbFetch('donor', 'select=donor_id,donor_name,donor_code,donor_type&is_active=eq.true&order=donor_name.asc&limit=100'),
-      gsSbFetch('grants', 'select=grant_id,grant_name,grant_code,donor_id,total_committed_amount,currency,start_date,end_date,grant_status&is_active=eq.true&order=grant_name.asc&limit=200')
-    ]);
-
-    dbCache.programs = programs || [];
-    dbCache.states = states || [];
-    dbCache.districts = districts || [];
-    dbCache.interventions = interventions || [];
-    dbCache.stakeholderTypes = stakeholderTypes || [];
-    dbCache.stakeholderLevels = stakeholderLevels || [];
-    dbCache.outcomeCategories = outcomeCategories || [];
-    dbCache.environments = environments || [];
-    dbCache.childExperiences = childExperiences || [];
-    dbCache.financialYears = financialYears || [];
-    dbCache.periods = periods || [];
-    dbCache.donors = donors || [];
-    dbCache.grants = grants || [];
-    dbCache.loaded = true;
-
-    console.log('[DB] Loaded:', {
-      programs: dbCache.programs.length,
-      states: dbCache.states.length,
-      districts: dbCache.districts.length,
-      interventions: dbCache.interventions.length,
-      stakeholderTypes: dbCache.stakeholderTypes.length,
-      outcomeCategories: dbCache.outcomeCategories.length,
-      donors: dbCache.donors.length,
-      grants: dbCache.grants.length
-    });
-
-    // Update builderRefs with live data (will be defined later, safe to call after DOM ready)
-    if (typeof updateBuilderRefsFromDb === 'function') {
-      updateBuilderRefsFromDb();
-    }
-
-    return dbCache;
-  } catch (e) {
-    console.error('[DB] Error loading global data:', e);
-    dbCache.loaded = true; // prevent retry loop
-    return dbCache;
-  }
-}
-
-// Get programs list (from DB or fallback)
-function getDbPrograms() {
-  if (dbCache.programs.length > 0) {
-    return dbCache.programs.map(p => p.program_name);
-  }
-  // Fallback to hardcoded if DB is empty
-  return ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab','Rajasthan','Madhya Pradesh','Jharkhand','Assam','Maharashtra'];
-}
-
-// Get districts for a state/program
-function getDbDistricts(stateName) {
-  const state = dbCache.states.find(s => s.state_name === stateName);
-  if (state) {
-    const dists = dbCache.districts.filter(d => d.state_id === state.state_id);
-    if (dists.length > 0) return dists.map(d => d.district_name);
-  }
-  // Fallback
-  const fallbackDistricts = {
-    'Karnataka': ['BENGALURU URBAN','MYSURU','HUBLI-DHARWAD','BELAGAVI','KALABURAGI','SHIVAMOGGA','TUMAKURU','DAVANAGERE'],
-    'Bihar': ['PATNA','GAYA','MUZAFFARPUR','BHAGALPUR','NALANDA','VAISHALI','SITAMARHI','BEGUSARAI','DARBHANGA','SAMASTIPUR'],
-  };
-  return fallbackDistricts[stateName] || ['DISTRICT-1','DISTRICT-2','DISTRICT-3'];
-}
-
-// Get stakeholder levels from DB
-function getDbStakeholderLevels() {
-  if (dbCache.stakeholderLevels.length > 0) {
-    return dbCache.stakeholderLevels.map(l => l.level_name);
-  }
-  return ['school','cluster','block','district','state'];
-}
-
-// Get outcome categories from DB
-function getDbOutcomeCategories() {
-  if (dbCache.outcomeCategories.length > 0) {
-    return dbCache.outcomeCategories.map(c => c.category_name);
-  }
-  return ['Capacity Building','Systemic Tools','Structures & Process'];
-}
-
-// Get outcome category metadata from DB
-function getDbOutcomeCategoryMeta() {
-  const meta = {};
-  if (dbCache.outcomeCategories.length > 0) {
-    dbCache.outcomeCategories.forEach((c, i) => {
-      meta[c.category_name] = { code: c.category_code || `OCC-${i+1}`, sort: c.sort_order || i };
-    });
-    return meta;
-  }
-  return {
-    'Capacity Building':   { code: 'CAP_BUILD', sort: 0 },
-    'Systemic Tools':      { code: 'SYS_TOOLS', sort: 1 },
-    'Structures & Process':{ code: 'STR_PROC',  sort: 2 },
-  };
-}
-
-// Get interventions from DB
-function getDbInterventions() {
-  if (dbCache.interventions.length > 0) {
-    return dbCache.interventions.map(i => i.intervention_name);
-  }
-  return ['FLN Program','Teacher Development','School Leadership','Community Engagement','District Capacity Building','Cluster Support','STEM Initiative','Assessment Reform'];
-}
-
-// Get stakeholder types from DB
-function getDbStakeholderTypes() {
-  if (dbCache.stakeholderTypes.length > 0) {
-    return dbCache.stakeholderTypes.map(s => s.type_name);
-  }
-  return ['Teacher','Student','Leader','Community','Cluster Resource Coordinator','Block Education Officer','Academic Mentor','Training Facilitator','District Coordinator','Parent'];
-}
-
-// Get environments from DB
-function getDbEnvironments() {
-  if (dbCache.environments.length > 0) {
-    return dbCache.environments.map(e => e.environment_name);
-  }
-  return ['School','Cluster','Block','District','State'];
-}
-
-// Get child experiences from DB  
-function getDbChildExperiences() {
-  if (dbCache.childExperiences.length > 0) {
-    return dbCache.childExperiences.map(e => e.short_label || e.experience_name);
-  }
-  return ['Classroom Engagement','Foundational Literacy','Numeracy','Social-Emotional Learning','STEM Exploration','Holistic Development'];
-}
-
-// Get periods from DB
-function getDbPeriods() {
-  if (dbCache.periods.length > 0) {
-    return dbCache.periods.map(p => p.period_name.trim());
-  }
-  return ['Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026','Apr 2026','Q1 FY26','Q2 FY26'];
-}
-
-// ═══════════════════════════════════════════════════════════════════
 
 // ── State ──────────────────────────────────────────────────────
 const gsState = {
@@ -8985,14 +9590,14 @@ async function mebkSaveNewCat(tab) {
 }
 
 // ── Tab switch ──────────────────────────────────────
-const MEBK_ALL_TABS = ['oc','ac','im','env','ce','stk','ocat','acat'];
+const MEBK_ALL_TABS = ['oc','ac','im','env','ce','stk','ocat','acat','inttype','intcat'];
 function mebkSwitchTab(tab) {
   MEBK_ALL_TABS.forEach(t => {
     document.getElementById(`mebk-panel-${t}`).style.display = tab === t ? '' : 'none';
     document.getElementById(`mebk-tab-${t}`).classList.toggle('active', tab === t);
   });
   if (tab === 'im'   && !window.mebkImLoaded)   { mebkLoadImpacts(); window.mebkImLoaded = true; }
-  if (['env','ce','stk','ocat','acat'].includes(tab) && !window[`mebkRefLoaded_${tab}`]) {
+  if (['env','ce','stk','ocat','acat','inttype','intcat'].includes(tab) && !window[`mebkRefLoaded_${tab}`]) {
     mebkRefLoad(tab); window[`mebkRefLoaded_${tab}`] = true;
   }
 }
@@ -9004,9 +9609,11 @@ const MEBK_IO_CFG = {
   im:   { label:'Impact Goals',        cols:[{h:'Code',k:'impact_code'},{h:'Statement',k:'impact_statement'},{h:'Category',k:'_catName'},{h:'Active',k:'is_active'}],          dataFn:()=>window.mebkLibData?.im||[], table:'impact',             codeCol:'impact_code',           nameCol:'impact_statement',  idCol:'impact_id' },
   env:  { label:'Environments',        cols:[{h:'Code',k:'environment_code'},{h:'Name',k:'environment_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],    dataFn:()=>window.mebkRefItems?.env||[], table:'environment',       codeCol:'environment_code',      nameCol:'environment_name',  idCol:'environment_id' },
   ce:   { label:'Child Experience',    cols:[{h:'Code',k:'child_experience_code'},{h:'Experience',k:'experience_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}], dataFn:()=>window.mebkRefItems?.ce||[], table:'child_experience', codeCol:'child_experience_code', nameCol:'experience_name',   idCol:'child_experience_id' },
-  stk:  { label:'Stakeholder Types',   cols:[{h:'Code',k:'stakeholder_type_code'},{h:'Name',k:'type_name'},{h:'Description',k:'description'}],                                 dataFn:()=>window.mebkRefItems?.stk||[], table:'stakeholder_type', codeCol:'stakeholder_type_code', nameCol:'type_name',         idCol:'stakeholder_type_id' },
-  ocat: { label:'Outcome Categories',  cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],          dataFn:()=>window.mebkRefItems?.ocat||[], table:'outcome_categories', codeCol:'category_code',        nameCol:'category_name',     idCol:'outcome_category_id' },
-  acat: { label:'Activity Categories', cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],          dataFn:()=>window.mebkRefItems?.acat||[], table:'activity_category', codeCol:'category_code',        nameCol:'category_name',     idCol:'activity_category_id' },
+  stk:  { label:'Stakeholder Types',        cols:[{h:'Code',k:'stakeholder_type_code'},{h:'Name',k:'type_name'},{h:'Description',k:'description'}],                                                 dataFn:()=>window.mebkRefItems?.stk||[], table:'stakeholder_type', codeCol:'stakeholder_type_code', nameCol:'type_name',          idCol:'stakeholder_type_id' },
+  ocat: { label:'Outcome Categories',       cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],                               dataFn:()=>window.mebkRefItems?.ocat||[], table:'outcome_categories', codeCol:'category_code',         nameCol:'category_name',      idCol:'outcome_category_id' },
+  acat: { label:'Activity Categories',      cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],                               dataFn:()=>window.mebkRefItems?.acat||[], table:'activity_category', codeCol:'category_code',         nameCol:'category_name',      idCol:'activity_category_id' },
+  inttype: { label:'Intervention Types',    cols:[{h:'Code',k:'type_code'},{h:'Name',k:'type_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],                                        dataFn:()=>window.mebkRefItems?.inttype||[], table:'intervention_type', codeCol:'type_code',            nameCol:'type_name',          idCol:'intervention_type_id' },
+  intcat: { label:'Intervention Categories', cols:[{h:'Code',k:'category_code'},{h:'Name',k:'category_name'},{h:'Description',k:'description'},{h:'Active',k:'is_active'}],                              dataFn:()=>window.mebkRefItems?.intcat||[], table:'intervention_category', codeCol:'category_code',     nameCol:'category_name',      idCol:'intervention_category_id' },
 };
 
 window._mebkImportKey = null;
@@ -9319,11 +9926,13 @@ async function mebkConfirmImport() {
 
 // ══ Reference Data — generic CRUD ══════════════════
 const MEBK_REF_CFG = {
-  env:  { table:'environment',        idCol:'environment_id',       codeCol:'environment_code',      nameCol:'environment_name', descCol:'description', hasActive:true,  color:'#f59e0b' },
-  ce:   { table:'child_experience',   idCol:'child_experience_id',  codeCol:'child_experience_code', nameCol:'experience_name',  descCol:'description', hasActive:true,  color:'#ec4899' },
-  stk:  { table:'stakeholder_type',   idCol:'stakeholder_type_id',  codeCol:'stakeholder_type_code', nameCol:'type_name',        descCol:'description', hasActive:false, color:'#0d9488', geoCol:'allowed_geography_level' },
-  ocat: { table:'outcome_categories', idCol:'outcome_category_id',  codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--ok)' },
-  acat: { table:'activity_category',  idCol:'activity_category_id', codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--blue)' },
+  env:  { table:'environment',         idCol:'environment_id',         codeCol:'environment_code',      nameCol:'environment_name', descCol:'description', hasActive:true,  color:'#f59e0b' },
+  ce:   { table:'child_experience',    idCol:'child_experience_id',    codeCol:'child_experience_code', nameCol:'experience_name',  descCol:'description', hasActive:true,  color:'#ec4899' },
+  stk:  { table:'stakeholder_type',    idCol:'stakeholder_type_id',    codeCol:'stakeholder_type_code', nameCol:'type_name',        descCol:'description', hasActive:false, color:'#0d9488', geoCol:'allowed_geography_level' },
+  ocat: { table:'outcome_categories',  idCol:'outcome_category_id',    codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--ok)' },
+  acat: { table:'activity_category',   idCol:'activity_category_id',   codeCol:'category_code',         nameCol:'category_name',    descCol:'description', hasActive:true,  color:'var(--blue)' },
+  inttype: { table:'intervention_type',    idCol:'intervention_type_id',   codeCol:'type_code',             nameCol:'type_name',        descCol:'description', hasActive:true,  color:'#ec4899' },
+  intcat: { table:'intervention_category', idCol:'intervention_category_id', codeCol:'category_code',       nameCol:'category_name',    descCol:'description', hasActive:true,  color:'#14b8a6' },
 };
 
 window.mebkRefItems = {}; // key → array
@@ -9404,7 +10013,9 @@ async function mebkRefSave(key) {
   const desc = document.getElementById(`mebk-ref-inp-desc-${key}`)?.value.trim();
   if (!name) { alert('Name is required.'); return; }
   const geo  = document.getElementById(`mebk-ref-inp-geo-${key}`)?.value || null;
-  const payload = { [cfg.nameCol]: name };
+  // Auto-generate code from name (first 8 chars, uppercase, alphanumeric + underscore)
+  const autoCode = name.substring(0, 8).toUpperCase().replace(/[^A-Z0-9]/g, '_');
+  const payload = { [cfg.nameCol]: name, [cfg.codeCol]: autoCode };
   if (cfg.descCol && desc) payload[cfg.descCol] = desc;
   if (cfg.hasActive) payload.is_active = true;
   if (cfg.geoCol && geo) payload[cfg.geoCol] = geo;
@@ -9449,9 +10060,12 @@ async function mebkRefSaveEdit(key, id) {
   if (!name) { alert('Name cannot be empty.'); return; }
   try {
     const geo  = document.getElementById(`mebk-ref-edit-geo-${key}-${id}`)?.value || null;
+    // Keep existing code, don't regenerate on edit
+    const existingItem = (window.mebkRefItems[key] || []).find(i => i[cfg.idCol] === id);
+    const code = existingItem ? existingItem[cfg.codeCol] : '';
   const r = await fetch(`${MEBK_URL}/rest/v1/${cfg.table}?${cfg.idCol}=eq.${id}`, {
       method:'PATCH', headers:{...MEBK_HDR,'Prefer':'return=representation'},
-      body: JSON.stringify({ [cfg.nameCol]: name, ...(cfg.descCol ? {[cfg.descCol]: desc||null} : {}), ...(cfg.geoCol && geo ? {[cfg.geoCol]: geo} : {}) })
+      body: JSON.stringify({ [cfg.nameCol]: name, ...(code ? {[cfg.codeCol]: code} : {}), ...(cfg.descCol ? {[cfg.descCol]: desc||null} : {}), ...(cfg.geoCol && geo ? {[cfg.geoCol]: geo} : {}) })
     });
     if (!r.ok) throw new Error(await r.text());
     const updated = await r.json();
@@ -9505,7 +10119,7 @@ function mebkShowAcForm() {
 async function mebkLoadStats() {
   try {
     const countHdr = { ...MEBK_HDR, 'Prefer': 'count=exact' };
-    const [ocRes, acRes, imRes, indRes, envRes, ceRes, stkRes, ocatRes, acatRes] = await Promise.all([
+    const [ocRes, acRes, imRes, indRes, envRes, ceRes, stkRes, ocatRes, acatRes, inttypeRes, intcatRes] = await Promise.all([
       fetch(`${MEBK_URL}/rest/v1/outcome?is_template=eq.true&is_active=eq.true&select=outcome_id&limit=1`,            { headers: countHdr }),
       fetch(`${MEBK_URL}/rest/v1/activity?is_template=eq.true&is_active=eq.true&select=activity_id&limit=1`,          { headers: countHdr }),
       fetch(`${MEBK_URL}/rest/v1/impact?is_template=eq.true&is_active=eq.true&select=impact_id&limit=1`,              { headers: countHdr }),
@@ -9515,18 +10129,22 @@ async function mebkLoadStats() {
       fetch(`${MEBK_URL}/rest/v1/stakeholder_type?select=stakeholder_type_id&limit=1`,                                { headers: countHdr }),
       fetch(`${MEBK_URL}/rest/v1/outcome_categories?is_active=eq.true&select=outcome_category_id&limit=1`,            { headers: countHdr }),
       fetch(`${MEBK_URL}/rest/v1/activity_category?is_active=eq.true&select=activity_category_id&limit=1`,            { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/intervention_type?is_active=eq.true&select=intervention_type_id&limit=1`,            { headers: countHdr }),
+      fetch(`${MEBK_URL}/rest/v1/intervention_category?is_active=eq.true&select=intervention_category_id&limit=1`,    { headers: countHdr }),
     ]);
     const n = r => r.headers.get('Content-Range')?.split('/')[1] ?? '?';
     const s = id => document.getElementById(id);
-    if (s('mebk-stat-oc'))   s('mebk-stat-oc').textContent   = n(ocRes);
-    if (s('mebk-stat-ac'))   s('mebk-stat-ac').textContent   = n(acRes);
-    if (s('mebk-stat-im'))   s('mebk-stat-im').textContent   = n(imRes);
-    if (s('mebk-stat-ind'))  s('mebk-stat-ind').textContent  = n(indRes);
-    if (s('mebk-stat-env'))  s('mebk-stat-env').textContent  = n(envRes);
-    if (s('mebk-stat-ce'))   s('mebk-stat-ce').textContent   = n(ceRes);
-    if (s('mebk-stat-stk'))  s('mebk-stat-stk').textContent  = n(stkRes);
-    if (s('mebk-stat-ocat')) s('mebk-stat-ocat').textContent = n(ocatRes);
-    if (s('mebk-stat-acat')) s('mebk-stat-acat').textContent = n(acatRes);
+    if (s('mebk-stat-oc'))      s('mebk-stat-oc').textContent      = n(ocRes);
+    if (s('mebk-stat-ac'))      s('mebk-stat-ac').textContent      = n(acRes);
+    if (s('mebk-stat-im'))      s('mebk-stat-im').textContent      = n(imRes);
+    if (s('mebk-stat-ind'))     s('mebk-stat-ind').textContent     = n(indRes);
+    if (s('mebk-stat-env'))     s('mebk-stat-env').textContent     = n(envRes);
+    if (s('mebk-stat-ce'))      s('mebk-stat-ce').textContent      = n(ceRes);
+    if (s('mebk-stat-stk'))     s('mebk-stat-stk').textContent     = n(stkRes);
+    if (s('mebk-stat-ocat'))    s('mebk-stat-ocat').textContent    = n(ocatRes);
+    if (s('mebk-stat-acat'))    s('mebk-stat-acat').textContent    = n(acatRes);
+    if (s('mebk-stat-inttype')) s('mebk-stat-inttype').textContent = n(inttypeRes);
+    if (s('mebk-stat-intcat'))  s('mebk-stat-intcat').textContent  = n(intcatRes);
   } catch(e) { /* decorative */ }
 }
 
@@ -10528,6 +11146,8 @@ let publishedFramework = null; // pointer to active program's published framewor
 // Programs that have LFA / M&E coverage
 let ME_PROGRAMS = []; // Populated from DB
 let ME_PROGRAMS_MAP = {}; // program_name → program_id
+let lfa_outcome_cache = {}; // program_id → outcome count (for LFA badge check)
+let lfa_activity_cache = {}; // program_id → activity count (for LFA badge check)
 
 // Cache for indicator category IDs — used when publishing to DB
 var meb2CatIds = {};  // { 'IC-001': uuid, 'IC-002': uuid }
@@ -10581,8 +11201,9 @@ async function renderMEProgSelector() {
   const dotCss = c => `display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:3px;`;
   grid.innerHTML = ME_PROGRAMS.map(prog => {
     const { state, count, pf } = getMEProgStatus(prog);
-    // Check if LFA has been published for this program
-    const hasLfa = !!(window.lfaStore && window.lfaStore[prog]);
+    // Check if LFA has been published for this program (by looking for outcomes/activities in DB)
+    const progId = ME_PROGRAMS_MAP[prog];
+    const hasLfa = !!(progId && (lfa_outcome_cache?.[progId] || lfa_activity_cache?.[progId]));
     const dot  = state==='published' ? `<span style="${dotCss('var(--ok)')}"></span>`
                : state==='draft'     ? `<span style="${dotCss('var(--warn)')}"></span>`
                :                       `<span style="${dotCss('var(--slate-2)')}"></span>`;
@@ -11633,7 +12254,6 @@ function _applyPocProgFilter() {
 }
 
 
-// builderRefs - initialized with fallback values, updated from DB on load
 const builderRefs = {
   types:        ['Output','Outcome','Process','Impact'],
   stakeholders: ['Teacher','Student','Leader','Community','Cluster Resource Coordinator','Block Education Officer','Academic Mentor','Training Facilitator','District Coordinator','Parent'],
@@ -11666,65 +12286,6 @@ const builderRefs = {
   },
   stakeholderLevels: ['school','cluster','block','district','state'],
 };
-
-// Update builderRefs with live data from Supabase
-function updateBuilderRefsFromDb() {
-  if (!dbCache.loaded) return;
-  
-  // Update programs from DB
-  if (dbCache.programs.length > 0) {
-    builderRefs.programs = dbCache.programs.map(p => p.program_name);
-  }
-  
-  // Update stakeholder types from DB
-  if (dbCache.stakeholderTypes.length > 0) {
-    builderRefs.stakeholders = dbCache.stakeholderTypes.map(s => s.type_name);
-  }
-  
-  // Update stakeholder levels from DB
-  if (dbCache.stakeholderLevels.length > 0) {
-    builderRefs.stakeholderLevels = dbCache.stakeholderLevels.map(l => l.level_name);
-  }
-  
-  // Update outcome categories from DB
-  if (dbCache.outcomeCategories.length > 0) {
-    builderRefs.outcomeCategories = dbCache.outcomeCategories.map(c => c.category_name);
-    builderRefs.outcomeCategoryMeta = {};
-    dbCache.outcomeCategories.forEach((c, i) => {
-      builderRefs.outcomeCategoryMeta[c.category_name] = { 
-        code: c.category_code || `OCC-${i+1}`, 
-        sort: c.sort_order || i 
-      };
-    });
-  }
-  
-  // Update environments from DB
-  if (dbCache.environments.length > 0) {
-    builderRefs.environments = dbCache.environments.map(e => e.environment_name);
-  }
-  
-  // Update child experiences from DB
-  if (dbCache.childExperiences.length > 0) {
-    builderRefs.childexp = dbCache.childExperiences.map(e => e.short_label || e.experience_name);
-  }
-  
-  // Update interventions from DB
-  if (dbCache.interventions.length > 0) {
-    builderRefs.interventions = dbCache.interventions.map(i => i.intervention_name);
-  }
-  
-  // Update periods from DB
-  if (dbCache.periods.length > 0) {
-    builderRefs.periods = dbCache.periods.map(p => p.period_name.trim());
-  }
-  
-  console.log('[DB] builderRefs updated with live data');
-  
-  // Also update UI dropdowns when data changes
-  if (typeof populateProgramDropdowns === 'function') {
-    populateProgramDropdowns();
-  }
-}
 
 const _allSeedRows = [];
 // Split seed rows into per-program buckets
@@ -12581,43 +13142,12 @@ function renderBuilder() {
 // INIT
 // ═══════════════════════════════════════════════════
 
-// Load global reference data from Supabase on page load
-(async function initGlobalData() {
-  try {
-    await loadGlobalDbData();
-    // Update builderRefs after data is loaded
-    if (typeof updateBuilderRefsFromDb === 'function') {
-      updateBuilderRefsFromDb();
-    }
-    console.log('[INIT] Global data loaded from Supabase');
-  } catch (e) {
-    console.warn('[INIT] Could not load global data from DB, using fallbacks:', e);
-  }
-})();
-
 // ── Auth ──
-$('btn-login').addEventListener('click', async () => {
+$('btn-login').addEventListener('click', () => {
   state.role = $('login-role').value;
   $('screen-auth').classList.add('hidden');
   $('screen-app').classList.remove('hidden');
   applyRoleUI();
-  
-  // Ensure global data is loaded before showing home
-  if (!dbCache.loaded) {
-    await loadGlobalDbData();
-    updateBuilderRefsFromDb();
-  }
-  
-  // Update Budget Tracker programs from DB
-  if (typeof btLoadProgramsFromDb === 'function') {
-    await btLoadProgramsFromDb();
-  }
-  
-  // Load GOP indicators from DB
-  if (typeof loadGopIndicatorsFromDb === 'function') {
-    await loadGopIndicatorsFromDb();
-  }
-  
   showPage('home');
 });
 $('btn-otp').addEventListener('click', () => toast('OTP sent to registered mobile (prototype)'));
@@ -12773,6 +13303,44 @@ async function mrSubmitToDB() {
   }
 }
 
+// ── Load published indicators from DB for a program ───────────────────────
+async function mrLoadPublishedIndicators(program) {
+  if (!GS_SB_URL) return;
+  try {
+    const progId = await lfaFetchProgramId(program);
+    if (!progId) return;
+    // Fetch indicators linked to LFA outcomes/activities for this program
+    const res = await fetch(
+      `${GS_SB_URL}/rest/v1/indicator?lfa_outcome_id=not.is.null,lfa_activity_id=not.is.null&select=indicator_id,indicator_name,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id`,
+      { headers: GS_SB_HDR }
+    );
+    if (!res.ok) return;
+    const indicators = await res.json();
+    if (!indicators.length) return;
+
+    // Map indicators to rows and build publishedFrameworkByProg if not already set
+    if (!publishedFrameworkByProg[program]) {
+      const rows = indicators.map((ind, idx) => ({
+        id: Date.now() + idx,
+        prog: program,
+        fy: '2025-26',
+        name: ind.indicator_name,
+        unit: ind.unit_of_measure,
+        freq: ind.frequency || 'monthly',
+        active: true,
+        target: '',
+        type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
+        sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
+        dir: ind.direction || 'increase',
+      }));
+      publishedFrameworkByProg[program] = {
+        rows, refs: {}, ts: new Date(), count: rows.length, prog: program
+      };
+      console.log('[mrLoadPublishedIndicators] Loaded', rows.length, 'indicators for', program);
+    }
+  } catch (e) { console.warn('[mrLoadPublishedIndicators] Error:', e); }
+}
+
 // ── Load existing raw_submission actuals for a program+month from DB ─────────
 async function mrLoadFromDB(program, month, fy) {
   if (!GS_SB_URL) return;
@@ -12797,6 +13365,222 @@ async function mrLoadFromDB(program, month, fy) {
   } catch (e) {
     console.warn('[mrLoadFromDB] Error:', e);
   }
+}
+
+// ── MONTHLY REPORTING IMPORT / EXPORT ──────────────────────────────
+function mrDownloadTemplate() {
+  const prog = btStore.activeProg;
+  if (!prog || !publishedFrameworkByProg[prog]) { toast('Load program framework first'); return; }
+
+  const framework = publishedFrameworkByProg[prog];
+  const month = btStore.activeMonth || new Date().toLocaleString('en-US', {month:'long', year:'numeric'});
+
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: README
+  const instrSheet = [
+    ['MONTHLY POC INDICATOR SUBMISSION TEMPLATE'],
+    ['Program', prog],
+    ['Month', month],
+    [''],
+    ['HOW TO SUBMIT:'],
+    ['1. Enter ACTUAL VALUES in column C (Actual Value)'],
+    ['2. Add REMARKS in column D if needed (data issues, context, notes)'],
+    ['3. Check "Yes" in column E (Flagged) if data needs M&E Admin review'],
+    ['4. Save the file and upload back to Monthly Reporting'],
+    [''],
+    ['IMPORTANT:'],
+    ['- Indicator codes in column A are READ-ONLY (do not change)'],
+    ['- ACTUAL VALUE is what you must fill in'],
+    ['- Remarks are optional but help M&E Admin understand the data'],
+    ['- Flag any data that seems wrong or needs verification'],
+    [''],
+    ['EXAMPLE:'],
+    ['IND-001', 'Children enrolled in program', '150', 'Includes new batch from Jan', 'No', 'pending'],
+    ['IND-002', 'Training sessions completed', '12', '', 'Yes', 'pending'],
+  ];
+  const wsInstr = XLSX.utils.aoa_to_sheet(instrSheet);
+  wsInstr['!cols'] = [{wch:30}, {wch:50}];
+  XLSX.utils.book_append_sheet(wb, wsInstr, 'README');
+
+  // Sheet 2: Submission Template (blank with headers only)
+  const rows = [['Indicator Code','Indicator Name','Actual Value','Remarks','Flagged','Status']];
+  framework.rows.forEach(ind => {
+    rows.push([ind.indicator_code || '', ind.indicator_name || '', '', '', '', 'pending']);
+  });
+  const wsSubmit = XLSX.utils.aoa_to_sheet(rows);
+  wsSubmit['!cols'] = [{wch:15}, {wch:40}, {wch:15}, {wch:30}, {wch:10}, {wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsSubmit, `${month}`);
+
+  // Sheet 3: Instructions by Indicator
+  const instrByInd = [['Indicator Code', 'Indicator Name', 'Instructions / Data Source']];
+  framework.rows.forEach(ind => {
+    instrByInd.push([
+      ind.indicator_code || '',
+      ind.indicator_name || '',
+      'Enter value · Add remarks if data quality issue · Flag if uncertain'
+    ]);
+  });
+  const wsInstrInd = XLSX.utils.aoa_to_sheet(instrByInd);
+  wsInstrInd['!cols'] = [{wch:15}, {wch:40}, {wch:60}];
+  XLSX.utils.book_append_sheet(wb, wsInstrInd, 'By Indicator');
+
+  const filename = `POC_Template_${prog.replace(/\s+/g,'_')}_${month.replace(/\s+/g,'_')}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  toast(`✓ Blank submission template downloaded · ${framework.count} indicators`);
+}
+
+function mrExportSubmission() {
+  const prog = btStore.activeProg;
+  if (!prog || !publishedFrameworkByProg[prog]) { toast('No data to export'); return; }
+
+  const framework = publishedFrameworkByProg[prog];
+  const month = btStore.activeMonth || new Date().toLocaleString('en-US', {month:'long', year:'numeric'});
+
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Instructions
+  const instrSheet = [
+    ['MONTHLY INDICATOR SUBMISSION TEMPLATE'],
+    ['Program', prog],
+    ['Month', month],
+    ['Generated', new Date().toLocaleString()],
+    [''],
+    ['HOW TO SUBMIT DATA:'],
+    ['1. Enter "Actual Value" for each indicator (column C)'],
+    ['2. Add "Remarks" if needed (column D) - e.g., data quality issues, context'],
+    ['3. Check "Flagged" (column E) if this data needs M&E Admin review'],
+    ['4. Download, fill, upload back to POC Reporting'],
+    [''],
+    ['FIELD DEFINITIONS:'],
+    ['Indicator Code', 'Unique code (do not modify)'],
+    ['Indicator Name', 'What is being measured (do not modify)'],
+    ['Actual Value', 'FILL THIS - the reported value for this month'],
+    ['Remarks', 'Optional notes about the data'],
+    ['Flagged', 'Put "Yes" if data needs review'],
+    ['Status', 'Do not modify'],
+  ];
+  const wsInstr = XLSX.utils.aoa_to_sheet(instrSheet);
+  wsInstr['!cols'] = [{wch:30}, {wch:50}];
+  XLSX.utils.book_append_sheet(wb, wsInstr, 'README');
+
+  // Sheet 2: Submission Data
+  const rows = [['Indicator Code','Indicator Name','Actual Value','Remarks','Flagged','Status']];
+  const data = [];
+  framework.rows.forEach(ind => {
+    const actual = reportingActuals[prog]?.[ind.indicator_row_id] || {};
+    data.push([
+      ind.indicator_code || '',
+      ind.indicator_name || '',
+      actual.value || '',
+      actual.remarks || '',
+      actual.flagged ? 'Yes' : 'No',
+      actual.actualStatus || 'pending'
+    ]);
+  });
+  const wsSubmit = XLSX.utils.aoa_to_sheet([...rows, ...data]);
+  wsSubmit['!cols'] = [{wch:15}, {wch:40}, {wch:15}, {wch:30}, {wch:10}, {wch:12}];
+  // Highlight first column (codes) as read-only visual hint
+  XLSX.utils.book_append_sheet(wb, wsSubmit, `${month}`);
+
+  // Sheet 3: Summary
+  const summaryData = [
+    ['Total Indicators', framework.count],
+    ['Submitted', data.filter(d => d[2]).length],
+    ['Pending', data.filter(d => !d[2]).length],
+    ['Flagged for Review', data.filter(d => d[4] === 'Yes').length],
+  ];
+  const wsSummary = XLSX.utils.aoa_to_sheet([['Metric', 'Count'], ...summaryData]);
+  wsSummary['!cols'] = [{wch:25}, {wch:15}];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  const filename = `POC_Submission_${prog.replace(/\s+/g,'_')}_${month.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  toast(`✓ Exported submission template · ${framework.count} indicators · ${month}`);
+}
+
+function mrImportSubmission() {
+  const inp = document.getElementById('mr-import-file');
+  if (inp) { inp.click(); }
+}
+
+async function mrProcessImport(evt) {
+  const file = evt.target.files?.[0];
+  if (!file) return;
+  try {
+    let rows = [];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'csv') {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      if (!lines.length) { toast('Empty file'); return; }
+      const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+      rows = lines.slice(1).map(line => {
+        const vals = line.match(/(".*?"|[^,]+)(?=,|$)/g) || line.split(',');
+        const obj = {};
+        headers.forEach((h,i) => { obj[h] = (vals[i]||'').replace(/^"|"$/g,'').trim(); });
+        return obj;
+      });
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(ws, {defval:''});
+    } else {
+      toast('Only CSV and XLSX formats supported'); return;
+    }
+
+    if (!rows.length) { toast('No data rows found'); return; }
+    const parsed = mrParseImportRows(rows);
+    if (!parsed.length) { toast('No valid data found'); return; }
+
+    const summary = `Import Preview\n\n${parsed.length} indicators\n\nProceed with import?`;
+    if (confirm(summary)) {
+      mrConfirmImport(parsed);
+    }
+  } catch(e) {
+    alert('Could not parse file: ' + e.message);
+  }
+}
+
+function mrParseImportRows(rows) {
+  return rows.filter(r => Object.values(r).some(v => v !== '')).map(row => ({
+    code: (row['Indicator Code'] || row['indicator_code'] || '').trim(),
+    name: (row['Indicator Name'] || row['indicator_name'] || '').trim(),
+    value: (row['Actual Value'] || row['actual_value'] || '').trim(),
+    remarks: (row['Remarks'] || row['remarks'] || '').trim(),
+    flagged: (row['Flagged'] || row['flagged'] || '').toLowerCase() === 'yes',
+    status: (row['Status'] || row['status'] || '').trim()
+  }));
+}
+
+async function mrConfirmImport(parsed) {
+  const prog = btStore.activeProg;
+  if (!prog || !publishedFrameworkByProg[prog]) { toast('Framework not loaded'); return; }
+
+  const framework = publishedFrameworkByProg[prog];
+  let matched = 0;
+
+  parsed.forEach(imported => {
+    const indRow = framework.rows.find(r =>
+      (r.indicator_code && r.indicator_code === imported.code) ||
+      (r.indicator_name && r.indicator_name === imported.name)
+    );
+    if (indRow) {
+      if (!reportingActuals[prog]) reportingActuals[prog] = {};
+      reportingActuals[prog][indRow.indicator_row_id] = {
+        value: imported.value || '',
+        remarks: imported.remarks || '',
+        flagged: imported.flagged,
+        actualStatus: imported.status || 'imported'
+      };
+      matched++;
+    }
+  });
+
+  btRenderMonthly();
+  toast(`✓ Imported ${matched} of ${parsed.length} indicator values`);
+  document.getElementById('mr-import-file').value = '';
 }
 
 $('m-submit').addEventListener('click', async () => {
@@ -13400,8 +14184,7 @@ function duRenderHistory() {
 function duRenderUdiseGrid() {
   const grid = $('du-udise-prog-grid');
   if (!grid) return;
-  // Use dynamic programs from DB, fallback to builderRefs
-  const progs = getDbPrograms();
+  const progs = ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab','Rajasthan','Madhya Pradesh','Jharkhand','Assam','Maharashtra'];
   grid.innerHTML = progs.map(p => {
     const u = uploadStore.udise[p];
     const hasData = u && u.schools.length > 0;
@@ -13459,9 +14242,20 @@ function duHandleUdiseFile(file) {
 function duGenerateUdiseSchools(prog, n) {
   // Generate a representative set of school records
   // In production this parses the actual uploaded UDISE Excel file
-  // Use DB districts if available, fallback to hardcoded
-  const dists = getDbDistricts(prog);
+  const districts = {
+    'Odisha':         ['ANGUL','BALASORE','BARAGARH','BHADRAK','BOLANGIR','BOUDH','CUTTACK','DEOGARH','DHENKANAL','GAJAPATI'],
+    'Bihar':          ['PATNA','GAYA','MUZAFFARPUR','BHAGALPUR','NALANDA','VAISHALI','SITAMARHI','BEGUSARAI','DARBHANGA','SAMASTIPUR'],
+    'Karnataka':      ['BENGALURU URBAN','MYSURU','HUBLI-DHARWAD','BELAGAVI','KALABURAGI','SHIVAMOGGA','TUMAKURU','DAVANAGERE'],
+    'Uttar Pradesh':  ['LUCKNOW','AGRA','VARANASI','KANPUR NAGAR','PRAYAGRAJ','MEERUT','BAREILLY','ALIGARH'],
+    'Punjab':         ['LUDHIANA','AMRITSAR','JALANDHAR','PATIALA','BATHINDA','MOHALI','GURDASPUR'],
+    'Rajasthan':      ['JAIPUR','JODHPUR','KOTA','AJMER','BIKANER','UDAIPUR','ALWAR','BHARATPUR'],
+    'Madhya Pradesh': ['BHOPAL','INDORE','JABALPUR','GWALIOR','UJJAIN','SAGAR','DEWAS','SATNA'],
+    'Jharkhand':      ['RANCHI','DHANBAD','BOKARO','DEOGHAR','HAZARIBAGH','GIRIDIH','JAMSHEDPUR'],
+    'Assam':          ['KAMRUP','DIBRUGARH','JORHAT','SIBSAGAR','LAKHIMPUR','TINSUKIA','NAGAON'],
+    'Maharashtra':    ['PUNE','NASHIK','AURANGABAD','NAGPUR','SOLAPUR','KOLHAPUR','AMRAVATI'],
+  };
   const cats = ['Primary','Upper Primary','Secondary','Higher Secondary','Primary with Upper Primary'];
+  const dists = districts[prog] || ['DISTRICT-1','DISTRICT-2','DISTRICT-3'];
   const schools = [];
   const base = 20000000000 + Math.floor(Math.random()*9000000000);
   for (let i = 0; i < n; i++) {
@@ -13542,36 +14336,6 @@ function duSwitchTab(tabKey) {
     e.target.value = '';
   });
 })();
-
-// ── Populate program dropdowns dynamically ──
-function populateProgramDropdowns() {
-  const programs = getDbPrograms();
-  const dropdowns = ['du-prog-sel', 'du-udise-prog'];
-  
-  dropdowns.forEach(id => {
-    const sel = $(id);
-    if (!sel) return;
-    
-    // Remember current selection
-    const current = sel.value;
-    
-    // Clear and repopulate
-    sel.innerHTML = '<option value="">— Select Program —</option>';
-    programs.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p;
-      opt.textContent = p;
-      sel.appendChild(opt);
-    });
-    
-    // Restore selection if it still exists
-    if (current && programs.includes(current)) {
-      sel.value = current;
-    }
-  });
-  
-  console.log('[UI] Program dropdowns populated with', programs.length, 'programs');
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // BUDGET TRACKER ENGINE
@@ -13782,53 +14546,6 @@ function btSetMonthVal(lineId, mi, et, val) {
   const key = `${mi}_${et}`;
   if (val === null || val === '') delete btStore.monthlyActuals[lineId][key];
   else btStore.monthlyActuals[lineId][key] = val;
-}
-
-// Initialize/update btStore programs from Supabase
-async function btLoadProgramsFromDb() {
-  if (!dbCache.loaded) {
-    await loadGlobalDbData();
-  }
-  
-  // If we have programs from DB, update btStore.programs
-  if (dbCache.programs.length > 0) {
-    // Keep existing grants data but update program list
-    const newPrograms = dbCache.programs.map(p => {
-      // Check if we have existing hardcoded program with this name
-      const existing = btStore.programs.find(ep => ep.name === p.program_name);
-      const id = existing ? existing.id : p.program_id.substring(0, 2).toUpperCase();
-      return {
-        id: id,
-        dbId: p.program_id, // Keep DB ID for reference
-        name: p.program_name,
-        fy: '2025-26',
-        state: p.program_name // Use program name as state for now
-      };
-    });
-    
-    // Merge with existing to preserve grant mappings
-    const merged = [];
-    const usedIds = new Set();
-    
-    // First add DB programs
-    newPrograms.forEach(np => {
-      merged.push(np);
-      usedIds.add(np.id);
-    });
-    
-    // Then add any remaining hardcoded programs that have grants
-    btStore.programs.forEach(hp => {
-      if (!usedIds.has(hp.id) && btStore.grants[hp.id]?.length > 0) {
-        merged.push(hp);
-      }
-    });
-    
-    btStore.programs = merged;
-    console.log('[BT] Programs updated from DB:', btStore.programs.length);
-  }
-  
-  // TODO: Load grants, budget lines, etc. from Supabase when tables have data
-  // For now, keep using hardcoded fallback data
 }
 
 function btShowProgSelector() {
@@ -14279,8 +14996,7 @@ const btGopState = {
 };
 
 // Seed indicator library — mirrors published M&E framework (isKeyOutcome + all others)
-// Will be replaced with DB data when available
-let BT_GOP_INDICATORS = [
+const BT_GOP_INDICATORS = [
   { id:'ind-k1', name:'% teachers demonstrating improved classroom practice',   abbr:'TICP', type:'Outcome', stk:'Teacher',   intv:'Teacher Capacity Building',        unit:'%',     freq:'quarterly', isKeyOutcome:true  },
   { id:'ind-k2', name:'% schools with functional School Management Committees', abbr:'SMC',  type:'Outcome', stk:'Leader',    intv:'School Leadership Development',    unit:'%',     freq:'annual',    isKeyOutcome:true  },
   { id:'ind-k3', name:'% students achieving grade-level reading competency',    abbr:'GRC',  type:'Impact',  stk:'Student',   intv:'Foundational Literacy & Numeracy', unit:'%',     freq:'annual',    isKeyOutcome:true  },
@@ -14298,31 +15014,7 @@ let BT_GOP_INDICATORS = [
   { id:'ind-p2', name:'Data quality score for submitted reports',               abbr:'DQS',  type:'Process', stk:'Leader',    intv:'School Leadership Development',    unit:'score', freq:'quarterly', isKeyOutcome:false },
 ];
 
-// Load indicators from DB if available
-async function loadGopIndicatorsFromDb() {
-  try {
-    const dbIndicators = await gsSbFetch('indicator', 'select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,is_key_outcome&is_active=eq.true&limit=100');
-    if (dbIndicators && dbIndicators.length > 0) {
-      BT_GOP_INDICATORS = dbIndicators.map(i => ({
-        id: i.indicator_id,
-        name: i.indicator_name,
-        abbr: i.indicator_code || i.indicator_name.substring(0, 4).toUpperCase(),
-        type: 'Output', // Default, will be updated when category linkage is available
-        stk: 'Teacher', // Default, will be updated when stakeholder linkage is available
-        intv: 'General',
-        unit: i.unit_of_measure || 'count',
-        freq: i.frequency || 'monthly',
-        isKeyOutcome: i.is_key_outcome || false
-      }));
-      console.log('[GOP] Loaded', BT_GOP_INDICATORS.length, 'indicators from DB');
-    }
-  } catch (e) {
-    console.warn('[GOP] Using fallback indicators:', e);
-  }
-}
-
 // Simulated raw_submission aggregation by grant geography
-// TODO: Load from indicator_actuals and raw_submission tables when data available
 const BT_GOP_IMPACT_SEED = {
   'Karnataka': {
     geo:'Karnataka · Bengaluru Urban, Kalaburagi, Yadgir',
@@ -14808,7 +15500,15 @@ function gmToggleSub(e) {
   });
   // Save buttons
   $('bt-save-lines-btn')?.addEventListener('click',   () => { btRenderLines();   toast('Budget lines saved · ' + new Date().toLocaleTimeString()); });
-  $('bt-save-monthly-btn')?.addEventListener('click', () => { btRenderMonthly(); toast('Monthly actuals saved · ' + new Date().toLocaleTimeString()); });
+  $('bt-save-monthly-btn')?.addEventListener('click', async () => {
+    const ok = await mrSubmitToDB();
+    if (ok) {
+      btRenderMonthly();
+      toast('✓ Submitted to M&E database · ' + new Date().toLocaleTimeString());
+    } else {
+      toast('✗ Failed to submit — check connection');
+    }
+  });
   // Entry type selectors
   $('bt-entry-type-sel')?.addEventListener('change',    () => btRenderLines());
   $('bt-monthly-type-sel')?.addEventListener('change',  () => btRenderMonthly());
