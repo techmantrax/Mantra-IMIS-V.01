@@ -3707,13 +3707,16 @@ select:focus:not(:focus-visible) { outline: none; }
           const ok = doPublish();
           if (!ok) return;
 
+          // Also load indicators from DB (for POC who skips M&E Builder)
+          await mrLoadPublishedIndicators(prog);
+
           const status = document.getElementById('meb2-pub-status');
           if (status) { status.className='meb2-pub-status published'; status.textContent=`Published ${rows.length} indicators · ${new Date().toLocaleTimeString()} · POC can now submit data`; }
           const banner = document.getElementById('publish-success-banner');
           if (banner) {
             banner.classList.remove('hidden');
             const p = banner.querySelector('#pub-banner-msg');
-            if (p) p.textContent = `${rows.length} indicators for ${prog} are now live in Monthly Reporting.`;
+            if (p) p.textContent = `${rows.length} indicators for ${prog} are now live in Monthly Reporting. POC can submit data now.`;
           }
           toast('Published '+rows.length+' indicators for '+prog);
           // Refresh selector cards so status dot turns green
@@ -12699,6 +12702,44 @@ async function mrSubmitToDB() {
   }
 }
 
+// ── Load published indicators from DB for a program ───────────────────────
+async function mrLoadPublishedIndicators(program) {
+  if (!GS_SB_URL) return;
+  try {
+    const progId = await lfaFetchProgramId(program);
+    if (!progId) return;
+    // Fetch indicators linked to LFA outcomes/activities for this program
+    const res = await fetch(
+      `${GS_SB_URL}/rest/v1/indicator?lfa_outcome_id=not.is.null,lfa_activity_id=not.is.null&select=indicator_id,indicator_name,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id`,
+      { headers: GS_SB_HDR }
+    );
+    if (!res.ok) return;
+    const indicators = await res.json();
+    if (!indicators.length) return;
+
+    // Map indicators to rows and build publishedFrameworkByProg if not already set
+    if (!publishedFrameworkByProg[program]) {
+      const rows = indicators.map((ind, idx) => ({
+        id: Date.now() + idx,
+        prog: program,
+        fy: '2025-26',
+        name: ind.indicator_name,
+        unit: ind.unit_of_measure,
+        freq: ind.frequency || 'monthly',
+        active: true,
+        target: '',
+        type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
+        sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
+        dir: ind.direction || 'increase',
+      }));
+      publishedFrameworkByProg[program] = {
+        rows, refs: {}, ts: new Date(), count: rows.length, prog: program
+      };
+      console.log('[mrLoadPublishedIndicators] Loaded', rows.length, 'indicators for', program);
+    }
+  } catch (e) { console.warn('[mrLoadPublishedIndicators] Error:', e); }
+}
+
 // ── Load existing raw_submission actuals for a program+month from DB ─────────
 async function mrLoadFromDB(program, month, fy) {
   if (!GS_SB_URL) return;
@@ -14642,7 +14683,15 @@ function gmToggleSub(e) {
   });
   // Save buttons
   $('bt-save-lines-btn')?.addEventListener('click',   () => { btRenderLines();   toast('Budget lines saved · ' + new Date().toLocaleTimeString()); });
-  $('bt-save-monthly-btn')?.addEventListener('click', () => { btRenderMonthly(); toast('Monthly actuals saved · ' + new Date().toLocaleTimeString()); });
+  $('bt-save-monthly-btn')?.addEventListener('click', async () => {
+    const ok = await mrSubmitToDB();
+    if (ok) {
+      btRenderMonthly();
+      toast('✓ Submitted to M&E database · ' + new Date().toLocaleTimeString());
+    } else {
+      toast('✗ Failed to submit — check connection');
+    }
+  });
   // Entry type selectors
   $('bt-entry-type-sel')?.addEventListener('change',    () => btRenderLines());
   $('bt-monthly-type-sel')?.addEventListener('change',  () => btRenderMonthly());
