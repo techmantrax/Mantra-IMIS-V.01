@@ -10960,7 +10960,8 @@ function showPage(route) {
     $('page-data-entry').classList.remove('hidden');
     $('crumb-path').textContent = 'Monthly Reporting';
     $('crumb-title').textContent = `Select Program · ${state.month}`;
-    renderProgramSelect();
+    // Load published indicators from DB before rendering
+    mrLoadAllPublishedIndicators().then(() => renderProgramSelect());
   } else if (route === 'data-entry-sheet') {
     $('page-data-entry-sheet').classList.remove('hidden');
     $('crumb-path').innerHTML = `Monthly Reporting ${IC['arrow-right']} ${state.program}`;
@@ -12094,10 +12095,13 @@ function renderProgramSelect() {
   // Framework info banner
   const summary = $('framework-summary');
   if (summary) {
-    summary.textContent = isPublished
-      ? `${totalInd} indicators across ${programs.length} program${programs.length!==1?'s':''} published`
-      : `${IC.warning} Framework not yet published — showing live builder preview (${totalInd} indicators)`;
-    summary.style.color = isPublished ? '' : 'var(--warn)';
+    if (isPublished) {
+      summary.textContent = `${totalInd} indicators across ${programs.length} program${programs.length!==1?'s':''} published`;
+      summary.style.color = '';
+    } else {
+      summary.innerHTML = `${IC.warning} Framework not yet published — showing live builder preview (${totalInd} indicators)`;
+      summary.style.color = 'var(--warn)';
+    }
   }
 
   const typeBadges = $('framework-type-badges');
@@ -13303,42 +13307,72 @@ async function mrSubmitToDB() {
   }
 }
 
-// ── Load published indicators from DB for a program ───────────────────────
-async function mrLoadPublishedIndicators(program) {
+// ── Load published indicators from DB for all programs ───────────────────────
+async function mrLoadAllPublishedIndicators() {
   if (!GS_SB_URL) return;
   try {
-    const progId = await lfaFetchProgramId(program);
-    if (!progId) return;
-    // Fetch indicators linked to LFA outcomes/activities for this program
+    // Fetch all indicators linked to LFA outcomes/activities
     const res = await fetch(
-      `${GS_SB_URL}/rest/v1/indicator?lfa_outcome_id=not.is.null,lfa_activity_id=not.is.null&select=indicator_id,indicator_name,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id`,
+      `${GS_SB_URL}/rest/v1/indicator?or=(lfa_outcome_id.not.is.null,lfa_activity_id.not.is.null)&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id,is_active&is_active=eq.true`,
       { headers: GS_SB_HDR }
     );
     if (!res.ok) return;
     const indicators = await res.json();
-    if (!indicators.length) return;
-
-    // Map indicators to rows and build publishedFrameworkByProg if not already set
-    if (!publishedFrameworkByProg[program]) {
-      const rows = indicators.map((ind, idx) => ({
-        id: Date.now() + idx,
-        prog: program,
-        fy: '2025-26',
-        name: ind.indicator_name,
-        unit: ind.unit_of_measure,
-        freq: ind.frequency || 'monthly',
-        active: true,
-        target: '',
-        type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
-        sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
-        dir: ind.direction || 'increase',
-      }));
-      publishedFrameworkByProg[program] = {
-        rows, refs: {}, ts: new Date(), count: rows.length, prog: program
-      };
-      console.log('[mrLoadPublishedIndicators] Loaded', rows.length, 'indicators for', program);
+    if (!indicators.length) {
+      console.log('[mrLoadAllPublishedIndicators] No indicators with LFA links found');
+      return;
     }
-  } catch (e) { console.warn('[mrLoadPublishedIndicators] Error:', e); }
+
+    // Get all programs - try dbCache first, then fetch directly
+    let programs = [];
+    if (typeof dbCache !== 'undefined' && dbCache.programs && dbCache.programs.length > 0) {
+      programs = dbCache.programs.map(p => p.program_name);
+    } else {
+      const progRes = await fetch(`${GS_SB_URL}/rest/v1/program?select=program_name`, { headers: GS_SB_HDR });
+      if (progRes.ok) {
+        const progData = await progRes.json();
+        programs = progData.map(x => x.program_name);
+      }
+    }
+
+    if (!programs.length) {
+      console.log('[mrLoadAllPublishedIndicators] No programs found');
+      return;
+    }
+
+    // For now, assign all indicators to all programs (since there's no direct program link)
+    // In future, this should be filtered by intervention-program scope
+    programs.forEach(program => {
+      if (!publishedFrameworkByProg[program]) {
+        const rows = indicators.map((ind, idx) => ({
+          id: ind.indicator_id || (Date.now() + idx),
+          prog: program,
+          fy: '2025-26',
+          name: ind.indicator_name,
+          code: ind.indicator_code || '',
+          unit: ind.unit_of_measure || 'count',
+          freq: ind.frequency || 'monthly',
+          active: true,
+          target: '',
+          type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
+          sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
+          dir: ind.direction || 'increase',
+        }));
+        publishedFrameworkByProg[program] = {
+          rows, refs: {}, ts: new Date(), count: rows.length, prog: program
+        };
+      }
+    });
+    
+    console.log('[mrLoadAllPublishedIndicators] Loaded', indicators.length, 'indicators for', programs.length, 'programs');
+  } catch (e) { 
+    console.warn('[mrLoadAllPublishedIndicators] Error:', e); 
+  }
+}
+
+// Legacy function - calls the new one
+async function mrLoadPublishedIndicators(program) {
+  await mrLoadAllPublishedIndicators();
 }
 
 // ── Load existing raw_submission actuals for a program+month from DB ─────────
