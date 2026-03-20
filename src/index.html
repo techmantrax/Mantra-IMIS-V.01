@@ -5462,66 +5462,186 @@ select:focus:not(:focus-visible) { outline: none; }
             const res = await fetch(`${url}/rest/v1/lfa_draft?program_id=eq.${progId}&select=draft_data,saved_at,is_published&limit=1`, { headers: h });
             if (!res.ok) return;
             const rows = await res.json();
-            if (!rows.length || !rows[0].draft_data?.interventions?.length) {
-              // No draft — show empty state
+            
+            // If we have a draft with interventions, use it
+            if (rows.length && rows[0].draft_data?.interventions?.length) {
+              await lfaRestoreFromDraft(rows[0]);
+              return;
+            }
+            
+            // No draft — try to load from published lfa_outcome/lfa_activity tables
+            await lfaLoadFromPublished(progId);
+            
+          } catch(e) { console.warn('[lfaLoadDraft] Failed:', e); }
+        }
+
+        // Load LFA data from published lfa_outcome and lfa_activity tables
+        async function lfaLoadFromPublished(progId) {
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            
+            // Fetch outcomes and activities for this program
+            const [ocRes, acRes] = await Promise.all([
+              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=*&is_active=eq.true`, { headers: h }),
+              fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=*&is_active=eq.true`, { headers: h })
+            ]);
+            
+            const outcomes = ocRes.ok ? await ocRes.json() : [];
+            const activities = acRes.ok ? await acRes.json() : [];
+            
+            if (!outcomes.length && !activities.length) {
+              // No published data — show empty state
               const empty = document.getElementById('lfa-interventions-empty');
               if (empty) empty.style.display = '';
               return;
             }
-            const { draft_data } = rows[0];
-            console.log('[lfaLoadDraft] Restoring', draft_data.interventions.length, 'interventions');
-
+            
+            console.log('[lfaLoadFromPublished] Found', outcomes.length, 'outcomes,', activities.length, 'activities');
+            
             // Hide empty state
             const empty = document.getElementById('lfa-interventions-empty');
             if (empty) empty.style.display = 'none';
-
-            // Rebuild intervention cards from draft (suppress auto-save during restore)
+            
+            // Get stakeholder type names for display
+            const stkTypeIds = [...new Set([...outcomes.map(o => o.stakeholder_type_id), ...activities.map(a => a.stakeholder_type_id)].filter(Boolean))];
+            let stkTypeMap = {};
+            if (stkTypeIds.length) {
+              const stkRes = await fetch(`${url}/rest/v1/stakeholder_type?stakeholder_type_id=in.(${stkTypeIds.join(',')})&select=stakeholder_type_id,type_name`, { headers: h });
+              const stkTypes = stkRes.ok ? await stkRes.json() : [];
+              stkTypes.forEach(s => { stkTypeMap[s.stakeholder_type_id] = s.type_name; });
+            }
+            
+            // Group by stakeholder type to create intervention cards
+            const byStakeholder = {};
+            outcomes.forEach(oc => {
+              const stkName = stkTypeMap[oc.stakeholder_type_id] || 'General';
+              if (!byStakeholder[stkName]) byStakeholder[stkName] = { outcomes: [], activities: [] };
+              byStakeholder[stkName].outcomes.push(oc);
+            });
+            activities.forEach(ac => {
+              const stkName = stkTypeMap[ac.stakeholder_type_id] || 'General';
+              if (!byStakeholder[stkName]) byStakeholder[stkName] = { outcomes: [], activities: [] };
+              byStakeholder[stkName].activities.push(ac);
+            });
+            
+            // Build intervention card(s) - create one "Published LFA" intervention
             lfaDraftRestoring = true;
             try {
-              draft_data.interventions.forEach(intv => {
-                lfaBuildIntvCard(intv.name, intv.code, intv.env, intv.child, intv.type || '', intv.cat || '');
-                // Get the newly created card (last non-sample card)
-                const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
-                const card = allDynamic[allDynamic.length - 1];
-                if (!card) return;
-                intv.stakeholders?.forEach(stk => {
-                  // Activate stakeholder chip
-                  card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
-                    if (chip.textContent.trim() === stk.name) {
-                      chip.classList.add('on');
-                      lfaToggleStk(chip, card.id, stk.name);
-                    }
-                  });
-                  // Re-add activities and outcomes into the ISTM row
-                  const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stk.name.toLowerCase().replace(/[^a-z0-9]/g,'-');
-                  stk.outcomes?.forEach(oc => {
-                    const inp = document.getElementById('lfa-oc-inp-'+rowId);
-                    const catSel = document.getElementById('lfa-oc-cat-'+rowId);
-                    if (inp) { inp.value = oc.stmt; if (catSel) catSel.value = oc.cat || ''; lfaConfirmAddOC(rowId); }
-                  });
-                  stk.activities?.forEach(ac => {
-                    const inp = document.getElementById('lfa-ac-inp-'+rowId);
-                    const catSel = document.getElementById('lfa-ac-cat-'+rowId);
-                    if (inp) { inp.value = ac.stmt; if (catSel) catSel.value = ac.cat || ''; lfaConfirmAddAC(rowId); }
-                  });
+              // Create a single intervention card for the published data
+              lfaBuildIntvCard('Published LFA', 'LFA-PUB', '', '', '', '');
+              const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
+              const card = allDynamic[allDynamic.length - 1];
+              if (!card) return;
+              
+              // Add stakeholder data
+              Object.keys(byStakeholder).forEach(stkName => {
+                const data = byStakeholder[stkName];
+                // Activate stakeholder chip
+                card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
+                  if (chip.textContent.trim() === stkName) {
+                    chip.classList.add('on');
+                    lfaToggleStk(chip, card.id, stkName);
+                  }
+                });
+                // Add outcomes and activities
+                const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stkName.toLowerCase().replace(/[^a-z0-9]/g,'-');
+                data.outcomes.forEach(oc => {
+                  const inp = document.getElementById('lfa-oc-inp-'+rowId);
+                  const catSel = document.getElementById('lfa-oc-cat-'+rowId);
+                  if (inp) { 
+                    inp.value = oc.outcome_statement; 
+                    if (catSel && oc.outcome_category) catSel.value = oc.outcome_category; 
+                    lfaConfirmAddOC(rowId); 
+                  }
+                });
+                data.activities.forEach(ac => {
+                  const inp = document.getElementById('lfa-ac-inp-'+rowId);
+                  const catSel = document.getElementById('lfa-ac-cat-'+rowId);
+                  if (inp) { 
+                    inp.value = ac.activity_statement; 
+                    if (catSel && ac.activity_category) catSel.value = ac.activity_category; 
+                    lfaConfirmAddAC(rowId); 
+                  }
                 });
               });
             } finally {
               lfaDraftRestoring = false;
             }
+            
             // Update count
             const cnt = document.getElementById('lfa-intv-count');
-            if (cnt) cnt.textContent = draft_data.interventions.length;
-
-            // Show saved time
+            if (cnt) cnt.textContent = '1';
+            
+            // Show indicator
             const ind = document.getElementById('lfa-draft-saved-ind');
-            if (ind && rows[0].saved_at) {
-              const t = new Date(rows[0].saved_at);
-              ind.textContent = `Draft restored · saved ${t.toLocaleTimeString()}`;
+            if (ind) {
+              ind.textContent = `Loaded from published LFA · ${outcomes.length} outcomes, ${activities.length} activities`;
               ind.style.opacity = '1';
-              setTimeout(() => { ind.style.opacity = '0'; }, 4000);
+              setTimeout(() => { ind.style.opacity = '0'; }, 5000);
             }
-          } catch(e) { console.warn('[lfaLoadDraft] Failed:', e); }
+          } catch(e) { 
+            console.warn('[lfaLoadFromPublished] Failed:', e);
+            // Show empty state on error
+            const empty = document.getElementById('lfa-interventions-empty');
+            if (empty) empty.style.display = '';
+          }
+        }
+
+        // Restore from draft data
+        async function lfaRestoreFromDraft(row) {
+          const { draft_data, saved_at } = row;
+          console.log('[lfaRestoreFromDraft] Restoring', draft_data.interventions.length, 'interventions');
+
+          // Hide empty state
+          const empty = document.getElementById('lfa-interventions-empty');
+          if (empty) empty.style.display = 'none';
+
+          // Rebuild intervention cards from draft (suppress auto-save during restore)
+          lfaDraftRestoring = true;
+          try {
+            draft_data.interventions.forEach(intv => {
+              lfaBuildIntvCard(intv.name, intv.code, intv.env, intv.child, intv.type || '', intv.cat || '');
+              // Get the newly created card (last non-sample card)
+              const allDynamic = document.querySelectorAll('.lfa-intv-card:not([data-lfa-sample])');
+              const card = allDynamic[allDynamic.length - 1];
+              if (!card) return;
+              intv.stakeholders?.forEach(stk => {
+                // Activate stakeholder chip
+                card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
+                  if (chip.textContent.trim() === stk.name) {
+                    chip.classList.add('on');
+                    lfaToggleStk(chip, card.id, stk.name);
+                  }
+                });
+                // Re-add activities and outcomes into the ISTM row
+                const rowId = 'lfa-ir-' + card.id.replace('lfa-intv-','') + '-' + stk.name.toLowerCase().replace(/[^a-z0-9]/g,'-');
+                stk.outcomes?.forEach(oc => {
+                  const inp = document.getElementById('lfa-oc-inp-'+rowId);
+                  const catSel = document.getElementById('lfa-oc-cat-'+rowId);
+                  if (inp) { inp.value = oc.stmt; if (catSel) catSel.value = oc.cat || ''; lfaConfirmAddOC(rowId); }
+                });
+                stk.activities?.forEach(ac => {
+                  const inp = document.getElementById('lfa-ac-inp-'+rowId);
+                  const catSel = document.getElementById('lfa-ac-cat-'+rowId);
+                  if (inp) { inp.value = ac.stmt; if (catSel) catSel.value = ac.cat || ''; lfaConfirmAddAC(rowId); }
+                });
+              });
+            });
+          } finally {
+            lfaDraftRestoring = false;
+          }
+          // Update count
+          const cnt = document.getElementById('lfa-intv-count');
+          if (cnt) cnt.textContent = draft_data.interventions.length;
+
+          // Show saved time
+          const ind = document.getElementById('lfa-draft-saved-ind');
+          if (ind && saved_at) {
+            const t = new Date(saved_at);
+            ind.textContent = `Draft restored · saved ${t.toLocaleTimeString()}`;
+            ind.style.opacity = '1';
+            setTimeout(() => { ind.style.opacity = '0'; }, 4000);
+          }
         }
 
         // ── LFA IMPORT / EXPORT ────────────────────────────────────
