@@ -3057,6 +3057,21 @@ select:focus:not(:focus-visible) { outline: none; }
           const noLfa  = document.getElementById('meb2-no-lfa-state');
           const pubBar = document.querySelector('.meb2-pub-bar');
 
+          // Try loading from DB first (new path)
+          const dbGroups = await meb2LoadProgramFromDB(prog);
+          if (dbGroups && dbGroups.length) {
+            meb2Groups = dbGroups;
+            if (banner) { banner.classList.remove('hidden'); banner.innerHTML = IC.info + ' LFA loaded from database — fetching M&amp;E Book indicators…'; }
+            if (noLfa)  noLfa.style.display = 'none';
+            if (pubBar) pubBar.style.display = '';
+            meb2RenderFramework();
+            await meb2HydrateIndicatorsFromDB();
+            if (banner) { banner.innerHTML = IC['check-circle'] + ' LFA loaded — M&amp;E Book indicators pre-filled. Add more if needed, set targets and publish.'; }
+            meb2RenderFramework();
+            return;
+          }
+
+          // Fall back to in-memory lfaStore
           const lfaGroups  = meb2BuildGroupsFromLFA(prog);
           const seedGroups = meb2BuildGroupsFromSeed(prog);
           if (lfaGroups && lfaGroups.length) {
@@ -3082,6 +3097,82 @@ select:focus:not(:focus-visible) { outline: none; }
             if (banner) banner.classList.add('hidden');
             if (noLfa)  noLfa.style.display = '';
             if (pubBar) pubBar.style.display = 'none';
+          }
+        }
+
+        // ── Load Program Framework from Database ──────────────────────
+        async function meb2LoadProgramFromDB(prog) {
+          if (typeof GS_SB_URL === 'undefined' || !GS_SB_URL) return null;
+          try {
+            const progId = await lfaFetchProgramId(prog);
+            if (!progId) return null;
+
+            const url = GS_SB_URL, h = GS_SB_HDR;
+
+            // Fetch outcomes and activities
+            const [ocRes, acRes] = await Promise.all([
+              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,outcome_code.asc`, { headers: h }),
+              fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,activity_code.asc`, { headers: h })
+            ]);
+
+            const outcomes = ocRes.ok ? await ocRes.json() : [];
+            const activities = acRes.ok ? await acRes.json() : [];
+
+            if (!outcomes.length && !activities.length) return null;
+
+            // Fetch stakeholder type names
+            const stkRes = await fetch(`${url}/rest/v1/stakeholder_type?select=stakeholder_type_id,type_name`, { headers: h });
+            const stks = stkRes.ok ? await stkRes.json() : [];
+            const stkMap = {};
+            stks.forEach(s => { stkMap[s.stakeholder_type_id] = s.type_name; });
+
+            // Build groups from DB data (same structure as LFA Setup)
+            const groups = [];
+            const groupMap = {}; // Track groups by (stkTypeId, activity/outcome)
+
+            outcomes.forEach(oc => {
+              const key = oc.stakeholder_type_id;
+              if (!groupMap[key]) {
+                groupMap[key] = {
+                  id: 'g-' + (meb2NextId++),
+                  prog, fy: '2025-26',
+                  intv: prog,
+                  stk: stkMap[oc.stakeholder_type_id] || 'Unknown',
+                  sourceType: 'outcome',
+                  sourceCode: oc.outcome_code,
+                  sourceStmt: oc.outcome_statement,
+                  sourceCat: oc.outcome_category,
+                  outcome: oc.outcome_statement,
+                  indicators: [meb2NewIndRow('')]
+                };
+                groups.push(groupMap[key]);
+              }
+            });
+
+            activities.forEach(ac => {
+              const key = ac.stakeholder_type_id;
+              if (!groupMap[key]) {
+                groupMap[key] = {
+                  id: 'g-' + (meb2NextId++),
+                  prog, fy: '2025-26',
+                  intv: prog,
+                  stk: stkMap[ac.stakeholder_type_id] || 'Unknown',
+                  sourceType: 'activity',
+                  sourceCode: ac.activity_code,
+                  sourceStmt: ac.activity_statement,
+                  sourceCat: ac.activity_category,
+                  outcome: '',
+                  indicators: [meb2NewIndRow('')]
+                };
+                groups.push(groupMap[key]);
+              }
+            });
+
+            console.log('[meb2LoadProgramFromDB] Loaded', groups.length, 'groups from DB');
+            return groups.length ? groups : null;
+          } catch(e) {
+            console.error('[meb2LoadProgramFromDB] Error:', e);
+            return null;
           }
         }
 
@@ -4957,12 +5048,14 @@ select:focus:not(:focus-visible) { outline: none; }
         // ── Util ──────────────────────────────────────────
         function lfaEsc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);}
 
-        // ── Publish LFA → writes to lfaStore for M&E Builder ──────────
-        function lfaPublishToStore() {
+        // ── Publish LFA → writes to lfaStore + saves to DB ──────────
+        async function lfaPublishToStore() {
           const prog = document.getElementById('lfa-prog-title')?.textContent?.trim();
           if (!prog) { toast('No program selected'); return; }
 
           const interventions = [];
+          const frameworkData = []; // For DB save
+
           document.querySelectorAll('.lfa-intv-card').forEach(card => {
             const nameEl = card.querySelector('.lfa-intv-name');
             const codeEl = card.querySelector('.lfa-intv-code');
@@ -4979,6 +5072,7 @@ select:focus:not(:focus-visible) { outline: none; }
               if (row.style.display === 'none') return;
               const stkEl = row.querySelector('.lfa-ir-stk');
               const stkName = stkEl?.textContent.trim() || '';
+              const stkTypeId = row.dataset.stkTypeId || ''; // Capture stakeholder_type_id
 
               const activities = [];
               row.querySelectorAll('.lfa-ac-list-' + row.id + ' .lfa-ac-row, #lfa-ac-list-' + row.id + ' .lfa-ac-row').forEach(acRow => {
@@ -5005,16 +5099,91 @@ select:focus:not(:focus-visible) { outline: none; }
                 if (actCode && ocCodes.length) links.push({ actCode, ocCodes });
               });
 
-              if (stkName) stakeholders.push({ name: stkName, activities, outcomes, links });
+              if (stkName) {
+                stakeholders.push({ name: stkName, stkTypeId, activities, outcomes, links });
+                // Track for DB save
+                frameworkData.push({
+                  intvName, intvCode,
+                  stkName, stkTypeId,
+                  activities: activities.map(a => ({ code: a.code, stmt: a.stmt, cat: a.cat })),
+                  outcomes: outcomes.map(o => ({ code: o.code, stmt: o.stmt, cat: o.cat })),
+                  links: links
+                });
+              }
             });
 
             interventions.push({ name: intvName, code: intvCode, env: intvEnv, child: intvChild, stakeholders });
           });
 
+          // Save to in-memory store
           window.lfaStore = window.lfaStore || {};
           window.lfaStore[prog] = { interventions, publishedAt: new Date() };
           console.log('LFA published to store:', JSON.stringify(window.lfaStore[prog], null, 2));
+
+          // Save to DB
+          await lfaSaveFrameworkToDB(prog, frameworkData);
+
           toast('LFA published for ' + prog + ' — open M&E Builder to configure indicators');
+        }
+
+        // ── Save LFA framework to database ──────────────────────────
+        async function lfaSaveFrameworkToDB(prog, frameworkData) {
+          try {
+            const progId = await lfaFetchProgramId(prog);
+            if (!progId) { console.warn('Program not found'); return; }
+            const url = GS_SB_URL, h = GS_SB_HDR;
+
+            // Fetch all stakeholder types to map names to IDs
+            const stkTypesRes = await fetch(`${url}/rest/v1/stakeholder_type?select=stakeholder_type_id,type_name`, { headers: h });
+            const stkTypes = stkTypesRes.ok ? await stkTypesRes.json() : [];
+            const stkTypeMap = {};
+            stkTypes.forEach(s => { stkTypeMap[s.type_name] = s.stakeholder_type_id; });
+
+            // Save outcomes and activities
+            for (const fw of frameworkData) {
+              // Look up stakeholder_type_id by name
+              const stkTypeId = stkTypeMap[fw.stkName] || fw.stkTypeId;
+              if (!stkTypeId) {
+                console.warn('Stakeholder type not found:', fw.stkName);
+                continue;
+              }
+
+              // Save outcomes
+              for (const oc of fw.outcomes) {
+                await fetch(`${url}/rest/v1/lfa_outcome`, {
+                  method: 'POST',
+                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  body: JSON.stringify({
+                    intervention_id: progId,
+                    stakeholder_type_id: stkTypeId,
+                    outcome_code: oc.code,
+                    outcome_statement: oc.stmt,
+                    outcome_category: oc.cat,
+                    is_active: true
+                  })
+                }).catch(e => console.warn('Error saving outcome:', e));
+              }
+
+              // Save activities
+              for (const ac of fw.activities) {
+                await fetch(`${url}/rest/v1/lfa_activity`, {
+                  method: 'POST',
+                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  body: JSON.stringify({
+                    intervention_id: progId,
+                    stakeholder_type_id: stkTypeId,
+                    activity_code: ac.code,
+                    activity_statement: ac.stmt,
+                    activity_category: ac.cat,
+                    is_active: true
+                  })
+                }).catch(e => console.warn('Error saving activity:', e));
+              }
+            }
+            console.log('[lfaSaveFrameworkToDB] Framework saved to DB');
+          } catch(e) {
+            console.error('[lfaSaveFrameworkToDB] Error:', e);
+          }
         }
         </script>
 
