@@ -10330,8 +10330,8 @@ let publishedFramework = null; // pointer to active program's published framewor
 // ═══════════════════════════════════════════════════════════════════
 
 // Programs that have LFA / M&E coverage
-const ME_PROGRAMS = ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab',
-                     'Assam','Maharashtra','Rajasthan','Madhya Pradesh','Jharkhand'];
+let ME_PROGRAMS = []; // Populated from DB
+let ME_PROGRAMS_MAP = {}; // program_name → program_id
 
 // Cache for indicator category IDs — used when publishing to DB
 var meb2CatIds = {};  // { 'IC-001': uuid, 'IC-002': uuid }
@@ -10361,9 +10361,26 @@ function getMEProgStatus(prog) {
 }
 
 // ── Program selector — shows program cards, LFA status ──────────
-function renderMEProgSelector() {
+async function renderMEProgSelector() {
   const grid = $('me-prog-cards');
   if (!grid) return;
+
+  // Load programs from DB if not yet loaded
+  if (!ME_PROGRAMS.length) {
+    grid.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px;">Loading programs…</div>';
+    try {
+      const res = await fetch(`${GS_SB_URL}/rest/v1/program?select=program_id,program_name&order=program_name.asc&limit=100`, { headers: GS_SB_HDR });
+      if (res.ok) {
+        const rows = await res.json();
+        ME_PROGRAMS = rows.map(r => r.program_name);
+        rows.forEach(r => { ME_PROGRAMS_MAP[r.program_name] = r.program_id; });
+      }
+    } catch(e) { console.warn('[renderMEProgSelector] Failed to load programs:', e); }
+    if (!ME_PROGRAMS.length) {
+      grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:13px;">No programs found. Create programs in Program Setup first.</div>';
+      return;
+    }
+  }
 
   const dotCss = c => `display:inline-block;width:8px;height:8px;border-radius:50%;background:${c};margin-right:3px;`;
   grid.innerHTML = ME_PROGRAMS.map(prog => {
@@ -10398,6 +10415,8 @@ function renderMEProgSelector() {
 // ── openMEBuilderForProg — LFA-driven, program-based ────────────
 function openMEBuilderForProg(prog) {
   activeMEProgram = prog;
+  // Store the real program_id so meb2LoadProgramFromDB can use it directly
+  window.lfaCurrentProgId = ME_PROGRAMS_MAP[prog] || null;
   if (!builderRowsByProg[prog]) builderRowsByProg[prog] = [];
   builderRows        = builderRowsByProg[prog];
   publishedFramework = publishedFrameworkByProg[prog] || null;
