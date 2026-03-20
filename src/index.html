@@ -3195,11 +3195,23 @@ select:focus:not(:focus-visible) { outline: none; }
 
             const url = GS_SB_URL, h = GS_SB_HDR;
 
-            // Fetch outcomes and activities
-            const ocUrl = `${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,outcome_code.asc`;
-            const acUrl = `${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,activity_code.asc`;
-            console.log('[meb2LoadProgramFromDB] Fetching outcomes from:', ocUrl);
-            console.log('[meb2LoadProgramFromDB] Fetching activities from:', acUrl);
+            // First, fetch interventions for this program
+            const intRes = await fetch(`${url}/rest/v1/intervention?program_id=eq.${progId}&is_active=eq.true&select=intervention_id,intervention_name`, { headers: h });
+            const interventions = intRes.ok ? await intRes.json() : [];
+            console.log('[meb2LoadProgramFromDB] Interventions:', interventions.length);
+
+            if (!interventions.length) {
+              console.warn('[meb2LoadProgramFromDB] No interventions found for program');
+              return null;
+            }
+
+            // Get intervention IDs
+            const intIds = interventions.map(i => i.intervention_id);
+
+            // Fetch outcomes and activities for these interventions
+            const ocUrl = `${url}/rest/v1/lfa_outcome?intervention_id=in.(${intIds.join(',')})&select=*&order=stakeholder_type_id,outcome_code.asc`;
+            const acUrl = `${url}/rest/v1/lfa_activity?intervention_id=in.(${intIds.join(',')})&select=*&order=stakeholder_type_id,activity_code.asc`;
+            console.log('[meb2LoadProgramFromDB] Fetching outcomes/activities for interventions:', intIds);
 
             const [ocRes, acRes] = await Promise.all([
               fetch(ocUrl, { headers: h }),
@@ -3226,6 +3238,10 @@ select:focus:not(:focus-visible) { outline: none; }
             stks.forEach(s => { stkMap[s.stakeholder_type_id] = s.type_name; });
             console.log('[meb2LoadProgramFromDB] Stakeholder types:', Object.keys(stkMap).length);
 
+            // Create intervention name map
+            const intNameMap = {};
+            interventions.forEach(i => { intNameMap[i.intervention_id] = i.intervention_name; });
+
             // Build groups from DB data (same structure as LFA Setup)
             const groups = [];
             const groupMap = {}; // Track groups by (stkTypeId, activity/outcome)
@@ -3236,7 +3252,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 groupMap[key] = {
                   id: 'g-' + (meb2NextId++),
                   prog, fy: builderFilterFY || '2025-26',
-                  intv: prog,
+                  intv: intNameMap[oc.intervention_id] || prog,
                   stk: stkMap[oc.stakeholder_type_id] || 'Unknown',
                   sourceType: 'outcome',
                   sourceCode: (oc.outcome_code && oc.outcome_code !== 'Auto') ? oc.outcome_code : '',
@@ -3256,7 +3272,7 @@ select:focus:not(:focus-visible) { outline: none; }
                 groupMap[key] = {
                   id: 'g-' + (meb2NextId++),
                   prog, fy: builderFilterFY || '2025-26',
-                  intv: prog,
+                  intv: intNameMap[ac.intervention_id] || prog,
                   stk: stkMap[ac.stakeholder_type_id] || 'Unknown',
                   sourceType: 'activity',
                   sourceCode: (ac.activity_code && ac.activity_code !== 'Auto') ? ac.activity_code : '',
@@ -11484,6 +11500,7 @@ let lfa_outcome_cache = {}; // program_id → outcome count (for LFA badge check
 let lfa_activity_cache = {}; // program_id → activity count (for LFA badge check)
 
 // Pre-load LFA cache for all programs to show correct badges
+// Uses correct hierarchy: Program → Intervention → Outcomes/Activities
 async function preloadLfaCache() {
   if (!GS_SB_URL) return;
   try {
@@ -11491,24 +11508,43 @@ async function preloadLfaCache() {
     const progIds = Object.values(ME_PROGRAMS_MAP).filter(Boolean);
     if (!progIds.length) return;
 
-    // Fetch outcome counts per program (intervention_id = program_id in current schema)
-    const [ocRes, acRes] = await Promise.all([
-      fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
-      fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR })
-    ]);
-
-    const outcomes = ocRes.ok ? await ocRes.json() : [];
-    const activities = acRes.ok ? await acRes.json() : [];
-
-    // Count per program
-    outcomes.forEach(o => {
-      lfa_outcome_cache[o.intervention_id] = (lfa_outcome_cache[o.intervention_id] || 0) + 1;
-    });
-    activities.forEach(a => {
-      lfa_activity_cache[a.intervention_id] = (lfa_activity_cache[a.intervention_id] || 0) + 1;
+    // Fetch interventions for all programs
+    const intRes = await fetch(`${GS_SB_URL}/rest/v1/intervention?program_id=in.(${progIds.join(',')})&select=intervention_id,program_id`, { headers: GS_SB_HDR });
+    const interventions = intRes.ok ? await intRes.json() : [];
+    
+    // Group intervention IDs by program
+    const intByProg = {};
+    interventions.forEach(i => {
+      if (!intByProg[i.program_id]) intByProg[i.program_id] = [];
+      intByProg[i.program_id].push(i.intervention_id);
     });
 
-    console.log('[preloadLfaCache] Loaded LFA counts:', { outcomes: outcomes.length, activities: activities.length });
+    // Get all intervention IDs
+    const allIntIds = interventions.map(i => i.intervention_id);
+    
+    if (allIntIds.length) {
+      // Fetch outcome/activity counts per intervention
+      const [ocRes, acRes] = await Promise.all([
+        fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${allIntIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
+        fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${allIntIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR })
+      ]);
+
+      const outcomes = ocRes.ok ? await ocRes.json() : [];
+      const activities = acRes.ok ? await acRes.json() : [];
+
+      // Count per program (through interventions)
+      progIds.forEach(progId => {
+        const progIntIds = intByProg[progId] || [];
+        lfa_outcome_cache[progId] = outcomes.filter(o => progIntIds.includes(o.intervention_id)).length;
+        lfa_activity_cache[progId] = activities.filter(a => progIntIds.includes(a.intervention_id)).length;
+      });
+    }
+
+    console.log('[preloadLfaCache] Loaded LFA counts:', { 
+      interventions: interventions.length,
+      outcomes: Object.values(lfa_outcome_cache).reduce((a,b) => a+b, 0), 
+      activities: Object.values(lfa_activity_cache).reduce((a,b) => a+b, 0) 
+    });
   } catch (e) {
     console.warn('[preloadLfaCache] Error:', e);
   }
