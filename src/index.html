@@ -3925,11 +3925,11 @@ select:focus:not(:focus-visible) { outline: none; }
           <!-- left nav -->
           <div class="lfa-dict-nav">
             <div class="lfa-nav-sep first">Reference data</div>
-            <div class="lfa-nav-item done" onclick="lfaShowDict('env')">Environments <span class="lnc">5</span></div>
-            <div class="lfa-nav-item done" onclick="lfaShowDict('childexp')">Child Experience <span class="lnc">4</span></div>
-            <div class="lfa-nav-item done" onclick="lfaShowDict('stk')">Stakeholder Types <span class="lnc">6</span></div>
-            <div class="lfa-nav-item done" onclick="lfaShowDict('outcat')">Outcome Categories <span class="lnc">3</span></div>
-            <div class="lfa-nav-item done" onclick="lfaShowDict('actcat')">Activity Categories <span class="lnc">3</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('env')">Environments <span class="lnc" id="lfa-nc-env">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('childexp')">Child Experience <span class="lnc" id="lfa-nc-ce">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('stk')">Stakeholder Types <span class="lnc" id="lfa-nc-stk">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('outcat')">Outcome Categories <span class="lnc" id="lfa-nc-ocat">—</span></div>
+            <div class="lfa-nav-item" onclick="lfaShowDict('actcat')">Activity Categories <span class="lnc" id="lfa-nc-acat">—</span></div>
             <div class="lfa-nav-sep">Program framework</div>
             <div class="lfa-nav-item" id="lfa-nav-goals" onclick="lfaShowDict('goals');lfaLoadProgramGoals();">Program Goals <span class="lnc" id="lfa-goals-count">—</span></div>
             <div class="lfa-nav-item active" onclick="lfaShowDict('interventions')">Interventions <span class="lnc" id="lfa-intv-count">2</span></div>
@@ -3938,18 +3938,14 @@ select:focus:not(:focus-visible) { outline: none; }
           <!-- right panels -->
           <div>
 
-            <!-- Environments (read-only) -->
+            <!-- Environments (read-only, synced from M&E Book) -->
             <div class="lfa-dict-panel" id="lfa-dict-env">
               <div class="lfa-dp-title">Environments</div>
-              <div class="lfa-dp-desc">Organisation-wide fixed list. Read-only here — managed at the system level.</div>
-              <div class="lfa-chip-grid">
-                <span class="lfa-chip fixed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> School</span>
-                <span class="lfa-chip fixed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Cluster</span>
-                <span class="lfa-chip fixed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v8h4"/><path d="M18 9h2a2 2 0 0 1 2 2v11h-4"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg> Block</span>
-                <span class="lfa-chip fixed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg> District</span>
-                <span class="lfa-chip fixed"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> State</span>
+              <div class="lfa-dp-desc">Synced from M&amp;E Book. Read-only here — manage environments in the M&amp;E Book.</div>
+              <div class="lfa-chip-grid" id="lfa-cg-env">
+                <span style="color:var(--muted);font-size:12px;padding:4px;">Loading from M&amp;E Book…</span>
               </div>
-              <div class="lfa-fixed-note"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Fixed org-wide. Contact your system administrator to modify.</div>
+              <div class="lfa-fixed-note"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Managed in M&amp;E Book → Environments. Changes reflect here automatically.</div>
             </div>
 
             <!-- Child Experience -->
@@ -4418,7 +4414,15 @@ select:focus:not(:focus-visible) { outline: none; }
             const acats = acatR.ok ? await acatR.json() : [];
             window.lfaRefData = { envs, ces, stks, ocats, acats };
 
-            // Environment select
+            // Environment chip grid (read-only)
+            const envGrid = document.getElementById('lfa-cg-env');
+            if (envGrid) {
+              envGrid.innerHTML = envs.length
+                ? envs.map(e => `<span class="lfa-chip fixed">${lfaEsc(e.environment_name)}</span>`).join('')
+                : '<span style="color:var(--muted);font-size:12px;padding:4px;">No environments defined in M&amp;E Book yet.</span>';
+            }
+
+            // Environment select (in new intervention form)
             const envSel = document.getElementById('lfa-ni-env');
             if (envSel) {
               envSel.innerHTML = '<option value="">— select —</option>' +
@@ -4431,6 +4435,14 @@ select:focus:not(:focus-visible) { outline: none; }
               ceSel.innerHTML = '<option value="">— select —</option>' +
                 ces.map(c => `<option value="${c.child_experience_id}">${lfaEsc(c.experience_name)}</option>`).join('');
             }
+
+            // Nav counts
+            const nc = id => document.getElementById(id);
+            if (nc('lfa-nc-env'))  nc('lfa-nc-env').textContent  = envs.length  || '0';
+            if (nc('lfa-nc-ce'))   nc('lfa-nc-ce').textContent   = ces.length   || '0';
+            if (nc('lfa-nc-stk'))  nc('lfa-nc-stk').textContent  = stks.length  || '0';
+            if (nc('lfa-nc-ocat')) nc('lfa-nc-ocat').textContent = ocats.length || '0';
+            if (nc('lfa-nc-acat')) nc('lfa-nc-acat').textContent = acats.length || '0';
 
             // Child experience chips
             const ceGrid = document.getElementById('lfa-cg-childexp');
