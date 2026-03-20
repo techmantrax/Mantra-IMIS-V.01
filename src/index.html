@@ -4986,22 +4986,55 @@ select:focus:not(:focus-visible) { outline: none; }
           // Fall back to programMeta if DB is empty
           const progs = dbProgs.length ? dbProgs : Object.keys(programMeta).map(name => ({ program_name: name, program_id: null }));
 
-          grid.innerHTML='';
           if (!progs.length) {
             grid.innerHTML='<div style="padding:20px;color:var(--muted);font-size:13px;">No programs found. Create a program first.</div>';
             return;
           }
 
+          // Check LFA status for each program (outcomes/activities in DB)
+          const progIds = progs.filter(p => p.program_id).map(p => p.program_id);
+          if (progIds.length) {
+            try {
+              const [ocRes, acRes, draftRes] = await Promise.all([
+                fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
+                fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
+                fetch(`${GS_SB_URL}/rest/v1/lfa_draft?program_id=in.(${progIds.join(',')})&select=program_id,is_published`, { headers: GS_SB_HDR })
+              ]);
+              const outcomes = ocRes.ok ? await ocRes.json() : [];
+              const activities = acRes.ok ? await acRes.json() : [];
+              const drafts = draftRes.ok ? await draftRes.json() : [];
+
+              // Build status map
+              progs.forEach(p => {
+                if (!p.program_id) return;
+                const hasOutcomes = outcomes.some(o => o.intervention_id === p.program_id);
+                const hasActivities = activities.some(a => a.intervention_id === p.program_id);
+                const draft = drafts.find(d => d.program_id === p.program_id);
+                lfaProgStatus[p.program_name] = {
+                  hasData: hasOutcomes || hasActivities,
+                  isPublished: draft?.is_published || false,
+                  outcomeCount: outcomes.filter(o => o.intervention_id === p.program_id).length,
+                  activityCount: activities.filter(a => a.intervention_id === p.program_id).length
+                };
+              });
+            } catch (e) {
+              console.warn('[lfaRenderProgCards] Error loading LFA status:', e);
+            }
+          }
+
+          grid.innerHTML='';
           progs.forEach(p => {
             const prog = p.program_name;
             const st = lfaProgStatus[prog] || {};
-            const statusLabel = st.hasData ? 'Framework started' : 'Not started';
-            const statusCls   = st.hasData ? 'draft' : 'empty';
+            const statusLabel = st.isPublished ? 'Published' : st.hasData ? 'Draft' : 'Not started';
+            const statusCls   = st.isPublished ? 'published' : st.hasData ? 'draft' : 'empty';
+            const badgeCls    = st.isPublished ? 'badge-ok' : st.hasData ? 'badge-warn' : 'badge-danger';
+            const countInfo   = st.hasData ? `${st.outcomeCount || 0} outcomes · ${st.activityCount || 0} activities` : '';
             const card = document.createElement('div');
             card.className = 'me-prog-card ' + statusCls;
             card.innerHTML = `<div class="mpc-name">${lfaEsc(prog)}</div>
-              <div class="mpc-count">${p.program_id ? 'ID: ' + p.program_id.slice(0,8) + '…' : ''}</div>
-              <div class="mpc-status"><span class="badge ${st.hasData?'badge-ok':'badge-danger'}" style="font-size:10px;">${statusLabel}</span></div>
+              <div class="mpc-count">${p.program_id ? 'ID: ' + p.program_id.slice(0,8) + '…' : ''}${countInfo ? '<br><span style="font-size:10px;color:var(--muted);">' + countInfo + '</span>' : ''}</div>
+              <div class="mpc-status"><span class="badge ${badgeCls}" style="font-size:10px;">${statusLabel}</span></div>
               <div class="mpc-open">Open LFA \u2192</div>`;
             card.addEventListener('click', () => lfaOpenProgram(prog, p.program_id));
             grid.appendChild(card);
