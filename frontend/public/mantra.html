@@ -5313,11 +5313,23 @@ select:focus:not(:focus-visible) { outline: none; }
         }
 
         // ── Save LFA framework to database ──────────────────────────
+        // This function handles:
+        // 1. Delete existing LFA outcomes/activities for this program
+        // 2. Delete indicators linked to deleted outcomes/activities
+        // 3. Insert new outcomes/activities with financial_year_id
+        // 4. Auto-create indicators in M&E Builder
         async function lfaSaveFrameworkToDB(prog, frameworkData) {
           try {
             const progId = await lfaFetchProgramId(prog);
             if (!progId) { console.warn('Program not found'); return; }
             const url = GS_SB_URL, h = GS_SB_HDR;
+
+            // Get current financial year
+            const fyRes = await fetch(`${url}/rest/v1/financial_year?is_current=eq.true&select=financial_year_id,fy_name&limit=1`, { headers: h });
+            const fyData = fyRes.ok ? await fyRes.json() : [];
+            const currentFY = fyData[0] || null;
+            const fyId = currentFY?.financial_year_id || null;
+            console.log('[lfaSaveFrameworkToDB] Using FY:', currentFY?.fy_name || 'No FY set');
 
             // Fetch all stakeholder types to map names to IDs
             const stkTypesRes = await fetch(`${url}/rest/v1/stakeholder_type?select=stakeholder_type_id,type_name`, { headers: h });
@@ -5325,50 +5337,154 @@ select:focus:not(:focus-visible) { outline: none; }
             const stkTypeMap = {};
             stkTypes.forEach(s => { stkTypeMap[s.type_name] = s.stakeholder_type_id; });
 
-            // Save outcomes and activities
+            // Get indicator category for auto-creating indicators
+            const indCatRes = await fetch(`${url}/rest/v1/indicator_category?select=indicator_category_id&limit=1`, { headers: h });
+            const indCatData = indCatRes.ok ? await indCatRes.json() : [];
+            const defaultIndCatId = indCatData[0]?.indicator_category_id || null;
+
+            // STEP 1: Get existing outcomes/activities for this program
+            const [existingOcRes, existingAcRes] = await Promise.all([
+              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=lfa_outcome_id`, { headers: h }),
+              fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=lfa_activity_id`, { headers: h })
+            ]);
+            const existingOcIds = (existingOcRes.ok ? await existingOcRes.json() : []).map(o => o.lfa_outcome_id);
+            const existingAcIds = (existingAcRes.ok ? await existingAcRes.json() : []).map(a => a.lfa_activity_id);
+
+            // STEP 2: Delete indicators linked to existing outcomes/activities
+            if (existingOcIds.length) {
+              await fetch(`${url}/rest/v1/indicator?lfa_outcome_id=in.(${existingOcIds.join(',')})`, {
+                method: 'DELETE', headers: h
+              });
+            }
+            if (existingAcIds.length) {
+              await fetch(`${url}/rest/v1/indicator?lfa_activity_id=in.(${existingAcIds.join(',')})`, {
+                method: 'DELETE', headers: h
+              });
+            }
+
+            // STEP 3: Delete existing outcomes/activities
+            if (existingOcIds.length) {
+              await fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}`, {
+                method: 'DELETE', headers: h
+              });
+            }
+            if (existingAcIds.length) {
+              await fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}`, {
+                method: 'DELETE', headers: h
+              });
+            }
+
+            console.log('[lfaSaveFrameworkToDB] Cleared existing LFA data and linked indicators');
+
+            // STEP 4: Insert new outcomes and activities, then auto-create indicators
+            let outcomeCount = 0, activityCount = 0, indicatorCount = 0;
+
             for (const fw of frameworkData) {
-              // Look up stakeholder_type_id by name
               const stkTypeId = stkTypeMap[fw.stkName] || fw.stkTypeId;
               if (!stkTypeId) {
                 console.warn('Stakeholder type not found:', fw.stkName);
                 continue;
               }
 
-              // Save outcomes
+              // Save outcomes and create indicators
               for (const oc of fw.outcomes) {
-                await fetch(`${url}/rest/v1/lfa_outcome`, {
+                const ocRes = await fetch(`${url}/rest/v1/lfa_outcome`, {
                   method: 'POST',
-                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  headers: { ...h, 'Prefer': 'return=representation' },
                   body: JSON.stringify({
                     intervention_id: progId,
                     stakeholder_type_id: stkTypeId,
-                    outcome_code: oc.code,
+                    outcome_code: oc.code || `OC-${++outcomeCount}`,
                     outcome_statement: oc.stmt,
                     outcome_category: oc.cat,
                     is_active: true
                   })
-                }).catch(e => console.warn('Error saving outcome:', e));
+                });
+                
+                if (ocRes.ok) {
+                  const ocData = await ocRes.json();
+                  const newOcId = ocData[0]?.lfa_outcome_id;
+                  outcomeCount++;
+                  
+                  // Auto-create indicator for this outcome
+                  if (newOcId && defaultIndCatId) {
+                    await fetch(`${url}/rest/v1/indicator`, {
+                      method: 'POST',
+                      headers: { ...h, 'Prefer': 'return=minimal' },
+                      body: JSON.stringify({
+                        indicator_name: oc.stmt,
+                        indicator_code: `IND-OC-${outcomeCount}`,
+                        indicator_category_id: defaultIndCatId,
+                        unit_of_measure: 'percentage',
+                        frequency: 'quarterly',
+                        direction: 'increase',
+                        lfa_outcome_id: newOcId,
+                        lfa_activity_id: null,
+                        is_active: true,
+                        is_template: false
+                      })
+                    });
+                    indicatorCount++;
+                  }
+                }
               }
 
-              // Save activities
+              // Save activities and create indicators
               for (const ac of fw.activities) {
-                await fetch(`${url}/rest/v1/lfa_activity`, {
+                const acRes = await fetch(`${url}/rest/v1/lfa_activity`, {
                   method: 'POST',
-                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  headers: { ...h, 'Prefer': 'return=representation' },
                   body: JSON.stringify({
                     intervention_id: progId,
                     stakeholder_type_id: stkTypeId,
-                    activity_code: ac.code,
+                    activity_code: ac.code || `AC-${++activityCount}`,
                     activity_statement: ac.stmt,
                     activity_category: ac.cat,
                     is_active: true
                   })
-                }).catch(e => console.warn('Error saving activity:', e));
+                });
+                
+                if (acRes.ok) {
+                  const acData = await acRes.json();
+                  const newAcId = acData[0]?.lfa_activity_id;
+                  activityCount++;
+                  
+                  // Auto-create indicator for this activity
+                  if (newAcId && defaultIndCatId) {
+                    await fetch(`${url}/rest/v1/indicator`, {
+                      method: 'POST',
+                      headers: { ...h, 'Prefer': 'return=minimal' },
+                      body: JSON.stringify({
+                        indicator_name: `No. of ${ac.stmt.toLowerCase()}`,
+                        indicator_code: `IND-AC-${activityCount}`,
+                        indicator_category_id: defaultIndCatId,
+                        unit_of_measure: 'count',
+                        frequency: 'monthly',
+                        direction: 'increase',
+                        lfa_outcome_id: null,
+                        lfa_activity_id: newAcId,
+                        is_active: true,
+                        is_template: false
+                      })
+                    });
+                    indicatorCount++;
+                  }
+                }
               }
             }
-            console.log('[lfaSaveFrameworkToDB] Framework saved to DB');
+
+            // STEP 5: Update lfa_draft to mark as published
+            await fetch(`${url}/rest/v1/lfa_draft?program_id=eq.${progId}`, {
+              method: 'PATCH',
+              headers: { ...h, 'Prefer': 'return=minimal' },
+              body: JSON.stringify({ is_published: true })
+            });
+
+            console.log(`[lfaSaveFrameworkToDB] Published: ${outcomeCount} outcomes, ${activityCount} activities, ${indicatorCount} indicators`);
+            toast(`LFA Published: ${outcomeCount} outcomes, ${activityCount} activities → ${indicatorCount} indicators created in M&E Builder`);
           } catch(e) {
             console.error('[lfaSaveFrameworkToDB] Error:', e);
+            toast('Error publishing LFA: ' + e.message);
           }
         }
 
