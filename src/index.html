@@ -8403,35 +8403,133 @@ document.addEventListener('click', e => {
 });
 
 // — Export ————————————————————————————————————
-function mebkExport(key, format) {
+const MEBK_LIB_KEYS = ['oc','ac','im']; // library tabs that have nested indicators
+
+async function mebkExport(key, format) {
   const cfg = MEBK_IO_CFG[key];
   const rows = cfg.dataFn();
   if (!rows.length) { toast('No data to export.', 2500); return; }
-  const headers = cfg.cols.map(c => c.h);
-  const data    = rows.map(r => cfg.cols.map(c => {
-    const v = r[c.k];
-    if (c.k === 'is_active') return v ? 'Yes' : 'No';
-    return v ?? '';
-  }));
   const filename = `${cfg.label.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}`;
+  const dateStr  = new Date().toLocaleDateString();
+
+  // Fetch indicators for library tabs
+  let indMap = {}; // parentId → indicators[]
+  if (MEBK_LIB_KEYS.includes(key)) {
+    const parentCol = key === 'oc' ? 'outcome_id' : key === 'ac' ? 'activity_id' : 'impact_id';
+    const ids = rows.map(r => r[cfg.idCol]).filter(Boolean);
+    if (ids.length) {
+      try {
+        const res = await fetch(
+          `${MEBK_URL}/rest/v1/indicator?${parentCol}=in.(${ids.join(',')})&is_template=eq.true&is_active=eq.true&select=indicator_code,indicator_name,unit_of_measure,${parentCol}&order=indicator_code.asc&limit=500`,
+          { headers: MEBK_HDR }
+        );
+        const inds = res.ok ? await res.json() : [];
+        (inds||[]).forEach(i => {
+          if (!indMap[i[parentCol]]) indMap[i[parentCol]] = [];
+          indMap[i[parentCol]].push(i);
+        });
+      } catch(e) { /* non-blocking */ }
+    }
+  }
+
+  const isLib = MEBK_LIB_KEYS.includes(key);
+  const parentHeaders = cfg.cols.map(c => c.h);
+  const indHeaders    = ['Indicator Code','Indicator Name','Unit'];
 
   if (format === 'csv') {
-    const csv = [headers, ...data].map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const csvRows = [];
+    // Header row
+    csvRows.push([...parentHeaders, ...(isLib ? indHeaders : [])]);
+    rows.forEach(r => {
+      const parentRow = cfg.cols.map(c => c.k === 'is_active' ? (r[c.k] ? 'Yes' : 'No') : (r[c.k] ?? ''));
+      if (isLib) {
+        const inds = indMap[r[cfg.idCol]] || [];
+        if (!inds.length) { csvRows.push([...parentRow, '', '', '']); }
+        else inds.forEach((ind, i) => {
+          csvRows.push(i === 0 ? [...parentRow, ind.indicator_code||'', ind.indicator_name||'', ind.unit_of_measure||'']
+                                : ['','','','', ind.indicator_code||'', ind.indicator_name||'', ind.unit_of_measure||'']);
+        });
+      } else { csvRows.push(parentRow); }
+    });
+    const csv = csvRows.map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
     mebkDownloadBlob(new Blob([csv], {type:'text/csv'}), `${filename}.csv`);
+
   } else if (format === 'xlsx') {
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, cfg.label.slice(0,31));
+    // Sheet 1: parent data
+    const parentData = rows.map(r => cfg.cols.map(c => c.k === 'is_active' ? (r[c.k] ? 'Yes' : 'No') : (r[c.k] ?? '')));
+    const ws1 = XLSX.utils.aoa_to_sheet([parentHeaders, ...parentData]);
+    XLSX.utils.book_append_sheet(wb, ws1, cfg.label.slice(0,31));
+    // Sheet 2: indicators (library tabs only)
+    if (isLib) {
+      const indRows = [['Parent Code', ...indHeaders]];
+      rows.forEach(r => {
+        const parentCode = r[cfg.codeCol] || '';
+        (indMap[r[cfg.idCol]] || []).forEach(ind => {
+          indRows.push([parentCode, ind.indicator_code||'', ind.indicator_name||'', ind.unit_of_measure||'']);
+        });
+      });
+      const ws2 = XLSX.utils.aoa_to_sheet(indRows);
+      XLSX.utils.book_append_sheet(wb, ws2, 'Indicators');
+    }
     XLSX.writeFile(wb, `${filename}.xlsx`);
+
   } else if (format === 'pdf') {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: data[0]?.length > 4 ? 'landscape' : 'portrait' });
-    doc.setFontSize(14); doc.text(cfg.label, 14, 15);
-    doc.setFontSize(9);  doc.text(`Exported: ${new Date().toLocaleDateString()}`, 14, 22);
-    doc.autoTable({ head:[headers], body:data, startY:27, styles:{fontSize:9}, headStyles:{fillColor:[37,99,235]}, alternateRowStyles:{fillColor:[248,250,252]} });
+    const doc = new jsPDF({ orientation: 'landscape' });
+    doc.setFontSize(16); doc.setFont('helvetica','bold');
+    doc.text(`M&E Book — ${cfg.label}`, 14, 16);
+    doc.setFontSize(9);  doc.setFont('helvetica','normal');
+    doc.text(`Exported: ${dateStr}  ·  ${rows.length} ${cfg.label}`, 14, 23);
+
+    if (!isLib) {
+      const data = rows.map(r => cfg.cols.map(c => c.k === 'is_active' ? (r[c.k]?'Yes':'No') : String(r[c.k]??'')));
+      doc.autoTable({ head:[parentHeaders], body:data, startY:28, styles:{fontSize:8,cellPadding:3}, headStyles:{fillColor:[37,99,235],textColor:255,fontStyle:'bold'}, alternateRowStyles:{fillColor:[248,250,252]} });
+    } else {
+      // Nested: outcome/activity/impact row then indented indicators
+      const body = [];
+      const didFill = []; // track alternate parent rows
+      rows.forEach((r, ri) => {
+        const parentRow = cfg.cols.map(c => c.k === 'is_active' ? (r[c.k]?'Yes':'No') : String(r[c.k]??''));
+        body.push({ row: parentRow, type: 'parent', alt: ri % 2 === 0 });
+        const inds = indMap[r[cfg.idCol]] || [];
+        inds.forEach(ind => {
+          body.push({ row: [r[cfg.codeCol]||'', `    ↳ ${ind.indicator_name||''}`, ind.unit_of_measure||'', ''], type:'ind', alt: ri % 2 === 0 });
+        });
+        if (!inds.length) {
+          body.push({ row: [r[cfg.codeCol]||'', '    No indicators defined', '', ''], type:'empty', alt: ri % 2 === 0 });
+        }
+      });
+      doc.autoTable({
+        head: [parentHeaders],
+        body: body.map(b => b.row),
+        startY: 28,
+        styles: { fontSize: 8, cellPadding: 3 },
+        headStyles: { fillColor:[37,99,235], textColor:255, fontStyle:'bold' },
+        didParseCell(data) {
+          const b = body[data.row.index];
+          if (!b) return;
+          if (b.type === 'parent') {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = b.alt ? [219,234,254] : [239,246,255];
+            data.cell.styles.textColor = [30,64,175];
+          } else if (b.type === 'ind') {
+            data.cell.styles.fillColor = b.alt ? [249,250,251] : [255,255,255];
+            data.cell.styles.textColor = [55,65,81];
+            data.cell.styles.fontSize  = 7.5;
+          } else {
+            data.cell.styles.fillColor  = [255,255,255];
+            data.cell.styles.textColor  = [156,163,175];
+            data.cell.styles.fontStyle  = 'italic';
+            data.cell.styles.fontSize   = 7.5;
+          }
+        }
+      });
+    }
     doc.save(`${filename}.pdf`);
   }
-  toast(`✓ Exported ${rows.length} rows as ${format.toUpperCase()}`);
+  const indCount = Object.values(indMap).reduce((s,a) => s+a.length, 0);
+  toast(`✓ Exported ${rows.length} ${cfg.label}${isLib && indCount ? ` · ${indCount} indicators` : ''} as ${format.toUpperCase()}`);
 }
 
 function mebkDownloadBlob(blob, name) {
