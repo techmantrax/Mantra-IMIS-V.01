@@ -4955,26 +4955,40 @@ select:focus:not(:focus-visible) { outline: none; }
 
         // ── Program selector ──────────────────────────────
         const lfaProgStatus = {};
-        function lfaRenderProgCards(){
+        async function lfaRenderProgCards(){
           const grid=document.getElementById('lfa-prog-cards'); if(!grid) return;
+          grid.innerHTML='<div style="padding:20px;color:var(--muted);font-size:13px;">Loading programs…</div>';
+
+          // Load programs from DB
+          const res = await fetch(`${GS_SB_URL}/rest/v1/program?select=program_id,program_name&order=program_name.asc&limit=100`, { headers: GS_SB_HDR });
+          const dbProgs = res.ok ? await res.json() : [];
+
+          // Fall back to programMeta if DB is empty
+          const progs = dbProgs.length ? dbProgs : Object.keys(programMeta).map(name => ({ program_name: name, program_id: null }));
+
           grid.innerHTML='';
-          Object.keys(programMeta).forEach(prog=>{
-            const meta=programMeta[prog]||{};
-            const st=lfaProgStatus[prog]||{};
-            const statusLabel=st.hasData?'Framework started':'Not started';
-            const statusCls=st.hasData?'draft':'empty';
-            const card=document.createElement('div');
-            card.className='me-prog-card '+statusCls;
-            card.innerHTML=`<div class="mpc-name">${lfaEsc(prog)}</div>
-              <div class="mpc-count">${lfaEsc(meta.state||'')}</div>
+          if (!progs.length) {
+            grid.innerHTML='<div style="padding:20px;color:var(--muted);font-size:13px;">No programs found. Create a program first.</div>';
+            return;
+          }
+
+          progs.forEach(p => {
+            const prog = p.program_name;
+            const st = lfaProgStatus[prog] || {};
+            const statusLabel = st.hasData ? 'Framework started' : 'Not started';
+            const statusCls   = st.hasData ? 'draft' : 'empty';
+            const card = document.createElement('div');
+            card.className = 'me-prog-card ' + statusCls;
+            card.innerHTML = `<div class="mpc-name">${lfaEsc(prog)}</div>
+              <div class="mpc-count">${p.program_id ? 'ID: ' + p.program_id.slice(0,8) + '…' : ''}</div>
               <div class="mpc-status"><span class="badge ${st.hasData?'badge-ok':'badge-danger'}" style="font-size:10px;">${statusLabel}</span></div>
               <div class="mpc-open">Open LFA \u2192</div>`;
-            card.addEventListener('click',()=>lfaOpenProgram(prog));
+            card.addEventListener('click', () => lfaOpenProgram(prog, p.program_id));
             grid.appendChild(card);
           });
         }
-        function lfaOpenProgram(prog){
-          window.lfaCurrentProgId = null; // reset on program switch
+        function lfaOpenProgram(prog, progId){
+          window.lfaCurrentProgId = progId || null; // store real ID if available
           document.getElementById('lfa-prog-selector').classList.add('hidden');
           document.getElementById('lfa-builder-content').classList.remove('hidden');
           document.getElementById('lfa-prog-title').textContent=prog;
