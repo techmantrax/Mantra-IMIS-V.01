@@ -4410,6 +4410,12 @@ select:focus:not(:focus-visible) { outline: none; }
             const stks  = stkR.ok  ? await stkR.json()  : [];
             const ocats = ocatR.ok ? await ocatR.json() : [];
             const acats = acatR.ok ? await acatR.json() : [];
+            if (!envR.ok)  console.warn('[lfaLoadRefData] environment fetch failed:', envR.status);
+            if (!ceR.ok)   console.warn('[lfaLoadRefData] child_experience fetch failed:', ceR.status);
+            if (!stkR.ok)  console.warn('[lfaLoadRefData] stakeholder_type fetch failed:', stkR.status);
+            if (!ocatR.ok) console.warn('[lfaLoadRefData] outcome_categories fetch failed:', ocatR.status);
+            if (!acatR.ok) console.warn('[lfaLoadRefData] activity_category fetch failed:', acatR.status);
+            console.log('[lfaLoadRefData]', { envs: envs.length, ces: ces.length, stks: stks.length, ocats: ocats.length, acats: acats.length });
             window.lfaRefData = { envs, ces, stks, ocats, acats };
 
             // Environment chip grid (read-only)
@@ -4425,6 +4431,9 @@ select:focus:not(:focus-visible) { outline: none; }
             if (envSel) {
               envSel.innerHTML = '<option value="">— select —</option>' +
                 envs.map(e => `<option value="${e.environment_id}">${lfaEsc(e.environment_name)}</option>`).join('');
+              console.log('[lfaLoadRefData] Environment select populated with', envs.length, 'items');
+            } else {
+              console.warn('[lfaLoadRefData] lfa-ni-env select not found');
             }
 
             // Child experience select
@@ -4432,6 +4441,9 @@ select:focus:not(:focus-visible) { outline: none; }
             if (ceSel) {
               ceSel.innerHTML = '<option value="">— select —</option>' +
                 ces.map(c => `<option value="${c.child_experience_id}">${lfaEsc(c.experience_name)}</option>`).join('');
+              console.log('[lfaLoadRefData] Child experience select populated with', ces.length, 'items');
+            } else {
+              console.warn('[lfaLoadRefData] lfa-ni-child select not found');
             }
 
             // Nav counts
@@ -4448,6 +4460,7 @@ select:focus:not(:focus-visible) { outline: none; }
               ceGrid.innerHTML = ces.length
                 ? ces.map(c => `<span class="lfa-chip" data-ce-id="${c.child_experience_id}">${lfaEsc(c.experience_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
                 : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+              console.log('[lfaLoadRefData] Child experience chips populated');
             }
 
             // Stakeholder chips
@@ -4456,6 +4469,7 @@ select:focus:not(:focus-visible) { outline: none; }
               stkGrid.innerHTML = stks.length
                 ? stks.map(s => `<span class="lfa-chip" data-stk-id="${s.stakeholder_type_id}"><span class="lfa-chip-code" style="font-size:10px;">${lfaEsc(s.stakeholder_type_code)}</span> ${lfaEsc(s.type_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
                 : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+              console.log('[lfaLoadRefData] Stakeholder chips populated with', stks.length, 'items');
             }
 
             // Outcome category chips
@@ -4464,6 +4478,7 @@ select:focus:not(:focus-visible) { outline: none; }
               ocatGrid.innerHTML = ocats.length
                 ? ocats.map(o => `<span class="lfa-chip" data-ocat-id="${o.outcome_category_id}"><span class="lfa-chip-code">${lfaEsc(o.category_code)}</span> ${lfaEsc(o.category_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
                 : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+              console.log('[lfaLoadRefData] Outcome category chips populated with', ocats.length, 'items');
             }
 
             // Activity category chips
@@ -4472,8 +4487,9 @@ select:focus:not(:focus-visible) { outline: none; }
               acatGrid.innerHTML = acats.length
                 ? acats.map(a => `<span class="lfa-chip" data-acat-id="${a.activity_category_id}"><span class="lfa-chip-code">${lfaEsc(a.category_code)}</span> ${lfaEsc(a.category_name)}<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button></span>`).join('')
                 : '<span style="color:var(--muted);font-size:12px;padding:4px;">No entries yet — add below.</span>';
+              console.log('[lfaLoadRefData] Activity category chips populated with', acats.length, 'items');
             }
-          } catch(e) { console.warn('[lfaRefData] Load failed:', e); }
+          } catch(e) { console.error('[lfaLoadRefData] Load failed:', e); }
         }
 
         // ── Add reference item from LFA Setup → saves to M&E Book DB ──
