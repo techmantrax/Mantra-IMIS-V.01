@@ -3102,29 +3102,51 @@ select:focus:not(:focus-visible) { outline: none; }
 
         // ── Load Program Framework from Database ──────────────────────
         async function meb2LoadProgramFromDB(prog) {
-          if (typeof GS_SB_URL === 'undefined' || !GS_SB_URL) return null;
+          if (typeof GS_SB_URL === 'undefined' || !GS_SB_URL) {
+            console.warn('[meb2LoadProgramFromDB] GS_SB_URL not defined');
+            return null;
+          }
           try {
+            console.log('[meb2LoadProgramFromDB] Starting load for program:', prog);
             const progId = await lfaFetchProgramId(prog);
-            if (!progId) return null;
+            console.log('[meb2LoadProgramFromDB] Program ID:', progId);
+            if (!progId) {
+              console.warn('[meb2LoadProgramFromDB] Program not found in DB');
+              return null;
+            }
 
             const url = GS_SB_URL, h = GS_SB_HDR;
 
             // Fetch outcomes and activities
+            const ocUrl = `${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,outcome_code.asc`;
+            const acUrl = `${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,activity_code.asc`;
+            console.log('[meb2LoadProgramFromDB] Fetching outcomes from:', ocUrl);
+            console.log('[meb2LoadProgramFromDB] Fetching activities from:', acUrl);
+
             const [ocRes, acRes] = await Promise.all([
-              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,outcome_code.asc`, { headers: h }),
-              fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=*&order=stakeholder_type_id,activity_code.asc`, { headers: h })
+              fetch(ocUrl, { headers: h }),
+              fetch(acUrl, { headers: h })
             ]);
+
+            console.log('[meb2LoadProgramFromDB] Outcomes response:', ocRes.status);
+            console.log('[meb2LoadProgramFromDB] Activities response:', acRes.status);
 
             const outcomes = ocRes.ok ? await ocRes.json() : [];
             const activities = acRes.ok ? await acRes.json() : [];
 
-            if (!outcomes.length && !activities.length) return null;
+            console.log('[meb2LoadProgramFromDB] Outcomes count:', outcomes.length, 'Activities count:', activities.length);
+
+            if (!outcomes.length && !activities.length) {
+              console.warn('[meb2LoadProgramFromDB] No outcomes or activities found');
+              return null;
+            }
 
             // Fetch stakeholder type names
             const stkRes = await fetch(`${url}/rest/v1/stakeholder_type?select=stakeholder_type_id,type_name`, { headers: h });
             const stks = stkRes.ok ? await stkRes.json() : [];
             const stkMap = {};
             stks.forEach(s => { stkMap[s.stakeholder_type_id] = s.type_name; });
+            console.log('[meb2LoadProgramFromDB] Stakeholder types:', Object.keys(stkMap).length);
 
             // Build groups from DB data (same structure as LFA Setup)
             const groups = [];
@@ -3168,7 +3190,7 @@ select:focus:not(:focus-visible) { outline: none; }
               }
             });
 
-            console.log('[meb2LoadProgramFromDB] Loaded', groups.length, 'groups from DB');
+            console.log('[meb2LoadProgramFromDB] Built', groups.length, 'groups from DB');
             return groups.length ? groups : null;
           } catch(e) {
             console.error('[meb2LoadProgramFromDB] Error:', e);
