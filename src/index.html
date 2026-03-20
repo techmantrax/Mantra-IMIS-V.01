@@ -2908,8 +2908,12 @@ select:focus:not(:focus-visible) { outline: none; }
           <div class="meb2-intv-tabs" id="meb2-intv-tabs"></div>
 
           <!-- LFA found banner (hidden until LFA is loaded) -->
-          <div class="meb2-banner ok hidden" id="meb2-lfa-banner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> LFA loaded — indicators pre-populated. Fill in names, targets and publish.
+          <div class="meb2-banner ok hidden" id="meb2-lfa-banner" style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;flex:1;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <span id="meb2-banner-text">LFA loaded from database. Review the framework below, then confirm to proceed.</span>
+            </div>
+            <button class="btn btn-primary" id="meb2-confirm-framework-btn" style="font-size:12px;padding:6px 14px;white-space:nowrap;display:none;">Confirm Framework</button>
           </div>
 
           <!-- No-LFA empty state -->
@@ -3054,19 +3058,30 @@ select:focus:not(:focus-visible) { outline: none; }
         async function meb2Render(prog) {
           meb2Prog = prog;
           const banner = document.getElementById('meb2-lfa-banner');
+          const bannerText = document.getElementById('meb2-banner-text');
+          const confirmBtn = document.getElementById('meb2-confirm-framework-btn');
           const noLfa  = document.getElementById('meb2-no-lfa-state');
           const pubBar = document.querySelector('.meb2-pub-bar');
+
+          // Reset confirmation state
+          window.meb2FrameworkConfirmed = false;
+          if (confirmBtn) {
+            confirmBtn.style.display = 'none';
+            confirmBtn.onclick = meb2ConfirmFramework;
+          }
 
           // Try loading from DB first (new path)
           const dbGroups = await meb2LoadProgramFromDB(prog);
           if (dbGroups && dbGroups.length) {
             meb2Groups = dbGroups;
-            if (banner) { banner.classList.remove('hidden'); banner.innerHTML = IC.info + ' LFA loaded from database — fetching M&amp;E Book indicators…'; }
+            if (banner) { banner.classList.remove('hidden'); }
+            if (bannerText) { bannerText.textContent = 'LFA loaded from database. Review the framework below, then confirm to proceed.'; }
+            if (confirmBtn) { confirmBtn.style.display = ''; } // Show confirm button
             if (noLfa)  noLfa.style.display = 'none';
             if (pubBar) pubBar.style.display = '';
             meb2RenderFramework();
+            meb2EnableEditing(false); // Disable editing until confirmed
             await meb2HydrateIndicatorsFromDB();
-            if (banner) { banner.innerHTML = IC['check-circle'] + ' LFA loaded — M&amp;E Book indicators pre-filled. Add more if needed, set targets and publish.'; }
             meb2RenderFramework();
             return;
           }
@@ -3098,6 +3113,39 @@ select:focus:not(:focus-visible) { outline: none; }
             if (noLfa)  noLfa.style.display = '';
             if (pubBar) pubBar.style.display = 'none';
           }
+        }
+
+        // ── Confirm Framework (enable editing) ───────────────────────
+        function meb2ConfirmFramework() {
+          window.meb2FrameworkConfirmed = true;
+          const confirmBtn = document.getElementById('meb2-confirm-framework-btn');
+          const bannerText = document.getElementById('meb2-banner-text');
+          if (confirmBtn) { confirmBtn.style.display = 'none'; }
+          if (bannerText) { bannerText.textContent = 'Framework confirmed ✓ Add indicators, set targets, and publish.'; }
+          meb2EnableEditing();
+          toast('Framework confirmed — you can now add and edit indicators');
+        }
+
+        // ── Enable/Disable editing of indicators ───────────────────
+        function meb2EnableEditing(enabled = true) {
+          const container = document.getElementById('meb2-framework');
+          if (!container) return;
+          const inputs = container.querySelectorAll('input, select, button.meb2-btn-x, button.meb2-intv-tab, button[onclick*="meb2"]');
+          const addBtns = document.querySelectorAll('#meb2-add-manual-row, .meb2-stk-pill button');
+          inputs.forEach(inp => {
+            if (inp.tagName === 'BUTTON' && !inp.classList.contains('meb2-intv-tab')) {
+              inp.disabled = !enabled;
+              inp.style.opacity = enabled ? '1' : '0.5';
+              inp.style.pointerEvents = enabled ? 'auto' : 'none';
+            } else if (inp.tagName === 'INPUT' || inp.tagName === 'SELECT') {
+              inp.disabled = !enabled;
+              inp.style.opacity = enabled ? '1' : '0.6';
+            }
+          });
+          addBtns.forEach(btn => {
+            btn.disabled = !enabled;
+            btn.style.opacity = enabled ? '1' : '0.5';
+          });
         }
 
         // ── Load Program Framework from Database ──────────────────────
@@ -4950,12 +4998,34 @@ select:focus:not(:focus-visible) { outline: none; }
         async function lfaFetchProgramId(progName) {
           if (window.lfaCurrentProgId) return window.lfaCurrentProgId;
           try {
+            // Try to fetch existing program
             const r = await fetch(`${GS_SB_URL}/rest/v1/program?program_name=eq.${encodeURIComponent(progName)}&select=program_id&limit=1`, { headers: GS_SB_HDR });
-            if (!r.ok) return null;
-            const [row] = await r.json();
-            window.lfaCurrentProgId = row?.program_id || null;
-            return window.lfaCurrentProgId;
-          } catch(e) { return null; }
+            if (r.ok) {
+              const rows = await r.json();
+              if (rows.length > 0) {
+                window.lfaCurrentProgId = rows[0].program_id;
+                return window.lfaCurrentProgId;
+              }
+            }
+
+            // Program doesn't exist — create it
+            console.log('[lfaFetchProgramId] Program not found, creating:', progName);
+            const createRes = await fetch(`${GS_SB_URL}/rest/v1/program`, {
+              method: 'POST',
+              headers: { ...GS_SB_HDR, 'Prefer': 'return=representation' },
+              body: JSON.stringify({ program_name: progName, is_active: true })
+            });
+            if (createRes.ok) {
+              const [newProg] = await createRes.json();
+              window.lfaCurrentProgId = newProg.program_id;
+              console.log('[lfaFetchProgramId] Program created:', window.lfaCurrentProgId);
+              return window.lfaCurrentProgId;
+            }
+            return null;
+          } catch(e) {
+            console.error('[lfaFetchProgramId] Error:', e);
+            return null;
+          }
         }
 
         async function lfaLoadProgramGoals() {
