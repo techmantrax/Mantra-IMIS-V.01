@@ -4991,30 +4991,51 @@ select:focus:not(:focus-visible) { outline: none; }
             return;
           }
 
-          // Check LFA status for each program (outcomes/activities in DB)
+          // Check LFA status for each program (via interventions)
           const progIds = progs.filter(p => p.program_id).map(p => p.program_id);
           if (progIds.length) {
             try {
-              const [ocRes, acRes, draftRes] = await Promise.all([
-                fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
-                fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${progIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
-                fetch(`${GS_SB_URL}/rest/v1/lfa_draft?program_id=in.(${progIds.join(',')})&select=program_id,is_published`, { headers: GS_SB_HDR })
-              ]);
-              const outcomes = ocRes.ok ? await ocRes.json() : [];
-              const activities = acRes.ok ? await acRes.json() : [];
+              // First get interventions for each program
+              const intRes = await fetch(`${GS_SB_URL}/rest/v1/intervention?program_id=in.(${progIds.join(',')})&select=intervention_id,program_id`, { headers: GS_SB_HDR });
+              const interventions = intRes.ok ? await intRes.json() : [];
+              
+              // Group intervention IDs by program
+              const intByProg = {};
+              interventions.forEach(i => {
+                if (!intByProg[i.program_id]) intByProg[i.program_id] = [];
+                intByProg[i.program_id].push(i.intervention_id);
+              });
+
+              // Get all intervention IDs
+              const allIntIds = interventions.map(i => i.intervention_id);
+              
+              let outcomes = [], activities = [];
+              if (allIntIds.length) {
+                const [ocRes, acRes] = await Promise.all([
+                  fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${allIntIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR }),
+                  fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${allIntIds.join(',')})&select=intervention_id`, { headers: GS_SB_HDR })
+                ]);
+                outcomes = ocRes.ok ? await ocRes.json() : [];
+                activities = acRes.ok ? await acRes.json() : [];
+              }
+              
+              const draftRes = await fetch(`${GS_SB_URL}/rest/v1/lfa_draft?program_id=in.(${progIds.join(',')})&select=program_id,is_published`, { headers: GS_SB_HDR });
               const drafts = draftRes.ok ? await draftRes.json() : [];
 
               // Build status map
               progs.forEach(p => {
                 if (!p.program_id) return;
-                const hasOutcomes = outcomes.some(o => o.intervention_id === p.program_id);
-                const hasActivities = activities.some(a => a.intervention_id === p.program_id);
+                const progIntIds = intByProg[p.program_id] || [];
+                const hasInterventions = progIntIds.length > 0;
+                const progOutcomes = outcomes.filter(o => progIntIds.includes(o.intervention_id));
+                const progActivities = activities.filter(a => progIntIds.includes(a.intervention_id));
                 const draft = drafts.find(d => d.program_id === p.program_id);
                 lfaProgStatus[p.program_name] = {
-                  hasData: hasOutcomes || hasActivities,
+                  hasData: hasInterventions || progOutcomes.length > 0 || progActivities.length > 0,
                   isPublished: draft?.is_published || false,
-                  outcomeCount: outcomes.filter(o => o.intervention_id === p.program_id).length,
-                  activityCount: activities.filter(a => a.intervention_id === p.program_id).length
+                  interventionCount: progIntIds.length,
+                  outcomeCount: progOutcomes.length,
+                  activityCount: progActivities.length
                 };
               });
             } catch (e) {
@@ -5029,7 +5050,7 @@ select:focus:not(:focus-visible) { outline: none; }
             const statusLabel = st.isPublished ? 'Published' : st.hasData ? 'Draft' : 'Not started';
             const statusCls   = st.isPublished ? 'published' : st.hasData ? 'draft' : 'empty';
             const badgeCls    = st.isPublished ? 'badge-ok' : st.hasData ? 'badge-warn' : 'badge-danger';
-            const countInfo   = st.hasData ? `${st.outcomeCount || 0} outcomes · ${st.activityCount || 0} activities` : '';
+            const countInfo   = st.hasData ? `${st.interventionCount || 0} interventions · ${st.outcomeCount || 0} outcomes · ${st.activityCount || 0} activities` : '';
             const card = document.createElement('div');
             card.className = 'me-prog-card ' + statusCls;
             card.innerHTML = `<div class="mpc-name">${lfaEsc(prog)}</div>
@@ -5313,10 +5334,11 @@ select:focus:not(:focus-visible) { outline: none; }
         }
 
         // ── Save LFA framework to database ──────────────────────────
+        // Correct hierarchy: Program → Intervention → Outcomes/Activities
         // This function handles:
-        // 1. Delete existing LFA outcomes/activities for this program
-        // 2. Delete indicators linked to deleted outcomes/activities
-        // 3. Insert new outcomes/activities with financial_year_id
+        // 1. Create/update interventions for this program
+        // 2. Delete existing outcomes/activities and their linked indicators
+        // 3. Insert new outcomes/activities linked to interventions
         // 4. Auto-create indicators in M&E Builder
         async function lfaSaveFrameworkToDB(prog, frameworkData) {
           try {
@@ -5328,7 +5350,6 @@ select:focus:not(:focus-visible) { outline: none; }
             const fyRes = await fetch(`${url}/rest/v1/financial_year?is_current=eq.true&select=financial_year_id,fy_name&limit=1`, { headers: h });
             const fyData = fyRes.ok ? await fyRes.json() : [];
             const currentFY = fyData[0] || null;
-            const fyId = currentFY?.financial_year_id || null;
             console.log('[lfaSaveFrameworkToDB] Using FY:', currentFY?.fy_name || 'No FY set');
 
             // Fetch all stakeholder types to map names to IDs
@@ -5337,137 +5358,180 @@ select:focus:not(:focus-visible) { outline: none; }
             const stkTypeMap = {};
             stkTypes.forEach(s => { stkTypeMap[s.type_name] = s.stakeholder_type_id; });
 
+            // Get default intervention type
+            const intTypeRes = await fetch(`${url}/rest/v1/intervention_type?select=intervention_type_id&limit=1`, { headers: h });
+            const intTypeData = intTypeRes.ok ? await intTypeRes.json() : [];
+            const defaultIntTypeId = intTypeData[0]?.intervention_type_id || null;
+
             // Get indicator category for auto-creating indicators
             const indCatRes = await fetch(`${url}/rest/v1/indicator_category?select=indicator_category_id&limit=1`, { headers: h });
             const indCatData = indCatRes.ok ? await indCatRes.json() : [];
             const defaultIndCatId = indCatData[0]?.indicator_category_id || null;
 
-            // STEP 1: Get existing outcomes/activities for this program
-            const [existingOcRes, existingAcRes] = await Promise.all([
-              fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&select=lfa_outcome_id`, { headers: h }),
-              fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}&select=lfa_activity_id`, { headers: h })
-            ]);
-            const existingOcIds = (existingOcRes.ok ? await existingOcRes.json() : []).map(o => o.lfa_outcome_id);
-            const existingAcIds = (existingAcRes.ok ? await existingAcRes.json() : []).map(a => a.lfa_activity_id);
+            // STEP 1: Get existing interventions for this program
+            const existingIntRes = await fetch(`${url}/rest/v1/intervention?program_id=eq.${progId}&select=intervention_id,intervention_name`, { headers: h });
+            const existingInterventions = existingIntRes.ok ? await existingIntRes.json() : [];
+            const existingIntIds = existingInterventions.map(i => i.intervention_id);
 
-            // STEP 2: Delete indicators linked to existing outcomes/activities
-            if (existingOcIds.length) {
-              await fetch(`${url}/rest/v1/indicator?lfa_outcome_id=in.(${existingOcIds.join(',')})`, {
-                method: 'DELETE', headers: h
-              });
-            }
-            if (existingAcIds.length) {
-              await fetch(`${url}/rest/v1/indicator?lfa_activity_id=in.(${existingAcIds.join(',')})`, {
-                method: 'DELETE', headers: h
-              });
-            }
+            // STEP 2: Delete existing outcomes/activities and their linked indicators
+            if (existingIntIds.length) {
+              // Get outcome/activity IDs linked to these interventions
+              const [existingOcRes, existingAcRes] = await Promise.all([
+                fetch(`${url}/rest/v1/lfa_outcome?intervention_id=in.(${existingIntIds.join(',')})&select=lfa_outcome_id`, { headers: h }),
+                fetch(`${url}/rest/v1/lfa_activity?intervention_id=in.(${existingIntIds.join(',')})&select=lfa_activity_id`, { headers: h })
+              ]);
+              const existingOcIds = (existingOcRes.ok ? await existingOcRes.json() : []).map(o => o.lfa_outcome_id);
+              const existingAcIds = (existingAcRes.ok ? await existingAcRes.json() : []).map(a => a.lfa_activity_id);
 
-            // STEP 3: Delete existing outcomes/activities
-            if (existingOcIds.length) {
-              await fetch(`${url}/rest/v1/lfa_outcome?intervention_id=eq.${progId}`, {
-                method: 'DELETE', headers: h
-              });
-            }
-            if (existingAcIds.length) {
-              await fetch(`${url}/rest/v1/lfa_activity?intervention_id=eq.${progId}`, {
-                method: 'DELETE', headers: h
-              });
+              // Delete indicators linked to these outcomes/activities
+              if (existingOcIds.length) {
+                await fetch(`${url}/rest/v1/indicator?lfa_outcome_id=in.(${existingOcIds.join(',')})`, { method: 'DELETE', headers: h });
+                await fetch(`${url}/rest/v1/lfa_outcome?lfa_outcome_id=in.(${existingOcIds.join(',')})`, { method: 'DELETE', headers: h });
+              }
+              if (existingAcIds.length) {
+                await fetch(`${url}/rest/v1/indicator?lfa_activity_id=in.(${existingAcIds.join(',')})`, { method: 'DELETE', headers: h });
+                await fetch(`${url}/rest/v1/lfa_activity?lfa_activity_id=in.(${existingAcIds.join(',')})`, { method: 'DELETE', headers: h });
+              }
+
+              // Delete existing interventions
+              await fetch(`${url}/rest/v1/intervention?program_id=eq.${progId}`, { method: 'DELETE', headers: h });
             }
 
-            console.log('[lfaSaveFrameworkToDB] Cleared existing LFA data and linked indicators');
+            console.log('[lfaSaveFrameworkToDB] Cleared existing LFA data');
 
-            // STEP 4: Insert new outcomes and activities, then auto-create indicators
-            let outcomeCount = 0, activityCount = 0, indicatorCount = 0;
+            // STEP 3: Group frameworkData by intervention name
+            const interventionGroups = {};
+            frameworkData.forEach(fw => {
+              if (!interventionGroups[fw.intvName]) {
+                interventionGroups[fw.intvName] = {
+                  name: fw.intvName,
+                  code: fw.intvCode,
+                  stakeholders: []
+                };
+              }
+              interventionGroups[fw.intvName].stakeholders.push(fw);
+            });
 
-            for (const fw of frameworkData) {
-              const stkTypeId = stkTypeMap[fw.stkName] || fw.stkTypeId;
-              if (!stkTypeId) {
-                console.warn('Stakeholder type not found:', fw.stkName);
+            // STEP 4: Create interventions, outcomes, activities, and indicators
+            let interventionCount = 0, outcomeCount = 0, activityCount = 0, indicatorCount = 0;
+
+            for (const intvName of Object.keys(interventionGroups)) {
+              const intvGroup = interventionGroups[intvName];
+              
+              // Create intervention
+              const intvRes = await fetch(`${url}/rest/v1/intervention`, {
+                method: 'POST',
+                headers: { ...h, 'Prefer': 'return=representation' },
+                body: JSON.stringify({
+                  program_id: progId,
+                  intervention_name: intvGroup.name,
+                  intervention_code: intvGroup.code || `INT-${++interventionCount}`,
+                  intervention_type_id: defaultIntTypeId,
+                  is_active: true
+                })
+              });
+
+              if (!intvRes.ok) {
+                console.warn('[lfaSaveFrameworkToDB] Failed to create intervention:', intvGroup.name);
                 continue;
               }
 
-              // Save outcomes and create indicators
-              for (const oc of fw.outcomes) {
-                const ocRes = await fetch(`${url}/rest/v1/lfa_outcome`, {
-                  method: 'POST',
-                  headers: { ...h, 'Prefer': 'return=representation' },
-                  body: JSON.stringify({
-                    intervention_id: progId,
-                    stakeholder_type_id: stkTypeId,
-                    outcome_code: oc.code || `OC-${++outcomeCount}`,
-                    outcome_statement: oc.stmt,
-                    outcome_category: oc.cat,
-                    is_active: true
-                  })
-                });
-                
-                if (ocRes.ok) {
-                  const ocData = await ocRes.json();
-                  const newOcId = ocData[0]?.lfa_outcome_id;
-                  outcomeCount++;
+              const intvData = await intvRes.json();
+              const newIntvId = intvData[0]?.intervention_id;
+              if (!newIntvId) continue;
+              interventionCount++;
+
+              // Create outcomes and activities for each stakeholder
+              for (const fw of intvGroup.stakeholders) {
+                const stkTypeId = stkTypeMap[fw.stkName] || fw.stkTypeId;
+                if (!stkTypeId) {
+                  console.warn('Stakeholder type not found:', fw.stkName);
+                  continue;
+                }
+
+                // Save outcomes and create indicators
+                for (const oc of fw.outcomes) {
+                  const ocRes = await fetch(`${url}/rest/v1/lfa_outcome`, {
+                    method: 'POST',
+                    headers: { ...h, 'Prefer': 'return=representation' },
+                    body: JSON.stringify({
+                      intervention_id: newIntvId,  // Link to intervention, NOT program
+                      stakeholder_type_id: stkTypeId,
+                      outcome_code: oc.code || `OC-${++outcomeCount}`,
+                      outcome_statement: oc.stmt,
+                      outcome_category: oc.cat,
+                      is_active: true
+                    })
+                  });
                   
-                  // Auto-create indicator for this outcome
-                  if (newOcId && defaultIndCatId) {
-                    await fetch(`${url}/rest/v1/indicator`, {
-                      method: 'POST',
-                      headers: { ...h, 'Prefer': 'return=minimal' },
-                      body: JSON.stringify({
-                        indicator_name: oc.stmt,
-                        indicator_code: `IND-OC-${outcomeCount}`,
-                        indicator_category_id: defaultIndCatId,
-                        unit_of_measure: 'percentage',
-                        frequency: 'quarterly',
-                        direction: 'increase',
-                        lfa_outcome_id: newOcId,
-                        lfa_activity_id: null,
-                        is_active: true,
-                        is_template: false
-                      })
-                    });
-                    indicatorCount++;
+                  if (ocRes.ok) {
+                    const ocData = await ocRes.json();
+                    const newOcId = ocData[0]?.lfa_outcome_id;
+                    outcomeCount++;
+                    
+                    // Auto-create indicator for this outcome
+                    if (newOcId && defaultIndCatId) {
+                      await fetch(`${url}/rest/v1/indicator`, {
+                        method: 'POST',
+                        headers: { ...h, 'Prefer': 'return=minimal' },
+                        body: JSON.stringify({
+                          indicator_name: oc.stmt,
+                          indicator_code: `IND-OC-${outcomeCount}`,
+                          indicator_category_id: defaultIndCatId,
+                          unit_of_measure: 'percentage',
+                          frequency: 'quarterly',
+                          direction: 'increase',
+                          lfa_outcome_id: newOcId,
+                          lfa_activity_id: null,
+                          is_active: true,
+                          is_template: false
+                        })
+                      });
+                      indicatorCount++;
+                    }
                   }
                 }
-              }
 
-              // Save activities and create indicators
-              for (const ac of fw.activities) {
-                const acRes = await fetch(`${url}/rest/v1/lfa_activity`, {
-                  method: 'POST',
-                  headers: { ...h, 'Prefer': 'return=representation' },
-                  body: JSON.stringify({
-                    intervention_id: progId,
-                    stakeholder_type_id: stkTypeId,
-                    activity_code: ac.code || `AC-${++activityCount}`,
-                    activity_statement: ac.stmt,
-                    activity_category: ac.cat,
-                    is_active: true
-                  })
-                });
-                
-                if (acRes.ok) {
-                  const acData = await acRes.json();
-                  const newAcId = acData[0]?.lfa_activity_id;
-                  activityCount++;
+                // Save activities and create indicators
+                for (const ac of fw.activities) {
+                  const acRes = await fetch(`${url}/rest/v1/lfa_activity`, {
+                    method: 'POST',
+                    headers: { ...h, 'Prefer': 'return=representation' },
+                    body: JSON.stringify({
+                      intervention_id: newIntvId,  // Link to intervention, NOT program
+                      stakeholder_type_id: stkTypeId,
+                      activity_code: ac.code || `AC-${++activityCount}`,
+                      activity_statement: ac.stmt,
+                      activity_category: ac.cat,
+                      is_active: true
+                    })
+                  });
                   
-                  // Auto-create indicator for this activity
-                  if (newAcId && defaultIndCatId) {
-                    await fetch(`${url}/rest/v1/indicator`, {
-                      method: 'POST',
-                      headers: { ...h, 'Prefer': 'return=minimal' },
-                      body: JSON.stringify({
-                        indicator_name: `No. of ${ac.stmt.toLowerCase()}`,
-                        indicator_code: `IND-AC-${activityCount}`,
-                        indicator_category_id: defaultIndCatId,
-                        unit_of_measure: 'count',
-                        frequency: 'monthly',
-                        direction: 'increase',
-                        lfa_outcome_id: null,
-                        lfa_activity_id: newAcId,
-                        is_active: true,
-                        is_template: false
-                      })
-                    });
-                    indicatorCount++;
+                  if (acRes.ok) {
+                    const acData = await acRes.json();
+                    const newAcId = acData[0]?.lfa_activity_id;
+                    activityCount++;
+                    
+                    // Auto-create indicator for this activity
+                    if (newAcId && defaultIndCatId) {
+                      await fetch(`${url}/rest/v1/indicator`, {
+                        method: 'POST',
+                        headers: { ...h, 'Prefer': 'return=minimal' },
+                        body: JSON.stringify({
+                          indicator_name: `No. of ${ac.stmt.toLowerCase()}`,
+                          indicator_code: `IND-AC-${activityCount}`,
+                          indicator_category_id: defaultIndCatId,
+                          unit_of_measure: 'count',
+                          frequency: 'monthly',
+                          direction: 'increase',
+                          lfa_outcome_id: null,
+                          lfa_activity_id: newAcId,
+                          is_active: true,
+                          is_template: false
+                        })
+                      });
+                      indicatorCount++;
+                    }
                   }
                 }
               }
@@ -5480,8 +5544,8 @@ select:focus:not(:focus-visible) { outline: none; }
               body: JSON.stringify({ is_published: true })
             });
 
-            console.log(`[lfaSaveFrameworkToDB] Published: ${outcomeCount} outcomes, ${activityCount} activities, ${indicatorCount} indicators`);
-            toast(`LFA Published: ${outcomeCount} outcomes, ${activityCount} activities → ${indicatorCount} indicators created in M&E Builder`);
+            console.log(`[lfaSaveFrameworkToDB] Published: ${interventionCount} interventions, ${outcomeCount} outcomes, ${activityCount} activities, ${indicatorCount} indicators`);
+            toast(`LFA Published: ${interventionCount} interventions, ${outcomeCount} outcomes, ${activityCount} activities → ${indicatorCount} indicators created`);
           } catch(e) {
             console.error('[lfaSaveFrameworkToDB] Error:', e);
             toast('Error publishing LFA: ' + e.message);
@@ -13611,7 +13675,7 @@ async function mrSubmitToDB() {
 }
 
 // ── Load published indicators from DB for all programs ───────────────────────
-// This properly filters indicators by program through LFA outcome/activity links
+// Correct hierarchy: Program → Intervention → Outcomes/Activities → Indicators
 async function mrLoadAllPublishedIndicators() {
   if (!GS_SB_URL) return;
   try {
@@ -13631,7 +13695,7 @@ async function mrLoadAllPublishedIndicators() {
       return;
     }
 
-    // For each program, load its LFA outcomes/activities and linked indicators
+    // For each program, load its interventions → outcomes/activities → indicators
     for (const prog of programsData) {
       const progId = prog.program_id;
       const progName = prog.program_name;
@@ -13641,10 +13705,21 @@ async function mrLoadAllPublishedIndicators() {
       // Skip if already loaded
       if (publishedFrameworkByProg[progName]) continue;
 
-      // Fetch LFA outcomes for this program (intervention_id = program_id in current schema)
+      // Fetch interventions for this program
+      const intRes = await fetch(`${GS_SB_URL}/rest/v1/intervention?program_id=eq.${progId}&is_active=eq.true&select=intervention_id`, { headers: GS_SB_HDR });
+      const interventions = intRes.ok ? await intRes.json() : [];
+      const intIds = interventions.map(i => i.intervention_id);
+
+      if (!intIds.length) {
+        console.log(`[mrLoadAllPublishedIndicators] No interventions for ${progName}`);
+        publishedFrameworkByProg[progName] = { rows: [], refs: {}, ts: new Date(), count: 0, prog: progName };
+        continue;
+      }
+
+      // Fetch LFA outcomes/activities for these interventions
       const [ocRes, acRes] = await Promise.all([
-        fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=eq.${progId}&is_active=eq.true&select=lfa_outcome_id`, { headers: GS_SB_HDR }),
-        fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=eq.${progId}&is_active=eq.true&select=lfa_activity_id`, { headers: GS_SB_HDR })
+        fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=lfa_outcome_id`, { headers: GS_SB_HDR }),
+        fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=lfa_activity_id`, { headers: GS_SB_HDR })
       ]);
 
       const outcomes = ocRes.ok ? await ocRes.json() : [];
