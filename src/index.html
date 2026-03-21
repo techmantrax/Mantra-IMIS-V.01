@@ -1634,16 +1634,13 @@ select:focus:not(:focus-visible) { outline: none; }
         <div class="tb-control">
           <label>FY</label>
           <select id="fy-select">
-            <option>2025-26</option>
-            <option>2024-25</option>
+            <!-- Populated dynamically from DB -->
           </select>
         </div>
         <div class="tb-control">
           <label>Month</label>
           <select id="month-select">
-            <option value="Feb 2026">Feb 2026</option>
-            <option value="Jan 2026">Jan 2026</option>
-            <option value="Dec 2025">Dec 2025</option>
+            <!-- Populated dynamically based on selected FY -->
           </select>
         </div>
         <div class="tb-control">
@@ -2058,28 +2055,6 @@ select:focus:not(:focus-visible) { outline: none; }
 
         <!-- quick filter / export bar -->
         <div class="poc-filter-bar">
-          <!-- Financial Year dropdown -->
-          <div class="poc-sheet-sel-wrap" id="poc-sheet-fy-wrap">
-            <select class="poc-sheet-sel" id="poc-sheet-fy" aria-label="Filter by financial year">
-              <option value="">All Financial Years</option>
-            </select>
-          </div>
-          <!-- Period/Month dropdown -->
-          <div class="poc-sheet-sel-wrap" id="poc-sheet-period-wrap">
-            <select class="poc-sheet-sel" id="poc-sheet-period" aria-label="Filter by period">
-              <option value="">All Periods</option>
-            </select>
-          </div>
-          <!-- Frequency dropdown -->
-          <div class="poc-sheet-sel-wrap" id="poc-sheet-freq-wrap">
-            <select class="poc-sheet-sel" id="poc-sheet-freq" aria-label="Filter by frequency">
-              <option value="">All Frequencies</option>
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="annual">Annual</option>
-            </select>
-          </div>
-          <div class="poc-filter-sep"></div>
           <!-- Intervention dropdown -->
           <div class="poc-sheet-sel-wrap" id="poc-sheet-intv-wrap">
             <select class="poc-sheet-sel" id="poc-sheet-intv" aria-label="Filter by intervention">
@@ -12156,9 +12131,6 @@ function populateSheetFilters(program) {
   const container = $('dynamic-filter-groups');
   if (!container) return;
 
-  // Load Financial Years and Periods for the filter dropdowns
-  loadFYAndPeriods();
-
   // Build refs from actual published rows for this program (covers LFA-sourced + seed)
   const pf = publishedFrameworkByProg[program];
   const progRows = pf ? pf.rows.filter(r => r.prog === program) : [];
@@ -12243,8 +12215,6 @@ function renderSheet() {
   const searchQ  = ($('poc-search')?.value      || '').toLowerCase().trim();
   const selIntv  = $('poc-sheet-intv')?.value   || '';
   const selStk   = $('poc-sheet-stk')?.value    || '';
-  const selFreq  = $('poc-sheet-freq')?.value   || '';
-  const selPeriod = $('poc-sheet-period')?.value || '';
 
   const rows = allRows.filter(r => {
     if (state.showMissing && r.value !== '') return false;
@@ -12252,14 +12222,12 @@ function renderSheet() {
     if (searchQ && !r.indicator.toLowerCase().includes(searchQ)) return false;
     if (selIntv && (r.intv||'General') !== selIntv) return false;
     if (selStk  && (r.stakeholder||'General') !== selStk) return false;
-    if (selFreq && (r.freq||'monthly') !== selFreq) return false;
     return true;
   });
 
   // ── Populate Intervention dropdown from live row data ───────────────────
   const intvSel = $('poc-sheet-intv');
   const stkSel  = $('poc-sheet-stk');
-  const freqSel = $('poc-sheet-freq');
   if (intvSel) {
     const intvs = [...new Set(allRows.map(r => r.intv||'General').filter(Boolean))].sort();
     intvSel.innerHTML = '<option value="">All Interventions</option>' +
@@ -12276,9 +12244,6 @@ function renderSheet() {
       stks.map(v => `<option value="${esc(v)}"${selStk===v?' selected':''}>${esc(v)}</option>`).join('');
     $('poc-sheet-stk-wrap')?.classList.toggle('active', selStk !== '');
   }
-  // Update frequency filter visual state
-  $('poc-sheet-freq-wrap')?.classList.toggle('active', selFreq !== '');
-  $('poc-sheet-period-wrap')?.classList.toggle('active', selPeriod !== '');
 
   // ── Empty state ──────────────────────────────────────────────────
   if (allRows.length === 0) {
@@ -12376,7 +12341,6 @@ function renderSheet() {
         if (state.showMissing && r.value !== '') return false;
         if (state.showFlagged && !r.flagged)     return false;
         if (searchQ && !r.indicator.toLowerCase().includes(searchQ)) return false;
-        if (selFreq && (r.freq||'monthly') !== selFreq) return false;
         return true;
       };
 
@@ -13712,50 +13676,60 @@ $('poc-search')?.addEventListener('input', () => renderSheet());
 // ── Sheet Intervention + Stakeholder dropdowns ──
 $('poc-sheet-intv')?.addEventListener('change', () => renderSheet());
 $('poc-sheet-stk')?.addEventListener('change',  () => renderSheet());
-$('poc-sheet-freq')?.addEventListener('change', () => renderSheet());
-$('poc-sheet-period')?.addEventListener('change', () => renderSheet());
-$('poc-sheet-fy')?.addEventListener('change', async () => {
-  const fyId = $('poc-sheet-fy')?.value;
-  if (fyId) await populatePeriodDropdown(fyId);
-  renderSheet();
-});
 
-// ── Load Financial Years and Periods for Monthly Reporting filters ──
-async function loadFYAndPeriods() {
+// ── Load Financial Years and Months for Top Nav dropdowns ──
+async function loadTopNavFYAndMonths() {
   try {
     const fyRes = await fetch(`${GS_SB_URL}/rest/v1/financial_year?select=financial_year_id,fy_name,is_current&order=start_date.desc`, { headers: GS_SB_HDR });
     if (fyRes.ok) {
       const fys = await fyRes.json();
-      const fySel = $('poc-sheet-fy');
+      const fySel = $('fy-select');
       if (fySel && fys.length > 0) {
-        fySel.innerHTML = '<option value="">All Financial Years</option>' +
-          fys.map(f => `<option value="${f.financial_year_id}"${f.is_current?' selected':''}>${esc(f.fy_name)}</option>`).join('');
-        // Load periods for current FY
+        fySel.innerHTML = fys.map(f => 
+          `<option value="${esc(f.fy_name)}" data-fy-id="${f.financial_year_id}"${f.is_current?' selected':''}>${esc(f.fy_name)}</option>`
+        ).join('');
+        
+        // Set state from current FY
         const currentFY = fys.find(f => f.is_current) || fys[0];
-        if (currentFY) await populatePeriodDropdown(currentFY.financial_year_id);
+        if (currentFY) {
+          state.fy = currentFY.fy_name;
+          await populateTopNavMonthDropdown(currentFY.financial_year_id);
+        }
       }
     }
-  } catch(e) { console.warn('[loadFYAndPeriods] Failed:', e); }
+  } catch(e) { console.warn('[loadTopNavFYAndMonths] Failed:', e); }
 }
 
-async function populatePeriodDropdown(fyId) {
+async function populateTopNavMonthDropdown(fyId) {
   try {
-    const res = await fetch(`${GS_SB_URL}/rest/v1/period?financial_year_id=eq.${fyId}&select=period_id,period_name,period_type&order=start_date.asc`, { headers: GS_SB_HDR });
+    const res = await fetch(`${GS_SB_URL}/rest/v1/period?financial_year_id=eq.${fyId}&period_type=eq.monthly&select=period_id,period_name,start_date&order=start_date.desc`, { headers: GS_SB_HDR });
     if (res.ok) {
       const periods = await res.json();
-      const periodSel = $('poc-sheet-period');
-      if (periodSel) {
-        const currMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-        periodSel.innerHTML = '<option value="">All Periods</option>' +
-          periods.map(p => {
-            const label = p.period_name.trim();
-            const isCurrent = label.toLowerCase().includes(currMonth.toLowerCase().split(' ')[0]);
-            return `<option value="${p.period_id}"${isCurrent?' selected':''}>${label} (${p.period_type})</option>`;
-          }).join('');
+      const monthSel = $('month-select');
+      if (monthSel && periods.length > 0) {
+        // Find current month or default to most recent
+        const now = new Date();
+        const currMonthStr = now.toLocaleString('default', { month: 'short' }) + ' ' + now.getFullYear();
+        
+        monthSel.innerHTML = periods.map(p => {
+          const label = p.period_name.trim();
+          // Convert "April     2025" → "Apr 2025" format
+          const parts = label.split(/\s+/);
+          const shortLabel = parts[0].substring(0, 3) + ' ' + parts[parts.length - 1];
+          const isCurrent = shortLabel.toLowerCase() === currMonthStr.toLowerCase();
+          return `<option value="${shortLabel}" data-period-id="${p.period_id}"${isCurrent?' selected':''}>${shortLabel}</option>`;
+        }).join('');
+        
+        // Set state from selection
+        if (monthSel.value) state.month = monthSel.value;
+        if ($('sb-month')) $('sb-month').textContent = state.month;
       }
     }
-  } catch(e) { console.warn('[populatePeriodDropdown] Failed:', e); }
+  } catch(e) { console.warn('[populateTopNavMonthDropdown] Failed:', e); }
 }
+
+// Initialize top nav FY/Month on page load
+loadTopNavFYAndMonths();
 
 // ── Program selector Intervention + Stakeholder filter dropdowns ──
 $('poc-prog-intv-filter')?.addEventListener('change', () => _applyPocProgFilter());
@@ -13787,9 +13761,6 @@ $('chip-reset').addEventListener('click', () => {
   const ps = $('poc-search'); if (ps) ps.value = '';
   const si = $('poc-sheet-intv'); if (si) si.value = '';
   const ss = $('poc-sheet-stk');  if (ss) ss.value = '';
-  const sf = $('poc-sheet-freq'); if (sf) sf.value = '';
-  const sp = $('poc-sheet-period'); if (sp) sp.value = '';
-  const sfy = $('poc-sheet-fy'); if (sfy) sfy.value = '';
   // Rebuild the filter panel so all selects reset to "All" correctly
   populateSheetFilters(state.program);
   renderSheet();
@@ -14239,17 +14210,31 @@ $('screen-app').addEventListener('click', e => {
 $('month-select').addEventListener('change', e => {
   state.month = e.target.value;
   $('sb-month').textContent = state.month;
+  // Reload reporting data for the new month
+  if (state.route === 'data-entry-sheet') {
+    mrLoadFromDB(state.program, state.month, state.fy || '2025-26').then(() => renderSheet());
+  }
 });
 
-// FY selector — updates builder FY badge + filter
+// FY selector — updates builder FY badge + filter + reloads reporting data
 if ($('fy-select')) {
-  $('fy-select').addEventListener('change', e => {
+  $('fy-select').addEventListener('change', async e => {
     state.fy = e.target.value;
     builderFilterFY = state.fy;
     const badge = $('builder-fy-badge');
     if (badge) badge.textContent = `Editing FY: ${state.fy}`;
+    
+    // Update month dropdown based on new FY
+    const fyId = e.target.options[e.target.selectedIndex]?.dataset.fyId;
+    if (fyId) await populateTopNavMonthDropdown(fyId);
+    
+    // Reload reporting data for the new FY
+    if (state.route === 'data-entry-sheet') {
+      mrLoadFromDB(state.program, state.month, state.fy).then(() => renderSheet());
+    }
+    
     renderBuilderTable();
-    toast(`Switched to FY ${state.fy} — builder now shows that year's indicators`);
+    toast(`Switched to FY ${state.fy}`);
   });
 }
 $('btn-notify').addEventListener('click', () => {
