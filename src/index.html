@@ -3826,7 +3826,7 @@ select:focus:not(:focus-visible) { outline: none; }
           try {
             const url = GS_SB_URL, h = GS_SB_HDR;
             
-            // Get period_id mapping for labels (Apr, May, Q1, Annual, etc.)
+            // Get period_id mapping for all period types
             const fyId = await meb2GetCurrentFYId();
             if (!fyId) { console.warn('[meb2FlushTargetQueue] No FY found'); return; }
             
@@ -3838,19 +3838,24 @@ select:focus:not(:focus-visible) { outline: none; }
             const periodMap = {};
             periods.forEach(p => {
               const name = p.period_name.trim();
-              // Map "April     2025" -> "Apr"
-              const shortMonth = name.split(/\s+/)[0].substring(0, 3);
-              periodMap[shortMonth] = p.period_id;
               periodMap[name] = p.period_id;
+              
+              if (p.period_type === 'monthly') {
+                // Map "April     2025" -> "Apr"
+                const shortMonth = name.split(/\s+/)[0].substring(0, 3);
+                periodMap[shortMonth] = p.period_id;
+              } else if (p.period_type === 'quarterly') {
+                // Map "Q1 (Apr-Jun)" -> period_id
+                periodMap[name] = p.period_id;
+                // Also map short form "Q1"
+                const shortQ = name.match(/Q\d/)?.[0];
+                if (shortQ) periodMap[shortQ] = p.period_id;
+              } else if (p.period_type === 'yearly') {
+                periodMap['Annual'] = p.period_id;
+                periodMap['annual'] = p.period_id;
+                periodMap[name] = p.period_id;
+              }
             });
-            
-            // Map quarterly to first month of quarter
-            periodMap['Q1 (Apr-Jun)'] = periodMap['Apr'];
-            periodMap['Q2 (Jul-Sep)'] = periodMap['Jul'];
-            periodMap['Q3 (Oct-Dec)'] = periodMap['Oct'];
-            periodMap['Q4 (Jan-Mar)'] = periodMap['Jan'];
-            periodMap['Annual'] = periodMap['Apr']; // Use Apr for annual
-            periodMap['annual'] = periodMap['Apr'];
             
             let saved = 0;
             for (const { indicatorId, periodLabel, value } of entries) {
@@ -3861,7 +3866,7 @@ select:focus:not(:focus-visible) { outline: none; }
               }
               
               // Check if target exists
-              const existRes = await fetch(`${url}/rest/v1/indicator_targets?indicator_id=eq.${indicatorId}&period_id=eq.${periodId}&select=id`, { headers: h });
+              const existRes = await fetch(`${url}/rest/v1/indicator_targets?indicator_id=eq.${indicatorId}&period_id=eq.${periodId}&select=indicator_target_id`, { headers: h });
               const existing = existRes.ok ? await existRes.json() : [];
               
               const payload = {
@@ -14013,17 +14018,42 @@ async function populateTopNavMonthDropdown(fyId) {
         }
       }
     } else if (freq === 'quarterly') {
-      // Show quarters
-      monthSel.innerHTML = `
-        <option value="Q1" data-freq="quarterly">Q1 (Apr-Jun)</option>
-        <option value="Q2" data-freq="quarterly">Q2 (Jul-Sep)</option>
-        <option value="Q3" data-freq="quarterly">Q3 (Oct-Dec)</option>
-        <option value="Q4" data-freq="quarterly" selected>Q4 (Jan-Mar)</option>
-      `;
+      // Load quarterly periods from DB
+      const res = await fetch(`${GS_SB_URL}/rest/v1/period?financial_year_id=eq.${fyId}&period_type=eq.quarterly&select=period_id,period_name,quarter_number&order=quarter_number.asc`, { headers: GS_SB_HDR });
+      if (res.ok) {
+        const periods = await res.json();
+        if (periods.length > 0) {
+          // Determine current quarter
+          const now = new Date();
+          const month = now.getMonth(); // 0-11
+          const currQ = month < 3 ? 4 : month < 6 ? 1 : month < 9 ? 2 : 3; // Fiscal year quarters
+          
+          monthSel.innerHTML = periods.map(p => {
+            const isCurrent = p.quarter_number === currQ;
+            return `<option value="${p.period_name}" data-period-id="${p.period_id}" data-freq="quarterly"${isCurrent?' selected':''}>${p.period_name}</option>`;
+          }).join('');
+        } else {
+          // Fallback if no quarterly periods in DB
+          monthSel.innerHTML = `
+            <option value="Q1 (Apr-Jun)" data-freq="quarterly">Q1 (Apr-Jun)</option>
+            <option value="Q2 (Jul-Sep)" data-freq="quarterly">Q2 (Jul-Sep)</option>
+            <option value="Q3 (Oct-Dec)" data-freq="quarterly">Q3 (Oct-Dec)</option>
+            <option value="Q4 (Jan-Mar)" data-freq="quarterly" selected>Q4 (Jan-Mar)</option>
+          `;
+        }
+      }
     } else if (freq === 'annual') {
-      // Show annual
-      const fyName = $('fy-select')?.options[$('fy-select').selectedIndex]?.text || 'Annual';
-      monthSel.innerHTML = `<option value="Annual" data-freq="annual">${fyName}</option>`;
+      // Load yearly period from DB
+      const res = await fetch(`${GS_SB_URL}/rest/v1/period?financial_year_id=eq.${fyId}&period_type=eq.yearly&select=period_id,period_name&limit=1`, { headers: GS_SB_HDR });
+      if (res.ok) {
+        const periods = await res.json();
+        if (periods.length > 0) {
+          monthSel.innerHTML = `<option value="${periods[0].period_name}" data-period-id="${periods[0].period_id}" data-freq="annual">${periods[0].period_name}</option>`;
+        } else {
+          const fyName = $('fy-select')?.options[$('fy-select').selectedIndex]?.text || 'Annual';
+          monthSel.innerHTML = `<option value="Annual" data-freq="annual">${fyName}</option>`;
+        }
+      }
     }
     
     // Update state
