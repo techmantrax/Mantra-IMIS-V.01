@@ -4,7 +4,7 @@
 Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase database. Perform end-to-end code review and ensure all data flows are connected to Supabase with no hardcoded data.
 
 ## Architecture
-- **Frontend**: Single-page HTML application (~16,900 lines) with embedded CSS and JavaScript
+- **Frontend**: Single-page HTML application (~17,000 lines) with embedded CSS and JavaScript
 - **Database**: Supabase (PostgreSQL)
 - **No Backend Server**: Direct Supabase REST API calls from frontend using anon key
 
@@ -17,38 +17,33 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 - Budget Tracker integration with DB programs
 
 ### March 21, 2026 - LFA Setup Bug Fix ✅
-**Issue**: Stakeholder chips not expanding to show outcomes/activities when loading published data
-
-**Fixes Applied**:
-1. Removed pre-adding 'on' class before `lfaToggleStk()` calls
-2. Updated `lfaLoadDraft()` to fall through to `lfaLoadFromPublished()` when draft lacks stakeholders
-3. Added `lfaUpdateISTMRowCount()` function to update ISTM row header counts
-
-### March 21, 2026 - Top Nav FY/Month Dropdowns ✅
-**Feature**: Connected top navigation bar FY and Month dropdowns to database
-
-### March 21, 2026 - Frequency Filter for Monthly Reporting ✅
-**Feature**: Added Frequency filter (Monthly/Quarterly/Annual) to the data entry sheet
+- Fixed stakeholder chips not expanding for published data
+- Added `lfaUpdateISTMRowCount()` function
 
 ### March 21, 2026 - M&E Builder Target Auto-Save ✅
-**Feature**: Target values in M&E Builder now auto-save to database and persist across navigation
+- Target values auto-save to `indicator_targets` table
+- Persist across navigation and publish
+- Load from DB when M&E Builder opens
 
-**Implementation**:
-1. **Auto-save on change** - When user enters a target value and tabs out, it auto-saves after 1 second debounce
-2. **Save to `indicator_targets` table** - Targets saved with indicator_id, period_id, target_value
-3. **Load from DB on page load** - `meb2LoadTargetsFromDB()` fetches saved targets when M&E Builder loads
-4. **Persist after publish** - Targets remain in DB after publishing (not reset)
-5. **Quarterly mapping** - Q1/Q2/Q3/Q4 labels mapped to first month of each quarter (Apr/Jul/Oct/Jan)
+### March 21, 2026 - Monthly Reporting Frequency Filtering ✅
+**Feature**: Proper frequency-based filtering for Monthly Reporting
 
-**Key Functions**:
-- `meb2AutoSaveTarget()` - Debounced queue-based auto-save
-- `meb2FlushTargetQueue()` - Batch save targets to DB
-- `meb2LoadTargetsFromDB()` - Load targets when opening M&E Builder
-- `meb2SaveTargetsToDB()` - Save all targets during publish
+**Top Nav Controls**:
+1. **FY dropdown** - Select financial year
+2. **Frequency dropdown** (NEW) - Monthly / Quarterly / Annual
+3. **Period dropdown** - Changes based on frequency:
+   - Monthly → Shows 12 months (Apr, May, Jun...)
+   - Quarterly → Shows 4 quarters (Q1, Q2, Q3, Q4)
+   - Annual → Shows "Annual"
+
+**How it works**:
+- Select "Monthly" → Period shows months → Only monthly indicators displayed
+- Select "Quarterly" → Period shows quarters → Only quarterly indicators displayed
+- Select "Annual" → Period shows Annual → Only annual indicators displayed
+
+**Filter bar simplified**: Only Interventions + Stakeholders + Search + Show missing/flagged
 
 ## Key DB Schema
-- `program`: {program_id, program_name, program_code}
-- `intervention`: {intervention_id, program_id, intervention_type_id}
 - `indicator`: {indicator_id, frequency, indicator_name, baseline_value}
 - `indicator_targets`: {indicator_target_id, indicator_id, period_id, target_value}
 - `financial_year`: {financial_year_id, fy_name, is_current}
@@ -58,7 +53,6 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 
 ### P1 - Financial Year Wise Data Population
 - [ ] Ensure `financial_year_id` is captured from UI during LFA publish
-- [ ] Save financial year reference in downstream records
 
 ### P1 - Verify Cascading Deletion
 - [ ] When republishing LFA, ensure orphaned activities/indicators are properly deleted
@@ -68,7 +62,7 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 - [ ] Verify saves to `raw_submission` table
 
 ### P3 - Code Refactoring
-- [ ] Modularize the monolithic 16.9k line HTML file (optional)
+- [ ] Modularize the monolithic 17k line HTML file (optional)
 
 ## Files of Reference
 - `/app/src/index.html`: Main application source (edit here)
