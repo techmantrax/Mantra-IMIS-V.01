@@ -4,7 +4,7 @@
 Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase database. Perform end-to-end code review and ensure all data flows are connected to Supabase with no hardcoded data.
 
 ## Architecture
-- **Frontend**: Single-page HTML application (~15,400 lines) with embedded CSS and JavaScript
+- **Frontend**: Single-page HTML application (~16,600 lines) with embedded CSS and JavaScript
 - **Database**: Supabase (PostgreSQL)
 - **No Backend Server**: Direct Supabase REST API calls from frontend using anon key
 
@@ -19,51 +19,61 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 - [x] Fallback to hardcoded data when DB is empty
 - [x] No breaking changes to UI
 
-## What's Been Implemented (March 20, 2026)
+## What's Been Implemented
 
-### Phase 1: Global Data Loader
+### March 20, 2026 - Phase 1-3
 - Created `dbCache` object for caching Supabase data
 - Implemented `loadGlobalDbData()` to fetch all reference data on page load
-- Added helper functions: `getDbPrograms()`, `getDbDistricts()`, `getDbStakeholderLevels()`, etc.
+- Dynamic reference data loading (`builderRefs`)
+- Budget Tracker integration with DB programs
 
-### Phase 2: Dynamic Reference Data
-- `builderRefs` now updates from Supabase:
-  - Programs, Stakeholder Types/Levels
-  - Outcome Categories, Environments, Child Experiences
-  - Interventions, Periods
-- Program dropdowns dynamically populated via `populateProgramDropdowns()`
+### March 21, 2026 - LFA Setup Bug Fix (P0)
+**Issue**: Stakeholder chips not expanding to show outcomes/activities when loading published data
 
-### Phase 3: Budget Tracker Integration
-- `btLoadProgramsFromDb()` merges DB programs with hardcoded grants
-- GOP indicators load from `indicator` table
+**Root Causes Identified & Fixed**:
+1. **Toggle Double-Fire Bug**: Code was adding 'on' class to chips before calling `lfaToggleStk()`, which then toggled it OFF
+2. **Draft vs Published Loading**: When draft exists but has no stakeholders, system wasn't falling through to load from published DB tables
+3. **ISTM Row Count**: The count display (e.g., "0 activities · 0 outcomes") wasn't updating after items were added
 
-### Files Modified
-- `/app/src/index.html` - Main application (all changes)
-- `/app/CODE_REVIEW_REPORT.md` - Detailed review and status
+**Fixes Applied**:
+1. Removed pre-adding 'on' class in `lfaLoadFromPublished`, `lfaRestoreFromDraft`, and import functions
+2. Updated `lfaLoadDraft()` to check if draft has stakeholders before using it; falls through to `lfaLoadFromPublished()` otherwise
+3. Added `lfaUpdateISTMRowCount()` function to update the ISTM row header counts after adding/removing items
+
+**Files Modified**:
+- `/app/src/index.html` - Core fix
+- `/app/frontend/public/mantra.html` - Copy of index.html served by frontend
+
+## Key DB Schema
+- `program`: {program_id, program_name, program_code}
+- `intervention`: {intervention_id, program_id, intervention_type_id}
+- `lfa_outcome`: {lfa_outcome_id, intervention_id, stakeholder_type_id, outcome_statement}
+- `lfa_activity`: {lfa_activity_id, intervention_id, stakeholder_type_id, activity_statement}
+- `lfa_draft`: {program_id, draft_data, is_published, saved_at}
 
 ## Prioritized Backlog
 
-### P0 - Data Seeding Required
-- [ ] Seed `intervention` table (currently empty)
-- [ ] Seed `donor` table (currently empty)
-- [ ] Seed `grants` table (currently empty)
-- [ ] Add more states and districts
+### P1 - Financial Year Wise Data Population
+- [ ] Ensure `financial_year_id` is captured from UI during LFA publish
+- [ ] Save financial year reference in downstream records
 
-### P1 - Budget Tracker Full Integration
-- [ ] Connect grant budget lines to `grant_framework_budget`
-- [ ] Connect monthly actuals to `grant_budget_monthly_actuals`
-- [ ] Connect disbursements to `grant_disbursement_schedule`
+### P1 - Verify Cascading Deletion
+- [ ] When republishing LFA, ensure orphaned activities/indicators are properly deleted
+- [ ] No duplicate data on republish
 
-### P2 - Reporting Module
-- [ ] Save reporting data to `raw_submission`
-- [ ] Load indicator actuals from `indicator_actuals`
-- [ ] Persist published frameworks
+### P2 - Monthly Reporting Data Entry
+- [ ] Test submitting actual indicator data
+- [ ] Verify saves to `raw_submission` table
 
-### P3 - Impact Aggregation
-- [ ] Create views for impact numbers per program
-- [ ] Connect GOP impact data to database
+### P3 - Code Refactoring
+- [ ] Modularize the monolithic 16.6k line HTML file (optional)
 
-## Next Tasks
-1. Seed missing reference data (interventions, donors, grants)
-2. Wire up Budget Tracker to save/load from Supabase
-3. Implement raw_submission persistence for reporting
+## Files of Reference
+- `/app/src/index.html`: Main application source (edit here)
+- `/app/frontend/public/mantra.html`: Served file (copy from src)
+- `/app/CODE_REVIEW_REPORT.md`: Documentation of DB mappings
+
+## Testing Notes
+- Login as "M&E Administrator" role to access LFA Setup
+- MantraX program has published data for testing
+- Preview URL: https://superbase-builder.preview.emergentagent.com/mantra.html

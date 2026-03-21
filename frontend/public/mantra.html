@@ -4822,6 +4822,7 @@ select:focus:not(:focus-visible) { outline: none; }
           }
           const empty=document.getElementById('lfa-oc-empty-'+rowId); if(empty) empty.style.display='none';
           lfaRefreshLinkChips(rowId);
+          lfaUpdateISTMRowCount(rowId);
           document.getElementById('lfa-oc-inp-'+rowId).value='';
           lfaHideAddOC(rowId);
           if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
@@ -4829,7 +4830,20 @@ select:focus:not(:focus-visible) { outline: none; }
         function lfaRemoveOC(ocId,rowId){
           document.getElementById(ocId)?.remove();
           lfaRefreshLinkChips(rowId);
+          lfaUpdateISTMRowCount(rowId);
           if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
+        }
+
+        // Update ISTM row header count display
+        function lfaUpdateISTMRowCount(rowId) {
+          const row = document.getElementById(rowId);
+          if (!row) return;
+          const acCount = row.querySelectorAll('.lfa-ac-row').length;
+          const ocCount = row.querySelectorAll('.lfa-oc-row').length;
+          const warnEl = row.querySelector('.lfa-ir-warn');
+          if (warnEl) {
+            warnEl.textContent = `${acCount} activities \u00b7 ${ocCount} outcomes`;
+          }
         }
 
         // ── Add activity ──────────────────────────────────
@@ -4879,6 +4893,7 @@ select:focus:not(:focus-visible) { outline: none; }
           const empty=document.getElementById('lfa-ac-empty-'+rowId); if(empty) empty.style.display='none';
           document.getElementById('lfa-ac-inp-'+rowId).value='';
           lfaHideAddAC(rowId);
+          lfaUpdateISTMRowCount(rowId);
           if (typeof lfaScheduleAutoSave === 'function') lfaScheduleAutoSave();
         }
 
@@ -5659,13 +5674,18 @@ select:focus:not(:focus-visible) { outline: none; }
             if (!res.ok) return;
             const rows = await res.json();
             
-            // If we have a draft with interventions, use it
-            if (rows.length && rows[0].draft_data?.interventions?.length) {
+            // If we have a draft with interventions that have stakeholders, use draft data
+            const hasDraftWithStakeholders = rows.length && 
+              rows[0].draft_data?.interventions?.length &&
+              rows[0].draft_data.interventions.some(intv => intv.stakeholders?.length > 0);
+            
+            if (hasDraftWithStakeholders) {
               await lfaRestoreFromDraft(rows[0]);
               return;
             }
             
-            // No draft — try to load from published lfa_outcome/lfa_activity tables
+            // If published OR has interventions but no stakeholders — load from DB tables
+            // This ensures published stakeholder/outcome/activity data is always shown
             await lfaLoadFromPublished(progId);
             
           } catch(e) { console.warn('[lfaLoadDraft] Failed:', e); }
@@ -5770,10 +5790,9 @@ select:focus:not(:focus-visible) { outline: none; }
                 // Add stakeholder data
                 Object.keys(intv.stakeholders).forEach(stkName => {
                   const data = intv.stakeholders[stkName];
-                  // Activate stakeholder chip
+                  // Activate stakeholder chip - don't pre-add 'on' class since lfaToggleStk toggles it
                   card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
                     if (chip.textContent.trim() === stkName) {
-                      chip.classList.add('on');
                       lfaToggleStk(chip, card.id, stkName);
                     }
                   });
@@ -5841,10 +5860,9 @@ select:focus:not(:focus-visible) { outline: none; }
               const card = allDynamic[allDynamic.length - 1];
               if (!card) return;
               intv.stakeholders?.forEach(stk => {
-                // Activate stakeholder chip
+                // Activate stakeholder chip - don't pre-add 'on' class since lfaToggleStk toggles it
                 card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
                   if (chip.textContent.trim() === stk.name) {
-                    chip.classList.add('on');
                     lfaToggleStk(chip, card.id, stk.name);
                   }
                 });
@@ -6180,7 +6198,6 @@ select:focus:not(:focus-visible) { outline: none; }
               for (const stk of intv.stakeholders) {
                 card.querySelectorAll('.lfa-stk-chip').forEach(chip => {
                   if (chip.textContent.trim() === stk.name) {
-                    chip.classList.add('on');
                     lfaToggleStk(chip, card.id, stk.name);
                   }
                 });
