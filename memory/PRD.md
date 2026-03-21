@@ -8,11 +8,6 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 - **Database**: Supabase (PostgreSQL)
 - **No Backend Server**: Direct Supabase REST API calls from frontend using anon key
 
-## User Personas
-1. **Admin (M&E Administrator)**: Full access to M&E Builder, LFA Setup, Data Upload
-2. **Manager (Program Manager)**: Grant Management, Budget Tracker, Portfolio
-3. **POC (Program Point of Contact)**: Monthly Reporting, Basic Dashboard
-
 ## What's Been Implemented
 
 ### March 20, 2026 - Phase 1-3
@@ -33,26 +28,31 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 **Feature**: Connected top navigation bar FY and Month dropdowns to database
 
 **Implementation**:
-1. **Financial Year dropdown** (`#fy-select`) - dynamically loaded from `financial_year` table
-2. **Month dropdown** (`#month-select`) - cascaded from `period` table based on selected FY
-3. Created `loadTopNavFYAndMonths()` function to populate FY dropdown on page load
-4. Created `populateTopNavMonthDropdown()` to update months when FY changes
-5. Changing FY/Month reloads the reporting data via `mrLoadFromDB()`
-6. Removed duplicate FY/Period/Frequency filters from the data entry sheet filter bar
+- **Financial Year dropdown** (`#fy-select`) - dynamically loaded from `financial_year` table
+- **Month dropdown** (`#month-select`) - cascaded from `period` table based on selected FY
+- Created `loadTopNavFYAndMonths()` and `populateTopNavMonthDropdown()` functions
+- Changing FY/Month reloads reporting data via `mrLoadFromDB()`
 
-**UI Changes**:
-- Top nav: FY dropdown shows all financial years from DB (e.g., "FY 2025-2026")
-- Top nav: Month dropdown shows all months for selected FY (e.g., "Mar 2026", "Feb 2026", ...)
-- Filter bar: Simplified to only Interventions + Stakeholders filters
+### March 21, 2026 - Frequency Filter for Monthly Reporting ✅
+**Feature**: Added Frequency filter (Monthly/Quarterly/Annual) to the data entry sheet
+
+**Implementation**:
+- Added frequency dropdown (`#poc-sheet-freq`) to filter bar
+- Filter options: All Frequencies, Monthly, Quarterly, Annual
+- Filters indicators by their `freq` field
+- Works with `filterFn` in `makePocSrcBlock` to hide/show indicator rows
+- Integrated with Reset button to clear filter
+
+**UI Layout**:
+- Top nav: FY dropdown | Month dropdown
+- Filter bar: Frequency filter | Interventions filter | Stakeholders filter | Search | Show missing | Show flagged | Reset
 
 ## Key DB Schema
 - `program`: {program_id, program_name, program_code}
 - `intervention`: {intervention_id, program_id, intervention_type_id}
-- `lfa_outcome`: {lfa_outcome_id, intervention_id, stakeholder_type_id, outcome_statement}
-- `lfa_activity`: {lfa_activity_id, intervention_id, stakeholder_type_id, activity_statement}
 - `indicator`: {indicator_id, frequency, indicator_name}
-- `financial_year`: {financial_year_id, fy_name, is_current, start_date, end_date}
-- `period`: {period_id, financial_year_id, period_name, period_type, start_date}
+- `financial_year`: {financial_year_id, fy_name, is_current}
+- `period`: {period_id, financial_year_id, period_name, period_type}
 
 ## Prioritized Backlog
 
@@ -62,7 +62,6 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 
 ### P1 - Verify Cascading Deletion
 - [ ] When republishing LFA, ensure orphaned activities/indicators are properly deleted
-- [ ] No duplicate data on republish
 
 ### P2 - Monthly Reporting Data Entry Persistence
 - [ ] Test submitting actual indicator data
@@ -74,7 +73,6 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 ## Files of Reference
 - `/app/src/index.html`: Main application source (edit here)
 - `/app/frontend/public/mantra.html`: Served file (copy from src after edits)
-- `/app/CODE_REVIEW_REPORT.md`: Documentation of DB mappings
 
 ## Testing Notes
 - Login as "M&E Administrator" role to access LFA Setup

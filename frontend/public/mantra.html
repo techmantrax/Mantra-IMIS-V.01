@@ -2055,6 +2055,16 @@ select:focus:not(:focus-visible) { outline: none; }
 
         <!-- quick filter / export bar -->
         <div class="poc-filter-bar">
+          <!-- Frequency dropdown -->
+          <div class="poc-sheet-sel-wrap" id="poc-sheet-freq-wrap">
+            <select class="poc-sheet-sel" id="poc-sheet-freq" aria-label="Filter by frequency">
+              <option value="">All Frequencies</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="annual">Annual</option>
+            </select>
+          </div>
+          <div class="poc-filter-sep"></div>
           <!-- Intervention dropdown -->
           <div class="poc-sheet-sel-wrap" id="poc-sheet-intv-wrap">
             <select class="poc-sheet-sel" id="poc-sheet-intv" aria-label="Filter by intervention">
@@ -12215,6 +12225,7 @@ function renderSheet() {
   const searchQ  = ($('poc-search')?.value      || '').toLowerCase().trim();
   const selIntv  = $('poc-sheet-intv')?.value   || '';
   const selStk   = $('poc-sheet-stk')?.value    || '';
+  const selFreq  = $('poc-sheet-freq')?.value   || '';
 
   const rows = allRows.filter(r => {
     if (state.showMissing && r.value !== '') return false;
@@ -12222,6 +12233,7 @@ function renderSheet() {
     if (searchQ && !r.indicator.toLowerCase().includes(searchQ)) return false;
     if (selIntv && (r.intv||'General') !== selIntv) return false;
     if (selStk  && (r.stakeholder||'General') !== selStk) return false;
+    if (selFreq && (r.freq||'monthly') !== selFreq) return false;
     return true;
   });
 
@@ -12244,6 +12256,8 @@ function renderSheet() {
       stks.map(v => `<option value="${esc(v)}"${selStk===v?' selected':''}>${esc(v)}</option>`).join('');
     $('poc-sheet-stk-wrap')?.classList.toggle('active', selStk !== '');
   }
+  // Update frequency filter visual state
+  $('poc-sheet-freq-wrap')?.classList.toggle('active', selFreq !== '');
 
   // ── Empty state ──────────────────────────────────────────────────
   if (allRows.length === 0) {
@@ -12341,6 +12355,7 @@ function renderSheet() {
         if (state.showMissing && r.value !== '') return false;
         if (state.showFlagged && !r.flagged)     return false;
         if (searchQ && !r.indicator.toLowerCase().includes(searchQ)) return false;
+        if (selFreq && (r.freq||'monthly') !== selFreq) return false;
         return true;
       };
 
@@ -13673,9 +13688,10 @@ $('btn-back-to-programs').addEventListener('click', () => showPage('data-entry')
 // ── POC search input (new grouped sheet) ──
 $('poc-search')?.addEventListener('input', () => renderSheet());
 
-// ── Sheet Intervention + Stakeholder dropdowns ──
+// ── Sheet Intervention + Stakeholder + Frequency dropdowns ──
 $('poc-sheet-intv')?.addEventListener('change', () => renderSheet());
 $('poc-sheet-stk')?.addEventListener('change',  () => renderSheet());
+$('poc-sheet-freq')?.addEventListener('change', () => renderSheet());
 
 // ── Load Financial Years and Months for Top Nav dropdowns ──
 async function loadTopNavFYAndMonths() {
@@ -13761,6 +13777,7 @@ $('chip-reset').addEventListener('click', () => {
   const ps = $('poc-search'); if (ps) ps.value = '';
   const si = $('poc-sheet-intv'); if (si) si.value = '';
   const ss = $('poc-sheet-stk');  if (ss) ss.value = '';
+  const sf = $('poc-sheet-freq'); if (sf) sf.value = '';
   // Rebuild the filter panel so all selects reset to "All" correctly
   populateSheetFilters(state.program);
   renderSheet();
