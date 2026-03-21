@@ -3039,6 +3039,7 @@ select:focus:not(:focus-visible) { outline: none; }
         let meb2Groups  = [];
         let meb2Prog    = null;
         let meb2NextId  = 1;
+        const meb2Esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 
         function meb2NewIndRow(name) {
           return { id: meb2NextId++, name: name || '', abbr: '', unit: 'count',
@@ -3650,7 +3651,7 @@ select:focus:not(:focus-visible) { outline: none; }
             if (q && !hasExact) {
               const cr = document.createElement('div');
               cr.className = 'lfa-combo-create';
-              cr.innerHTML = `${IC.plus} Create new: "${q}"`;
+              cr.innerHTML = `${IC.plus} Create new: "${meb2Esc(q)}"`;
               cr.addEventListener('mousedown', e => {
                 e.preventDefault();
                 inp._selectedIndLib = null;
@@ -4563,14 +4564,14 @@ select:focus:not(:focus-visible) { outline: none; }
         function lfaAddChip(gridId,inpId){
           const inp=document.getElementById(inpId); const val=inp?.value.trim(); if(!val) return;
           const g=document.getElementById(gridId); const s=document.createElement('span'); s.className='lfa-chip';
-          s.innerHTML=val+'<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button>';
+          s.innerHTML=lfaEsc(val)+'<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button>';
           g.appendChild(s); inp.value='';
         }
         function lfaAddCodeChip(gridId,nameId,codeId){
           const n=document.getElementById(nameId)?.value.trim(); const c=document.getElementById(codeId)?.value.trim().toUpperCase();
           if(!n) return;
           const g=document.getElementById(gridId); const s=document.createElement('span'); s.className='lfa-chip';
-          s.innerHTML=(c?'<span class="lfa-chip-code">'+c+'</span> ':'')+n+'<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button>';
+          s.innerHTML=(c?'<span class="lfa-chip-code">'+lfaEsc(c)+'</span> ':'')+lfaEsc(n)+'<button class="lfa-chip-x" onclick="this.parentElement.remove()">&#x2715;</button>';
           g.appendChild(s); document.getElementById(nameId).value=''; if(document.getElementById(codeId)) document.getElementById(codeId).value='';
         }
 
@@ -4919,7 +4920,7 @@ select:focus:not(:focus-visible) { outline: none; }
             if (q && !hasExact) {
               const cr = document.createElement('div');
               cr.className = 'lfa-combo-create';
-              cr.innerHTML = `${IC.plus} Create new: "${q}"`;
+              cr.innerHTML = `${IC.plus} Create new: "${lfaEsc(q)}"`;
               cr.addEventListener('mousedown', e => {
                 e.preventDefault();
                 inp._selectedLib = null;
@@ -10547,12 +10548,15 @@ function mebkShowImportPreview(key, rows) {
   body.innerHTML = `
     <table class="mebk-import-table">
       <thead><tr><th>Action</th>${cols.map(c=>`<th>${c.h}</th>`).join('')}<th>Note</th></tr></thead>
-      <tbody>${rows.map(r => `
-        <tr class="${r._action}">
-          <td><span class="mebk-import-badge ${r._action}">${r._action.toUpperCase()}</span></td>
-          ${cols.map(c=>`<td>${r[c.k]??''}</td>`).join('')}
-          <td style="color:var(--warn);font-size:11px;">${r._error||''}</td>
-        </tr>`).join('')}
+      <tbody>${rows.map(r => {
+        const action = ['new','update','error'].includes(r._action) ? r._action : 'error';
+        return `
+        <tr class="${action}">
+          <td><span class="mebk-import-badge ${action}">${action.toUpperCase()}</span></td>
+          ${cols.map(c=>`<td>${esc(r[c.k] ?? '')}</td>`).join('')}
+          <td style="color:var(--warn);font-size:11px;">${esc(r._error || '')}</td>
+        </tr>`;
+      }).join('')}
       </tbody>
     </table>`;
   document.getElementById('mebk-import-modal').classList.add('open');
@@ -10658,14 +10662,14 @@ function mebkRefRender(key) {
   if (!items.length) { list.innerHTML = '<div class="mebk-empty">No items found.</div>'; return; }
   list.innerHTML = items.map(i => {
     const id = i[cfg.idCol];
-    const badge = `<span style="font-size:10px;font-weight:700;font-family:var(--mono);background:var(--mist-2);padding:2px 7px;border-radius:4px;color:var(--slate);white-space:nowrap;">${i[cfg.codeCol]||'—'}</span>`;
+    const badge = `<span style="font-size:10px;font-weight:700;font-family:var(--mono);background:var(--mist-2);padding:2px 7px;border-radius:4px;color:var(--slate);white-space:nowrap;">${esc(i[cfg.codeCol]||'—')}</span>`;
     const activeDot = cfg.hasActive ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${i.is_active?'var(--ok)':'var(--mist-3)'};margin-right:4px;"></span>` : '';
-    const geoLevel = cfg.geoCol && i[cfg.geoCol] ? `<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#ccfbf1;color:#0d9488;white-space:nowrap;">${i[cfg.geoCol]}</span>` : '';
+    const geoLevel = cfg.geoCol && i[cfg.geoCol] ? `<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:#ccfbf1;color:#0d9488;white-space:nowrap;">${esc(i[cfg.geoCol])}</span>` : '';
     return `<div class="mebk-ref-row" style="grid-template-columns:${cfg.geoCol?'100px 1fr 100px 1fr 96px':'100px 1fr 1fr 96px'};" id="mebk-ref-row-${key}-${id}">
       ${badge}
-      <span style="display:flex;align-items:center;gap:6px;">${activeDot}<strong style="font-size:13px;">${i[cfg.nameCol]||'—'}</strong></span>
+      <span style="display:flex;align-items:center;gap:6px;">${activeDot}<strong style="font-size:13px;">${esc(i[cfg.nameCol]||'—')}</strong></span>
       ${cfg.geoCol ? geoLevel : ''}
-      <span style="color:var(--slate);font-size:12px;">${i[cfg.descCol]||''}</span>
+      <span style="color:var(--slate);font-size:12px;">${esc(i[cfg.descCol]||'')}</span>
       <span style="display:flex;gap:4px;justify-content:flex-end;">
         ${cfg.hasActive ? `<button class="mebk-action-btn edit" title="${i.is_active?'Deactivate':'Activate'}" onclick="mebkRefToggleActive('${key}','${id}',${!i.is_active})" style="font-size:10px;padding:2px 6px;">${i.is_active?'Off':'On'}</button>` : ''}
         <button class="mebk-action-btn edit" title="Edit" onclick="mebkRefEdit('${key}','${id}')">${IC.edit}</button>
@@ -11020,22 +11024,40 @@ async function mebkLoadAcContent(acId) {
 }
 
 // ── Indicator grid & form builders ─────────────────
+function mebkEditIndFromEncoded(indId, pfx, parentId, encoded) {
+  let indObj = {};
+  try { indObj = JSON.parse(decodeURIComponent(encoded || '')); } catch { indObj = {}; }
+  mebkEditInd(indId, pfx, parentId, indObj);
+}
+
 function mebkBuildIndGrid(indicators, pfx, parentId) {
   if (!Array.isArray(indicators) || !indicators.length)
     return '<div class="mebk-no-data">No indicators yet — click "+ Add Indicator" below</div>';
   return `
     <div class="mebk-ind-grid">
       <div class="mebk-ind-hdr" style="grid-template-columns:100px 1fr 90px 56px;"><span>Code</span><span>Indicator Name</span><span>Unit</span><span></span></div>
-      ${indicators.map(i => `
-        <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 56px;" id="mebk-ind-row-${i.indicator_id}">
-          <span class="mebk-ind-code">${i.indicator_code || '—'}</span>
-          <span>${i.indicator_name || '—'}</span>
-          <span style="color:var(--slate)">${i.unit_of_measure || '—'}</span>
+      ${indicators.map(i => {
+        const encodedInd = esc(encodeURIComponent(JSON.stringify(i || {})));
+        return `
+        <div class="mebk-ind-row" style="grid-template-columns:100px 1fr 90px 56px;" id="mebk-ind-row-${esc(i.indicator_id)}">
+          <span class="mebk-ind-code">${esc(i.indicator_code || '—')}</span>
+          <span>${esc(i.indicator_name || '—')}</span>
+          <span style="color:var(--slate)">${esc(i.unit_of_measure || '—')}</span>
           <span style="display:flex;gap:4px;align-items:center;">
-            <button class="mebk-action-btn edit" title="Edit" onclick="mebkEditInd('${i.indicator_id}','${pfx}','${parentId}',${JSON.stringify(i)})">${IC.edit}</button>
-            <button class="mebk-action-btn del"  title="Delete" onclick="mebkDeleteInd('${i.indicator_id}','${pfx}','${parentId}')">${IC.trash}</button>
+            <button class="mebk-action-btn edit" title="Edit"
+              data-ind-id="${esc(i.indicator_id)}"
+              data-pfx="${esc(pfx)}"
+              data-parent-id="${esc(parentId)}"
+              data-ind="${encodedInd}"
+              onclick="mebkEditIndFromEncoded(this.dataset.indId,this.dataset.pfx,this.dataset.parentId,this.dataset.ind)">${IC.edit}</button>
+            <button class="mebk-action-btn del"  title="Delete"
+              data-ind-id="${esc(i.indicator_id)}"
+              data-pfx="${esc(pfx)}"
+              data-parent-id="${esc(parentId)}"
+              onclick="mebkDeleteInd(this.dataset.indId,this.dataset.pfx,this.dataset.parentId)">${IC.trash}</button>
           </span>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
     </div>`;
 }
 function mebkBuildIndForm(pfx, parentId) {
@@ -11149,6 +11171,12 @@ function mebkShowImForm() {
   if (f) { f.style.display = 'flex'; document.getElementById('mebk-im-stmt')?.focus(); }
 }
 
+function mebkEditImFromEncoded(imId, encoded) {
+  let imObj = {};
+  try { imObj = JSON.parse(decodeURIComponent(encoded || '')); } catch { imObj = {}; }
+  mebkEditIm(imId, imObj);
+}
+
 async function mebkLoadImpacts() {
   const el = document.getElementById('mebk-impacts-list');
   if (el) el.innerHTML = '<div class="mebk-loading">Loading…</div>';
@@ -11185,18 +11213,19 @@ async function mebkLoadImpacts() {
     el2.innerHTML = data.map(im => {
       const isActive = im.is_active !== false;
       const catName  = im.impact_category?.category_name || '';
+      const encodedIm = esc(encodeURIComponent(JSON.stringify(im || {})));
       const sw = mebkSwitch(isActive, `mebkSetActiveIm('${im.impact_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
       return `
-      <div class="mebk-im-card${isActive ? '' : ' inactive'}" id="mebk-im-${im.impact_id}">
-        <div class="mebk-im-hd" onclick="mebkToggleIm('${im.impact_id}')">
-          <span class="mebk-im-code">${im.impact_code || '—'}</span>
-          <span class="mebk-im-stmt">${im.impact_statement || '—'}</span>
-          ${catName ? `<span class="mebk-im-cat-badge">${catName}</span>` : ''}
-          <button class="mebk-action-btn edit" title="Edit" onclick="event.stopPropagation();mebkEditIm('${im.impact_id}',${JSON.stringify(im).replace(/"/g,'&quot;')})">${IC.edit}</button>
+      <div class="mebk-im-card${isActive ? '' : ' inactive'}" id="mebk-im-${esc(im.impact_id)}">
+        <div class="mebk-im-hd" data-im-id="${esc(im.impact_id)}" onclick="mebkToggleIm(this.dataset.imId)">
+          <span class="mebk-im-code">${esc(im.impact_code || '—')}</span>
+          <span class="mebk-im-stmt">${esc(im.impact_statement || '—')}</span>
+          ${catName ? `<span class="mebk-im-cat-badge">${esc(catName)}</span>` : ''}
+          <button class="mebk-action-btn edit" title="Edit" data-im-id="${esc(im.impact_id)}" data-im="${encodedIm}" onclick="event.stopPropagation();mebkEditImFromEncoded(this.dataset.imId,this.dataset.im)">${IC.edit}</button>
           ${sw}
           <span class="mebk-chevron">${IC.chevronDown}</span>
         </div>
-        <div class="mebk-im-body" id="mebk-im-body-${im.impact_id}" style="display:none;"></div>
+        <div class="mebk-im-body" id="mebk-im-body-${esc(im.impact_id)}" style="display:none;"></div>
       </div>`;
     }).join('');
   } catch(e) {
@@ -12412,6 +12441,87 @@ function updateActiveFilterChips() {
   });
 }
 
+const MR_PERIOD_FREQ_RANK = { monthly: 0, quarterly: 1, annual: 2, unknown: 9 };
+const MR_FISCAL_MONTH_INDEX = {
+  apr: 0, april: 0,
+  may: 1,
+  jun: 2, june: 2,
+  jul: 3, july: 3,
+  aug: 4, august: 4,
+  sep: 5, sept: 5, september: 5,
+  oct: 6, october: 6,
+  nov: 7, november: 7,
+  dec: 8, december: 8,
+  jan: 9, january: 9,
+  feb: 10, february: 10,
+  mar: 11, march: 11
+};
+
+function mrNormFreq(freq) {
+  const f = String(freq || '').toLowerCase();
+  if (f === 'monthly' || f === 'quarterly') return f;
+  if (f === 'annual' || f === 'yearly') return 'annual';
+  return '';
+}
+
+function mrToFullYear(yearText) {
+  const y = parseInt(yearText, 10);
+  if (Number.isNaN(y)) return 0;
+  return String(yearText).length === 2 ? (2000 + y) : y;
+}
+
+function mrInferPeriodFreq(label) {
+  const s = String(label || '').trim();
+  if (!s) return 'unknown';
+  if (/(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)/i.test(s)) return 'monthly';
+  if (/\bq[1-4]\b/i.test(s) || /\bquarter\b/i.test(s)) return 'quarterly';
+  if (/\bannual\b/i.test(s) || /\bfy\b/i.test(s) || /\byear\b/i.test(s)) return 'annual';
+  return 'unknown';
+}
+
+function mrPeriodYear(label) {
+  const s = String(label || '');
+  const fy = s.match(/fy\s*'?\s*(\d{2,4})/i);
+  if (fy) return mrToFullYear(fy[1]);
+  const y4 = s.match(/\b(19\d{2}|20\d{2})\b/);
+  if (y4) return parseInt(y4[1], 10);
+  return 0;
+}
+
+function mrPeriodMonthIndex(label) {
+  const s = String(label || '');
+  const m = s.match(/\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i);
+  if (!m) return 99;
+  return MR_FISCAL_MONTH_INDEX[m[1].toLowerCase()] ?? 99;
+}
+
+function mrPeriodQuarterIndex(label) {
+  const s = String(label || '');
+  const q = s.match(/\bq([1-4])\b/i) || s.match(/\bquarter\s*([1-4])\b/i);
+  if (!q) return 99;
+  return (parseInt(q[1], 10) || 99) - 1;
+}
+
+function mrPeriodMeta(label, freqHint = '') {
+  const txt = String(label || '').trim();
+  const freq = mrNormFreq(freqHint) || mrInferPeriodFreq(txt);
+  const rank = MR_PERIOD_FREQ_RANK[freq] ?? MR_PERIOD_FREQ_RANK.unknown;
+  let slot = 99;
+  if (freq === 'monthly') slot = mrPeriodMonthIndex(txt);
+  else if (freq === 'quarterly') slot = mrPeriodQuarterIndex(txt);
+  else if (freq === 'annual') slot = 0;
+  return { rank, year: mrPeriodYear(txt), slot, txt: txt.toLowerCase() };
+}
+
+function mrComparePeriodLabels(a, b, freqA = '', freqB = '') {
+  const A = mrPeriodMeta(a, freqA);
+  const B = mrPeriodMeta(b, freqB);
+  if (A.rank !== B.rank) return A.rank - B.rank;
+  if (A.year !== B.year) return A.year - B.year;
+  if (A.slot !== B.slot) return A.slot - B.slot;
+  return A.txt.localeCompare(B.txt);
+}
+
 function populateSheetFilters(program) {
   const container = $('dynamic-filter-groups');
   if (!container) return;
@@ -12419,7 +12529,23 @@ function populateSheetFilters(program) {
   // Build refs from actual published rows for this program (covers LFA-sourced + seed)
   const pf = publishedFrameworkByProg[program];
   const progRows = pf ? pf.rows.filter(r => r.prog === program) : [];
-  const uniq = field => [...new Set(progRows.map(r=>r[field]).filter(Boolean))].sort();
+  const selectedFreq = mrNormFreq($('freq-select')?.value || 'monthly');
+  const freqRows = progRows.filter(r => mrNormFreq(r.freq || 'monthly') === selectedFreq);
+  const rowsForPeriodOpts = freqRows.length ? freqRows : progRows;
+  const periodFreqMap = {};
+  rowsForPeriodOpts.forEach(r => {
+    if (!r.period) return;
+    periodFreqMap[r.period] = mrNormFreq(r.freq || selectedFreq);
+  });
+  const sortedTextValues = vals => [...vals].sort((a, b) => String(a).localeCompare(String(b)));
+  const sortValues = (field, vals) => {
+    if (field !== 'period') return sortedTextValues(vals);
+    return [...vals].sort((a, b) => mrComparePeriodLabels(a, b, periodFreqMap[a], periodFreqMap[b]));
+  };
+  const uniq = field => {
+    const rows = field === 'period' ? rowsForPeriodOpts : progRows;
+    return sortValues(field, [...new Set(rows.map(r => r[field]).filter(Boolean))]);
+  };
   const refs = {
     interventions: uniq('intv'), types: uniq('type'), stakeholders: uniq('stk'),
     environments: uniq('env'), childexp: uniq('child'), activities: uniq('activity'),
@@ -12428,7 +12554,10 @@ function populateSheetFilters(program) {
   };
 
   // presentValues uses the same progRows (reporting rows include actual value + target fields)
-  const presentValues = (field) => [...new Set(progRows.map(r => r[field]).filter(Boolean))].sort();
+  const presentValues = (field) => {
+    const rows = field === 'period' ? rowsForPeriodOpts : progRows;
+    return sortValues(field, [...new Set(rows.map(r => r[field]).filter(Boolean))]);
+  };
 
   // Update source label — use the per-program snapshot, not the global pointer
   const lbl = $('filter-source-label');
@@ -14071,6 +14200,7 @@ $('freq-select')?.addEventListener('change', async () => {
   // Reload reporting data with new frequency filter
   if (state.route === 'data-entry-sheet') {
     await mrLoadFromDB(state.program, state.month, state.fy);
+    populateSheetFilters(state.program);
     renderSheet();
   }
 });
@@ -14196,9 +14326,11 @@ async function mrLoadAllPublishedIndicators() {
       if (publishedFrameworkByProg[progName]) continue;
 
       // Fetch interventions for this program
-      const intRes = await fetch(`${GS_SB_URL}/rest/v1/intervention?program_id=eq.${progId}&is_active=eq.true&select=intervention_id`, { headers: GS_SB_HDR });
+      const intRes = await fetch(`${GS_SB_URL}/rest/v1/intervention?program_id=eq.${progId}&is_active=eq.true&select=intervention_id,intervention_name`, { headers: GS_SB_HDR });
       const interventions = intRes.ok ? await intRes.json() : [];
       const intIds = interventions.map(i => i.intervention_id);
+      const intMap = {};
+      interventions.forEach(i => { intMap[i.intervention_id] = i.intervention_name || progName; });
 
       if (!intIds.length) {
         console.log(`[mrLoadAllPublishedIndicators] No interventions for ${progName}`);
@@ -14206,14 +14338,16 @@ async function mrLoadAllPublishedIndicators() {
         continue;
       }
 
-      // Fetch LFA outcomes/activities for these interventions
-      const [ocRes, acRes] = await Promise.all([
-        fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=lfa_outcome_id`, { headers: GS_SB_HDR }),
-        fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=lfa_activity_id`, { headers: GS_SB_HDR })
+      // Fetch LFA outcomes/activities + intervention-stakeholder mappings
+      const [ocRes, acRes, istmRes] = await Promise.all([
+        fetch(`${GS_SB_URL}/rest/v1/lfa_outcome?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=lfa_outcome_id,intervention_id,stakeholder_type_id,outcome_statement,outcome_category,outcome_code`, { headers: GS_SB_HDR }),
+        fetch(`${GS_SB_URL}/rest/v1/lfa_activity?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=lfa_activity_id,intervention_id,stakeholder_type_id,activity_statement,activity_category,activity_code`, { headers: GS_SB_HDR }),
+        fetch(`${GS_SB_URL}/rest/v1/intervention_stakeholder_type_map?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=intervention_stakeholder_type_map_id,intervention_id,stakeholder_type_id`, { headers: GS_SB_HDR })
       ]);
 
       const outcomes = ocRes.ok ? await ocRes.json() : [];
       const activities = acRes.ok ? await acRes.json() : [];
+      const istmRows = istmRes.ok ? await istmRes.json() : [];
 
       const outcomeIds = outcomes.map(o => o.lfa_outcome_id);
       const activityIds = activities.map(a => a.lfa_activity_id);
@@ -14222,6 +14356,26 @@ async function mrLoadAllPublishedIndicators() {
         console.log(`[mrLoadAllPublishedIndicators] No LFA data for ${progName}`);
         publishedFrameworkByProg[progName] = { rows: [], refs: {}, ts: new Date(), count: 0, prog: progName };
         continue;
+      }
+
+      const outcomeMap = {};
+      outcomes.forEach(o => { outcomeMap[o.lfa_outcome_id] = o; });
+      const activityMap = {};
+      activities.forEach(a => { activityMap[a.lfa_activity_id] = a; });
+      const istmMap = {};
+      const stakeholderTypeIds = new Set();
+      outcomes.forEach(o => { if (o.stakeholder_type_id) stakeholderTypeIds.add(o.stakeholder_type_id); });
+      activities.forEach(a => { if (a.stakeholder_type_id) stakeholderTypeIds.add(a.stakeholder_type_id); });
+      istmRows.forEach(m => {
+        istmMap[m.intervention_stakeholder_type_map_id] = m;
+        if (m.stakeholder_type_id) stakeholderTypeIds.add(m.stakeholder_type_id);
+      });
+
+      const stkMap = {};
+      if (stakeholderTypeIds.size > 0) {
+        const stkRes = await fetch(`${GS_SB_URL}/rest/v1/stakeholder_type?stakeholder_type_id=in.(${[...stakeholderTypeIds].join(',')})&select=stakeholder_type_id,type_name`, { headers: GS_SB_HDR });
+        const stks = stkRes.ok ? await stkRes.json() : [];
+        stks.forEach(s => { stkMap[s.stakeholder_type_id] = s.type_name; });
       }
 
       // Build query for indicators linked to this program's outcomes/activities
@@ -14234,26 +14388,40 @@ async function mrLoadAllPublishedIndicators() {
       }
 
       const indRes = await fetch(
-        `${GS_SB_URL}/rest/v1/indicator?or=(${orClauses.join(',')})&is_active=eq.true&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id`,
+        `${GS_SB_URL}/rest/v1/indicator?or=(${orClauses.join(',')})&is_active=eq.true&select=indicator_id,indicator_name,indicator_code,unit_of_measure,frequency,direction,lfa_outcome_id,lfa_activity_id,intervention_stakeholder_type_map_id`,
         { headers: GS_SB_HDR }
       );
 
       const indicators = indRes.ok ? await indRes.json() : [];
       
-      const rows = indicators.map((ind, idx) => ({
-        id: ind.indicator_id || (Date.now() + idx),
-        prog: progName,
-        fy: '2025-26',
-        name: ind.indicator_name,
-        code: ind.indicator_code || '',
-        unit: ind.unit_of_measure || 'count',
-        freq: ind.frequency || 'monthly',
-        active: true,
-        target: '',
-        type: ind.lfa_outcome_id ? 'Outcome' : 'Output',
-        sourceType: ind.lfa_outcome_id ? 'outcome' : 'activity',
-        dir: ind.direction || 'increase',
-      }));
+      const rows = indicators.map((ind, idx) => {
+        const oc = ind.lfa_outcome_id ? outcomeMap[ind.lfa_outcome_id] : null;
+        const ac = ind.lfa_activity_id ? activityMap[ind.lfa_activity_id] : null;
+        const istm = ind.intervention_stakeholder_type_map_id ? istmMap[ind.intervention_stakeholder_type_map_id] : null;
+        const sourceType = oc ? 'outcome' : 'activity';
+        const stkTypeId = (oc && oc.stakeholder_type_id) || (ac && ac.stakeholder_type_id) || (istm && istm.stakeholder_type_id) || null;
+        const intId = (oc && oc.intervention_id) || (ac && ac.intervention_id) || (istm && istm.intervention_id) || null;
+        return {
+          id: ind.indicator_id || (Date.now() + idx),
+          prog: progName,
+          fy: '2025-26',
+          intv: intMap[intId] || progName,
+          stk: stkTypeId ? (stkMap[stkTypeId] || 'Unknown') : 'Unknown',
+          name: ind.indicator_name,
+          code: ind.indicator_code || '',
+          unit: ind.unit_of_measure || 'count',
+          freq: ind.frequency || 'monthly',
+          active: true,
+          target: '',
+          type: sourceType === 'outcome' ? 'Outcome' : 'Output',
+          sourceType,
+          sourceCode: sourceType === 'outcome' ? (oc?.outcome_code || '') : (ac?.activity_code || ''),
+          activity: sourceType === 'activity' ? (ac?.activity_statement || '') : '',
+          outcome: sourceType === 'outcome' ? (oc?.outcome_statement || '') : '',
+          outcomeCategory: sourceType === 'outcome' ? (oc?.outcome_category || '') : '',
+          dir: ind.direction || 'increase',
+        };
+      });
 
       publishedFrameworkByProg[progName] = {
         rows, refs: {}, ts: new Date(), count: rows.length, prog: progName
