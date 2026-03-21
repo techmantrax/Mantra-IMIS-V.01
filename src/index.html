@@ -5674,16 +5674,40 @@ select:focus:not(:focus-visible) { outline: none; }
                     outcomeCount++;
                     
                     // Auto-create indicator for this outcome
+                    // First check if there's a template indicator in M&E Book for this outcome
                     if (newOcId && defaultIndCatId) {
+                      let indicatorName = oc.stmt;
+                      let indicatorUnit = 'percentage';
+                      let indicatorFreq = 'quarterly';
+                      
+                      // Try to find matching template indicator by outcome code/statement
+                      const templateRes = await fetch(`${url}/rest/v1/indicator?is_template=eq.true&is_active=eq.true&select=indicator_name,unit_of_measure,frequency`, { headers: h });
+                      if (templateRes.ok) {
+                        const templates = await templateRes.json();
+                        // Match by similar statement (case insensitive)
+                        const matchingTemplate = templates.find(t => 
+                          t.indicator_name && (
+                            t.indicator_name.toLowerCase().includes(oc.stmt.substring(0, 30).toLowerCase()) ||
+                            oc.stmt.toLowerCase().includes(t.indicator_name.substring(0, 30).toLowerCase())
+                          )
+                        );
+                        if (matchingTemplate) {
+                          indicatorName = matchingTemplate.indicator_name;
+                          indicatorUnit = matchingTemplate.unit_of_measure || 'percentage';
+                          indicatorFreq = matchingTemplate.frequency || 'quarterly';
+                          console.log('[lfaSaveFrameworkToDB] Using template indicator:', indicatorName);
+                        }
+                      }
+                      
                       await fetch(`${url}/rest/v1/indicator`, {
                         method: 'POST',
                         headers: { ...h, 'Prefer': 'return=minimal' },
                         body: JSON.stringify({
-                          indicator_name: oc.stmt,
+                          indicator_name: indicatorName,
                           indicator_code: `IND-OC-${outcomeCount}`,
                           indicator_category_id: defaultIndCatId,
-                          unit_of_measure: 'percentage',
-                          frequency: 'quarterly',
+                          unit_of_measure: indicatorUnit,
+                          frequency: indicatorFreq,
                           direction: 'increase',
                           lfa_outcome_id: newOcId,
                           lfa_activity_id: null,
@@ -5717,16 +5741,40 @@ select:focus:not(:focus-visible) { outline: none; }
                     activityCount++;
                     
                     // Auto-create indicator for this activity
+                    // First check if there's a template indicator in M&E Book for this activity
                     if (newAcId && defaultIndCatId) {
+                      let indicatorName = `No. of ${ac.stmt.toLowerCase()}`;
+                      let indicatorUnit = 'count';
+                      let indicatorFreq = 'monthly';
+                      
+                      // Try to find matching template indicator by activity statement
+                      const templateRes = await fetch(`${url}/rest/v1/indicator?is_template=eq.true&is_active=eq.true&select=indicator_name,unit_of_measure,frequency`, { headers: h });
+                      if (templateRes.ok) {
+                        const templates = await templateRes.json();
+                        // Match by similar statement (case insensitive)
+                        const matchingTemplate = templates.find(t => 
+                          t.indicator_name && (
+                            t.indicator_name.toLowerCase().includes(ac.stmt.substring(0, 30).toLowerCase()) ||
+                            ac.stmt.toLowerCase().includes(t.indicator_name.substring(0, 30).toLowerCase())
+                          )
+                        );
+                        if (matchingTemplate) {
+                          indicatorName = matchingTemplate.indicator_name;
+                          indicatorUnit = matchingTemplate.unit_of_measure || 'count';
+                          indicatorFreq = matchingTemplate.frequency || 'monthly';
+                          console.log('[lfaSaveFrameworkToDB] Using template indicator:', indicatorName);
+                        }
+                      }
+                      
                       await fetch(`${url}/rest/v1/indicator`, {
                         method: 'POST',
                         headers: { ...h, 'Prefer': 'return=minimal' },
                         body: JSON.stringify({
-                          indicator_name: `No. of ${ac.stmt.toLowerCase()}`,
+                          indicator_name: indicatorName,
                           indicator_code: `IND-AC-${activityCount}`,
                           indicator_category_id: defaultIndCatId,
-                          unit_of_measure: 'count',
-                          frequency: 'monthly',
+                          unit_of_measure: indicatorUnit,
+                          frequency: indicatorFreq,
                           direction: 'increase',
                           lfa_outcome_id: null,
                           lfa_activity_id: newAcId,
