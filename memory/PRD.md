@@ -4,7 +4,7 @@
 Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase database. Perform end-to-end code review and ensure all data flows are connected to Supabase with no hardcoded data.
 
 ## Architecture
-- **Frontend**: Single-page HTML application (~16,700 lines) with embedded CSS and JavaScript
+- **Frontend**: Single-page HTML application (~16,900 lines) with embedded CSS and JavaScript
 - **Database**: Supabase (PostgreSQL)
 - **No Backend Server**: Direct Supabase REST API calls from frontend using anon key
 
@@ -27,30 +27,30 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 ### March 21, 2026 - Top Nav FY/Month Dropdowns ✅
 **Feature**: Connected top navigation bar FY and Month dropdowns to database
 
-**Implementation**:
-- **Financial Year dropdown** (`#fy-select`) - dynamically loaded from `financial_year` table
-- **Month dropdown** (`#month-select`) - cascaded from `period` table based on selected FY
-- Created `loadTopNavFYAndMonths()` and `populateTopNavMonthDropdown()` functions
-- Changing FY/Month reloads reporting data via `mrLoadFromDB()`
-
 ### March 21, 2026 - Frequency Filter for Monthly Reporting ✅
 **Feature**: Added Frequency filter (Monthly/Quarterly/Annual) to the data entry sheet
 
-**Implementation**:
-- Added frequency dropdown (`#poc-sheet-freq`) to filter bar
-- Filter options: All Frequencies, Monthly, Quarterly, Annual
-- Filters indicators by their `freq` field
-- Works with `filterFn` in `makePocSrcBlock` to hide/show indicator rows
-- Integrated with Reset button to clear filter
+### March 21, 2026 - M&E Builder Target Auto-Save ✅
+**Feature**: Target values in M&E Builder now auto-save to database and persist across navigation
 
-**UI Layout**:
-- Top nav: FY dropdown | Month dropdown
-- Filter bar: Frequency filter | Interventions filter | Stakeholders filter | Search | Show missing | Show flagged | Reset
+**Implementation**:
+1. **Auto-save on change** - When user enters a target value and tabs out, it auto-saves after 1 second debounce
+2. **Save to `indicator_targets` table** - Targets saved with indicator_id, period_id, target_value
+3. **Load from DB on page load** - `meb2LoadTargetsFromDB()` fetches saved targets when M&E Builder loads
+4. **Persist after publish** - Targets remain in DB after publishing (not reset)
+5. **Quarterly mapping** - Q1/Q2/Q3/Q4 labels mapped to first month of each quarter (Apr/Jul/Oct/Jan)
+
+**Key Functions**:
+- `meb2AutoSaveTarget()` - Debounced queue-based auto-save
+- `meb2FlushTargetQueue()` - Batch save targets to DB
+- `meb2LoadTargetsFromDB()` - Load targets when opening M&E Builder
+- `meb2SaveTargetsToDB()` - Save all targets during publish
 
 ## Key DB Schema
 - `program`: {program_id, program_name, program_code}
 - `intervention`: {intervention_id, program_id, intervention_type_id}
-- `indicator`: {indicator_id, frequency, indicator_name}
+- `indicator`: {indicator_id, frequency, indicator_name, baseline_value}
+- `indicator_targets`: {indicator_target_id, indicator_id, period_id, target_value}
 - `financial_year`: {financial_year_id, fy_name, is_current}
 - `period`: {period_id, financial_year_id, period_name, period_type}
 
@@ -68,14 +68,14 @@ Connect existing Mantra IMIS application (HTML + Postgres + Shell) to Supabase d
 - [ ] Verify saves to `raw_submission` table
 
 ### P3 - Code Refactoring
-- [ ] Modularize the monolithic 16.7k line HTML file (optional)
+- [ ] Modularize the monolithic 16.9k line HTML file (optional)
 
 ## Files of Reference
 - `/app/src/index.html`: Main application source (edit here)
 - `/app/frontend/public/mantra.html`: Served file (copy from src after edits)
 
 ## Testing Notes
-- Login as "M&E Administrator" role to access LFA Setup
+- Login as "M&E Administrator" role to access M&E Builder and LFA Setup
 - Login as "Program POC" role to access Monthly Reporting
 - MantraX program has published data for testing
 - Preview URL: https://superbase-builder.preview.emergentagent.com/mantra.html

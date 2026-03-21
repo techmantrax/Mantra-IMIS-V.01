@@ -3316,21 +3316,26 @@ select:focus:not(:focus-visible) { outline: none; }
           try {
             const fetches = [];
             if (ocIds.length) fetches.push(
-              fetch(`${GS_SB_URL}/rest/v1/indicator?outcome_id=in.(${ocIds.join(',')})&activity_id=is.null&is_active=eq.true` +
-                `&select=indicator_id,indicator_name,unit_of_measure,outcome_id,activity_id&order=indicator_name.asc`,
+              fetch(`${GS_SB_URL}/rest/v1/indicator?lfa_outcome_id=in.(${ocIds.join(',')})&lfa_activity_id=is.null&is_active=eq.true` +
+                `&select=indicator_id,indicator_name,unit_of_measure,frequency,baseline_value,lfa_outcome_id,lfa_activity_id&order=indicator_name.asc`,
                 { headers: GS_SB_HDR }).then(r => r.ok ? r.json() : []).catch(() => [])
             );
             if (acIds.length) fetches.push(
-              fetch(`${GS_SB_URL}/rest/v1/indicator?activity_id=in.(${acIds.join(',')})&outcome_id=is.null&is_active=eq.true` +
-                `&select=indicator_id,indicator_name,unit_of_measure,outcome_id,activity_id&order=indicator_name.asc`,
+              fetch(`${GS_SB_URL}/rest/v1/indicator?lfa_activity_id=in.(${acIds.join(',')})&lfa_outcome_id=is.null&is_active=eq.true` +
+                `&select=indicator_id,indicator_name,unit_of_measure,frequency,baseline_value,lfa_outcome_id,lfa_activity_id&order=indicator_name.asc`,
                 { headers: GS_SB_HDR }).then(r => r.ok ? r.json() : []).catch(() => [])
             );
             const allInds = (await Promise.all(fetches)).flat();
             if (!allInds.length) return;
+            
+            // Fetch targets for all indicators
+            const indIds = allInds.map(ind => ind.indicator_id);
+            const targetsMap = await meb2LoadTargetsFromDB(indIds);
+            
             meb2Groups.forEach(g => {
               if (!g.sourceDbId) return;
               const matched = allInds.filter(ind =>
-                g.sourceType === 'outcome' ? ind.outcome_id === g.sourceDbId : ind.activity_id === g.sourceDbId
+                g.sourceType === 'outcome' ? ind.lfa_outcome_id === g.sourceDbId : ind.lfa_activity_id === g.sourceDbId
               );
               if (!matched.length) return;
               g.indicators = [
@@ -3339,9 +3344,10 @@ select:focus:not(:focus-visible) { outline: none; }
                   indicator_id: ind.indicator_id,
                   name: ind.indicator_name || '',
                   abbr: '', unit: ind.unit_of_measure || 'count',
-                  freq: 'monthly',   // program sets in M&E Builder
-                  baseline: '',      // program sets in M&E Builder
-                  targets: {}, active: true, _fromMEBook: true,
+                  freq: ind.frequency || 'monthly',
+                  baseline: ind.baseline_value || '',
+                  targets: targetsMap[ind.indicator_id] || {},
+                  active: true, _fromMEBook: true,
                 })),
                 meb2NewIndRow(''),  // one blank row for adding new
               ];
@@ -3349,6 +3355,49 @@ select:focus:not(:focus-visible) { outline: none; }
           } catch(e) {
             console.warn('[meb2HydrateIndicatorsFromDB]', e);
           }
+        }
+        
+        // ── Load targets from indicator_targets table ──────────────────
+        async function meb2LoadTargetsFromDB(indicatorIds) {
+          const targetsMap = {};
+          if (!indicatorIds.length) return targetsMap;
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            const res = await fetch(`${url}/rest/v1/indicator_targets?indicator_id=in.(${indicatorIds.join(',')})&select=indicator_id,target_value,period_id,period:period_id(period_name,period_type)`, { headers: h });
+            if (!res.ok) return targetsMap;
+            const targets = await res.json();
+            
+            // Build month -> quarter mapping
+            const monthToQuarter = {
+              'Apr': 'Q1 (Apr-Jun)', 'May': 'Q1 (Apr-Jun)', 'Jun': 'Q1 (Apr-Jun)',
+              'Jul': 'Q2 (Jul-Sep)', 'Aug': 'Q2 (Jul-Sep)', 'Sep': 'Q2 (Jul-Sep)',
+              'Oct': 'Q3 (Oct-Dec)', 'Nov': 'Q3 (Oct-Dec)', 'Dec': 'Q3 (Oct-Dec)',
+              'Jan': 'Q4 (Jan-Mar)', 'Feb': 'Q4 (Jan-Mar)', 'Mar': 'Q4 (Jan-Mar)',
+            };
+            
+            targets.forEach(t => {
+              if (!targetsMap[t.indicator_id]) targetsMap[t.indicator_id] = {};
+              // Convert period name to short label
+              const periodName = t.period?.period_name?.trim() || '';
+              const periodType = t.period?.period_type || '';
+              const shortMonth = periodName.split(/\s+/)[0].substring(0, 3);
+              
+              // For quarterly indicators, map month to quarter label
+              // This will be used by meb2BuildTargetCells which uses "Q1 (Apr-Jun)" format
+              if (t.target_value !== null) {
+                // Store both the month label and the quarter label
+                targetsMap[t.indicator_id][shortMonth] = String(t.target_value);
+                // Also store as quarter if it's a quarter-start month
+                if (shortMonth === 'Apr' || shortMonth === 'Jul' || shortMonth === 'Oct' || shortMonth === 'Jan') {
+                  const quarterLabel = monthToQuarter[shortMonth];
+                  if (quarterLabel) targetsMap[t.indicator_id][quarterLabel] = String(t.target_value);
+                }
+              }
+            });
+          } catch(e) {
+            console.warn('[meb2LoadTargetsFromDB]', e);
+          }
+          return targetsMap;
         }
 
         // ── meb2RenderFramework ──────────────────────────────────────
@@ -3727,8 +3776,12 @@ select:focus:not(:focus-visible) { outline: none; }
               inp.addEventListener('change', () => {
                 const g = meb2Groups.find(g => g.indicators.some(i => i.id === indId));
                 const ind = g?.indicators.find(i => i.id === indId);
-                if (ind) ind.targets[lbl] = inp.value;
-                meb2UpdateBadge(indId);
+                if (ind) {
+                  ind.targets[lbl] = inp.value;
+                  meb2UpdateBadge(indId);
+                  // Auto-save target to DB
+                  meb2AutoSaveTarget(ind.indicator_id, lbl, inp.value);
+                }
               });
               const label = document.createElement('div'); label.className = 'meb2-tg-lbl';
               label.textContent = lbl;
@@ -3746,6 +3799,119 @@ select:focus:not(:focus-visible) { outline: none; }
         function meb2ToggleTargetGrid(indId) {
           const grid = document.getElementById('meb2-tg-'+indId);
           if (grid) grid.classList.toggle('show');
+        }
+
+        // ── Auto-save target value to DB ──────────────────────────────
+        let meb2TargetSaveQueue = {};
+        let meb2TargetSaveTimer = null;
+        
+        async function meb2AutoSaveTarget(indicatorId, periodLabel, value) {
+          if (!indicatorId) return; // Indicator not yet saved to DB
+          
+          // Queue the save
+          const key = `${indicatorId}_${periodLabel}`;
+          meb2TargetSaveQueue[key] = { indicatorId, periodLabel, value };
+          
+          // Debounce - save after 1 second of no changes
+          if (meb2TargetSaveTimer) clearTimeout(meb2TargetSaveTimer);
+          meb2TargetSaveTimer = setTimeout(async () => {
+            const queue = { ...meb2TargetSaveQueue };
+            meb2TargetSaveQueue = {};
+            await meb2FlushTargetQueue(queue);
+          }, 1000);
+        }
+        
+        async function meb2FlushTargetQueue(queue) {
+          const entries = Object.values(queue);
+          if (entries.length === 0) return;
+          
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            
+            // Get period_id mapping for labels (Apr, May, Q1, Annual, etc.)
+            const fyId = await meb2GetCurrentFYId();
+            if (!fyId) { console.warn('[meb2FlushTargetQueue] No FY found'); return; }
+            
+            const periodRes = await fetch(`${url}/rest/v1/period?financial_year_id=eq.${fyId}&select=period_id,period_name,period_type`, { headers: h });
+            if (!periodRes.ok) return;
+            const periods = await periodRes.json();
+            
+            // Build period label -> period_id map
+            const periodMap = {};
+            periods.forEach(p => {
+              const name = p.period_name.trim();
+              // Map "April     2025" -> "Apr"
+              const shortMonth = name.split(/\s+/)[0].substring(0, 3);
+              periodMap[shortMonth] = p.period_id;
+              periodMap[name] = p.period_id;
+            });
+            
+            // Map quarterly to first month of quarter
+            periodMap['Q1 (Apr-Jun)'] = periodMap['Apr'];
+            periodMap['Q2 (Jul-Sep)'] = periodMap['Jul'];
+            periodMap['Q3 (Oct-Dec)'] = periodMap['Oct'];
+            periodMap['Q4 (Jan-Mar)'] = periodMap['Jan'];
+            periodMap['Annual'] = periodMap['Apr']; // Use Apr for annual
+            periodMap['annual'] = periodMap['Apr'];
+            
+            let saved = 0;
+            for (const { indicatorId, periodLabel, value } of entries) {
+              const periodId = periodMap[periodLabel];
+              if (!periodId) {
+                console.warn('[meb2FlushTargetQueue] No period_id for label:', periodLabel);
+                continue;
+              }
+              
+              // Check if target exists
+              const existRes = await fetch(`${url}/rest/v1/indicator_targets?indicator_id=eq.${indicatorId}&period_id=eq.${periodId}&select=id`, { headers: h });
+              const existing = existRes.ok ? await existRes.json() : [];
+              
+              const payload = {
+                indicator_id: indicatorId,
+                period_id: periodId,
+                target_value: value ? Number(value) : null
+              };
+              
+              if (existing.length > 0) {
+                // UPDATE
+                await fetch(`${url}/rest/v1/indicator_targets?indicator_id=eq.${indicatorId}&period_id=eq.${periodId}`, {
+                  method: 'PATCH',
+                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  body: JSON.stringify({ target_value: payload.target_value })
+                });
+              } else {
+                // INSERT
+                await fetch(`${url}/rest/v1/indicator_targets`, {
+                  method: 'POST',
+                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  body: JSON.stringify(payload)
+                });
+              }
+              saved++;
+            }
+            if (saved > 0) console.log('[meb2FlushTargetQueue] Auto-saved', saved, 'targets');
+          } catch(e) {
+            console.error('[meb2FlushTargetQueue] Error:', e);
+          }
+        }
+        
+        async function meb2GetCurrentFYId() {
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            // First try to get current FY
+            let res = await fetch(`${url}/rest/v1/financial_year?is_current=eq.true&select=financial_year_id&limit=1`, { headers: h });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.length > 0) return data[0].financial_year_id;
+            }
+            // Fallback: get the most recent FY
+            res = await fetch(`${url}/rest/v1/financial_year?select=financial_year_id&order=start_date.desc&limit=1`, { headers: h });
+            if (res.ok) {
+              const data = await res.json();
+              if (data.length > 0) return data[0].financial_year_id;
+            }
+          } catch(e) { console.warn('[meb2GetCurrentFYId]', e); }
+          return null;
         }
 
         // ── Publish ──────────────────────────────────────────────────
@@ -6240,7 +6406,7 @@ select:focus:not(:focus-visible) { outline: none; }
           // Snapshot groups immediately before any async yield — prevents a concurrent
           // meb2LoadProgramFromDB from overwriting meb2Groups mid-save.
           const groupsSnapshot = meb2Groups.map(g => ({
-            ...g, indicators: g.indicators.map(i => ({ ...i }))
+            ...g, indicators: g.indicators.map(i => ({ ...i, targets: { ...i.targets } }))
           }));
           try {
             const progId = await lfaFetchProgramId(meb2Prog);
@@ -6290,6 +6456,10 @@ select:focus:not(:focus-visible) { outline: none; }
                       saved++;
                     }
                   }
+                  // Save targets for this indicator
+                  if (ind.indicator_id && Object.keys(ind.targets).length > 0) {
+                    await meb2SaveTargetsToDB(ind.indicator_id, ind.targets);
+                  }
                 } catch(e) { console.warn('Indicator save failed:', e); }
               }
             }
@@ -6301,6 +6471,60 @@ select:focus:not(:focus-visible) { outline: none; }
             console.error('[meb2SaveIndicatorsToDB] Error:', e);
             toast('Error saving indicators');
             return false;
+          }
+        }
+        
+        // ── Save all targets for an indicator ──────────────────────────
+        async function meb2SaveTargetsToDB(indicatorId, targets) {
+          try {
+            const url = GS_SB_URL, h = GS_SB_HDR;
+            const fyId = await meb2GetCurrentFYId();
+            if (!fyId) return;
+            
+            const periodRes = await fetch(`${url}/rest/v1/period?financial_year_id=eq.${fyId}&select=period_id,period_name,period_type`, { headers: h });
+            if (!periodRes.ok) return;
+            const periods = await periodRes.json();
+            
+            // Build period label -> period_id map
+            const periodMap = {};
+            periods.forEach(p => {
+              const name = p.period_name.trim();
+              const shortMonth = name.split(/\s+/)[0].substring(0, 3);
+              periodMap[shortMonth] = p.period_id;
+              periodMap[name] = p.period_id;
+            });
+            // Map quarterly to first month of quarter
+            periodMap['Q1 (Apr-Jun)'] = periodMap['Apr'];
+            periodMap['Q2 (Jul-Sep)'] = periodMap['Jul'];
+            periodMap['Q3 (Oct-Dec)'] = periodMap['Oct'];
+            periodMap['Q4 (Jan-Mar)'] = periodMap['Jan'];
+            periodMap['Annual'] = periodMap['Apr'];
+            periodMap['annual'] = periodMap['Apr'];
+            
+            for (const [label, value] of Object.entries(targets)) {
+              if (!value) continue;
+              const periodId = periodMap[label];
+              if (!periodId) continue;
+              
+              const existRes = await fetch(`${url}/rest/v1/indicator_targets?indicator_id=eq.${indicatorId}&period_id=eq.${periodId}&select=id`, { headers: h });
+              const existing = existRes.ok ? await existRes.json() : [];
+              
+              if (existing.length > 0) {
+                await fetch(`${url}/rest/v1/indicator_targets?indicator_id=eq.${indicatorId}&period_id=eq.${periodId}`, {
+                  method: 'PATCH',
+                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  body: JSON.stringify({ target_value: Number(value) })
+                });
+              } else {
+                await fetch(`${url}/rest/v1/indicator_targets`, {
+                  method: 'POST',
+                  headers: { ...h, 'Prefer': 'return=minimal' },
+                  body: JSON.stringify({ indicator_id: indicatorId, period_id: periodId, target_value: Number(value) })
+                });
+              }
+            }
+          } catch(e) {
+            console.warn('[meb2SaveTargetsToDB]', e);
           }
         }
 
