@@ -63,3 +63,7 @@ temp/
 # Deployment
 .netlify/
 .vercel/
+-e 
+# Environment files
+*.env
+*.env.*
