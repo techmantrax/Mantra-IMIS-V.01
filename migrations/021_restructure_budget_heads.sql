@@ -18,7 +18,7 @@ TRUNCATE TABLE budget_head RESTART IDENTITY CASCADE;
 TRUNCATE TABLE budget_category RESTART IDENTITY CASCADE;
 
 -- 4. Seed budget_category = Budget Heads (top-level groupings)
-INSERT INTO budget_category (cat_code, cat_label, color_hex, sort_order, is_active) VALUES
+INSERT INTO budget_category (cat_code, cat_label, cat_color, sort_order, is_active) VALUES
   ('A', 'Personnel & HR',               '#3b82f6', 10, true),
   ('B', 'Training & Capacity Building', '#8b5cf6', 20, true),
   ('C', 'Travel & Transport',           '#f59e0b', 30, true),

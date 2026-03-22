@@ -22047,8 +22047,8 @@ async function bbLoadHeads() {
   try {
     // Fetch budget lines joined with parent budget head (budget_category)
     const [res, catRes] = await Promise.all([
-      fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,head_code,head_name,description,is_active,budget_category_id,budget_category(cat_code,cat_label,color_hex)&order=budget_category_id.asc.nullsfirst,sort_order.asc,head_name.asc${af}&limit=300`, { headers: MEBK_HDR }),
-      fetch(`${MEBK_URL}/rest/v1/budget_category?select=budget_category_id,cat_code,cat_label,color_hex&is_active=eq.true&order=sort_order.asc`, { headers: MEBK_HDR })
+      fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,head_code,head_name,description,is_active,budget_category_id,budget_category(cat_code,cat_label,cat_color)&order=budget_category_id.asc.nullsfirst,sort_order.asc,head_name.asc${af}&limit=300`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/budget_category?select=budget_category_id,cat_code,cat_label,cat_color&is_active=eq.true&order=sort_order.asc`, { headers: MEBK_HDR })
     ]);
     const data = await res.json();
     const cats = await catRes.json();
@@ -22075,7 +22075,7 @@ async function bbLoadHeads() {
 
     el.innerHTML = Object.entries(groups).map(([key, grp]) => {
       const cat = grp.cat;
-      const clr = cat?.color_hex || '#6b7280';
+      const clr = cat?.cat_color || '#6b7280';
       const lbl = cat ? `${cat.cat_code} — ${esc(cat.cat_label)}` : 'Uncategorised';
       const lineCards = grp.lines.map(h => {
         const isActive = h.is_active !== false;
