@@ -9747,6 +9747,7 @@ function gsSyncGrantToBudgetTracker(grantRow, donorName, fyId, progId) {
   btStore.budgetLines[grantRecord.id] = gsState.budgetLines.map((l, i) => ({
     id: `${grantRecord.id}-L${i + 1}`,
     code: l.code || `L.${i + 1}`,
+    aliases: l.aliases || [],
     cat: l.cat || 'A',
     head: l.head || 'Budget head',
     allocated: parseFloat(l.allocated) || 0,
@@ -10173,7 +10174,7 @@ function gsInitBL() {
 }
 
 function gsAddBL() {
-  gsState.budgetLines.push({ id:'bl-'+gsState.blSeq++, cat:'A', code:'', head:'', intv:'', activity:'', units:'', cpu:'', allocated:0 });
+  gsState.budgetLines.push({ id:'bl-'+gsState.blSeq++, cat:'A', code:'', aliases:[], head:'', intv:'', activity:'', units:'', cpu:'', allocated:0 });
   gsRenderBL(); gsUpdateBLSummary();
 }
 
@@ -10220,7 +10221,10 @@ function gsRenderBL() {
       </select>
       <div class="gs-cat-badge ${GS_CAT_CLS[l.cat]||'gs-ca'}" id="gs-bl-cat-badge-${l.id}" style="margin-top:3px;">${GS_CAT_LABEL[l.cat]||l.cat||'—'}</div>
     </td>
-    <td><input type="text" value="${esc(l.code)}" placeholder="A-01" style="min-width:50px;text-transform:uppercase;font-family:var(--mono);" onchange="gsBlSet('${l.id}','code',this.value)" /></td>
+    <td>
+      <input type="text" value="${esc(l.code)}" placeholder="A-01" style="min-width:50px;text-transform:uppercase;font-family:var(--mono);" onchange="gsBlSet('${l.id}','code',this.value)" />
+      <input type="text" value="${esc((l.aliases||[]).join(','))}" placeholder="alt codes…" title="Alternate codes (comma-separated) recognised during burn upload" style="margin-top:3px;min-width:50px;font-size:10px;color:var(--slate);font-family:var(--mono);text-transform:uppercase;" onchange="gsBlSetAliases('${l.id}',this.value)" />
+    </td>
     <td>
       <select style="min-width:150px;" onchange="gsBlSet('${l.id}','head',this.options[this.selectedIndex]?.text||'');gsBlSet('${l.id}','headId',this.value)">
         <option value="">— Budget Head —</option>
@@ -10263,6 +10267,12 @@ function gsBlSet(id, field, value) {
     }
   }
   gsUpdateBLSummary();
+}
+
+function gsBlSetAliases(id, val) {
+  const l = gsState.budgetLines.find(l => l.id === id);
+  if (!l) return;
+  l.aliases = val.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
 }
 
 function gsBlUpdateActSel(lid, intvId) {
@@ -10743,6 +10753,7 @@ async function gsActivate() {
         grant_id: grantId, financial_year_id: fyId, program_id: progId,
         intervention_id: l.intv || null, budget_category_code: l.cat,
         budget_line_code: l.code || null, budget_head_name: l.head,
+        code_aliases: l.aliases?.length ? l.aliases : [],
         unit_count: parseFloat(l.units) || null, cost_per_unit: parseFloat(l.cpu) || null,
         allocated_amount: parseFloat(l.allocated) || 0, budget_status: 'active', sort_order: i,
       });
@@ -21632,7 +21643,13 @@ function gmbApplyUploadToPortfolio(rec) {
   if (!codeEntries.length) return { ok: false, reason: 'no_burn_rows' };
 
   const lineByCode = new Map();
-  lines.forEach(line => lineByCode.set(gmbNormCode(line.code), line));
+  lines.forEach(line => {
+    lineByCode.set(gmbNormCode(line.code), line);
+    (line.aliases || []).forEach(a => {
+      const norm = gmbNormCode(a);
+      if (norm && !lineByCode.has(norm)) lineByCode.set(norm, line);
+    });
+  });
 
   const matched = [];
   const unmatched = [];
