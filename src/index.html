@@ -1595,6 +1595,9 @@ select:focus:not(:focus-visible) { outline: none; }
         <button class="nav-sub-item active" id="nav-sub-portfolio" onclick="showPage('grant-mgmt')">
           <span class="sub-dot"></span> Portfolio
         </button>
+        <button class="nav-sub-item" id="nav-sub-burnupload" onclick="showPage('grant-burn-upload')">
+          <span class="sub-dot"></span> Upload Monthly Burn
+        </button>
         <button class="nav-sub-item" id="nav-sub-newgrant" onclick="showPage('grant-setup')">
           <span class="sub-dot"></span> New Grant Setup
         </button>
@@ -8340,6 +8343,10 @@ select:focus:not(:focus-visible) { outline: none; }
               <option value="2024-25">FY 2024-25</option>
               <option value="2026-27">FY 2026-27</option>
             </select>
+            <button class="btn" style="font-size:12px;display:inline-flex;align-items:center;gap:5px;" onclick="showPage('grant-burn-upload')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload Monthly Burn
+            </button>
             <button class="btn btn-ok" id="bt-uc-btn" style="font-size:12px;display:none;align-items:center;gap:5px;">
               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="16 13 12 17 8 13"/><line x1="12" y1="17" x2="12" y2="7"/></svg>
               Generate UC
@@ -8622,6 +8629,140 @@ select:focus:not(:focus-visible) { outline: none; }
         </div>
 
       </section><!-- /page-budget-tracker -->
+
+      <!-- GRANT MANAGEMENT - UPLOAD MONTHLY BURN (route: grant-burn-upload) -->
+      <section id="page-grant-burn-upload" class="hidden">
+      <style>
+      .gmb-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;}
+      @media(max-width:1100px){.gmb-wrap{grid-template-columns:1fr;}}
+      .gmb-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-xl);padding:18px;box-shadow:var(--shadow-xs);}
+      .gmb-card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--mist-3);}
+      .gmb-title{font-size:14px;font-weight:800;color:var(--ink);}
+      .gmb-sub{font-size:12px;color:var(--slate);}
+      .gmb-grid{display:grid;gap:10px;}
+      .gmb-g2{grid-template-columns:1fr 1fr;}
+      @media(max-width:760px){.gmb-g2{grid-template-columns:1fr;}}
+      .gmb-field{display:flex;flex-direction:column;gap:5px;}
+      .gmb-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
+      .gmb-field select,.gmb-field input{padding:9px 11px;border-radius:var(--r);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);font-size:13px;font-family:var(--sans);outline:none;box-shadow:var(--shadow-xs);}
+      .gmb-field select:focus,.gmb-field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+      .gmb-drop{border:2px dashed var(--blue-border);background:var(--blue-dim);border-radius:var(--r-lg);padding:20px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;}
+      .gmb-drop:hover{border-color:var(--blue);background:#eff6ff;}
+      .gmb-drop h4{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;}
+      .gmb-drop p{font-size:12px;color:var(--slate);}
+      .gmb-file-row{margin-top:10px;display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r);padding:8px 10px;}
+      .gmb-file-name{font-size:12px;font-weight:600;color:var(--ink);}
+      .gmb-file-meta{font-size:11px;color:var(--slate);}
+      .gmb-hint{margin-top:10px;font-size:11px;color:var(--slate);}
+      .gmb-hint strong{color:var(--blue);}
+      .gmb-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+      .gmb-chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+      .gmb-table{width:100%;border-collapse:collapse;font-size:12px;}
+      .gmb-table th{padding:7px 9px;text-align:left;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;background:var(--canvas);border-bottom:1px solid var(--mist-2);}
+      .gmb-table td{padding:8px 9px;border-bottom:1px solid var(--mist-3);vertical-align:top;}
+      .gmb-table tr:last-child td{border-bottom:none;}
+      .gmb-empty{text-align:center;padding:24px 12px;color:var(--slate);font-size:12px;}
+      .gmb-status{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);}
+      </style>
+
+      <div class="section-hd">
+        <div>
+          <h2>Upload Monthly Burn</h2>
+          <div class="sub">Upload monthly fund utilization file (CSV/XLSX). Upload will auto-update Grant Portfolio for the selected program and donor.</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button class="btn" style="font-size:12px;" onclick="showPage('grant-mgmt')">Back To Portfolio</button>
+        </div>
+      </div>
+
+      <div class="gmb-wrap">
+        <div class="gmb-card">
+          <div class="gmb-card-hd">
+            <div>
+              <div class="gmb-title">Monthly Burn Upload</div>
+              <div class="gmb-sub">Program -> Donor -> Month -> Upload file</div>
+            </div>
+            <span class="gmb-chip">Portfolio Sync Enabled</span>
+          </div>
+
+          <div class="gmb-grid gmb-g2">
+            <div class="gmb-field">
+              <label>Program</label>
+              <select id="gmb-program-sel"></select>
+            </div>
+            <div class="gmb-field">
+              <label>Donor Grant</label>
+              <select id="gmb-donor-sel"></select>
+            </div>
+            <div class="gmb-field">
+              <label>Financial Year</label>
+              <select id="gmb-fy-sel">
+                <option value="2025-26">FY 2025-26</option>
+                <option value="2024-25">FY 2024-25</option>
+                <option value="2026-27">FY 2026-27</option>
+              </select>
+            </div>
+            <div class="gmb-field">
+              <label>Month</label>
+              <select id="gmb-month-sel">
+                <option value="">Select month...</option>
+                <option value="Apr">Apr</option><option value="May">May</option><option value="Jun">Jun</option>
+                <option value="Jul">Jul</option><option value="Aug">Aug</option><option value="Sep">Sep</option>
+                <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
+                <option value="Jan">Jan</option><option value="Feb">Feb</option><option value="Mar">Mar</option>
+              </select>
+            </div>
+          </div>
+
+          <input type="file" id="gmb-file-input" accept=".csv,.xlsx" style="display:none;" />
+          <div class="gmb-drop" id="gmb-dropzone" tabindex="0" role="button" aria-label="Select monthly burn file">
+            <h4>Drop CSV or XLSX here</h4>
+            <p>or click to browse from your computer</p>
+          </div>
+
+          <div class="gmb-file-row" id="gmb-file-row">
+            <div>
+              <div class="gmb-file-name" id="gmb-file-name">No file selected</div>
+              <div class="gmb-file-meta" id="gmb-file-meta"></div>
+            </div>
+            <button class="btn" style="font-size:11px;padding:6px 10px;" id="gmb-file-clear-btn">Clear</button>
+          </div>
+
+          <div class="gmb-actions">
+            <button class="btn btn-primary" id="gmb-upload-btn" style="font-size:12px;" disabled>Upload And Sync Portfolio</button>
+          </div>
+          <div class="gmb-hint">
+            Upload format should include <strong>Budget Code</strong> and <strong>Allocated Amount</strong> (or Amount). If a Month column exists, selected month is auto-filtered before syncing.
+          </div>
+        </div>
+
+        <div class="gmb-card">
+          <div class="gmb-card-hd">
+            <div>
+              <div class="gmb-title">Upload History</div>
+              <div class="gmb-sub">Tracks each monthly burn file upload event</div>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="gmb-table">
+              <thead>
+                <tr>
+                  <th>Date Time</th>
+                  <th>Program</th>
+                  <th>Donor</th>
+                  <th>FY / Month</th>
+                  <th>File</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="gmb-history-body">
+                <tr><td colspan="6" class="gmb-empty">No uploads yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </section><!-- /page-grant-burn-upload -->
 
       <!-- ═══ GRANT SETUP — proper inline component (route: grant-setup) ═══ -->
       <section id="page-grant-setup" class="hidden">
@@ -9300,6 +9441,130 @@ const gsSbQuery = async (table, params = '') => {
   return r.ok ? await r.json() : [];
 };
 
+const gsSbDelete = async (table, params = '') => {
+  try {
+    const res = await fetch(`${GS_SB_URL}/rest/v1/${table}?${params}`, {
+      method: 'DELETE',
+      headers: { ...GS_SB_HDR, 'Prefer': 'return=minimal' }
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn('[gs] delete error', table, e);
+    return false;
+  }
+};
+
+function gsGrantCssByDonor(donorName) {
+  const n = String(donorName || '').toLowerCase();
+  if (n.includes('wells')) return 'wf';
+  if (n.includes('salesforce')) return 'sf';
+  if (n.includes('bosch')) return 'bosch';
+  if (n.includes('ltts')) return 'ltts';
+  return 'generic';
+}
+
+function gsFYLabelById(fyId) {
+  const fy = (gsState.dbFinancialYears || []).find(f => f.financial_year_id === fyId);
+  return fy?.fy_name || '2025-26';
+}
+
+async function gsRollbackGrantRecords(grantId) {
+  if (!grantId) return false;
+  const tables = [
+    'grant_document',
+    'grant_indicator_commitment',
+    'grant_reporting_schedule',
+    'grant_disbursement_schedule',
+    'grant_framework_budget',
+    'grant_intervention_scope',
+    'grant_program_scope',
+    'grant_financial_year_mapping',
+    'grants'
+  ];
+  let ok = true;
+  for (const table of tables) {
+    const done = await gsSbDelete(table, `grant_id=eq.${grantId}`);
+    if (!done) ok = false;
+  }
+  return ok;
+}
+
+function gsSyncGrantToBudgetTracker(grantRow, donorName, fyId, progId) {
+  if (!grantRow?.grant_id || !progId || typeof btStore !== 'object') return;
+  if (!btStore.grants) btStore.grants = {};
+  if (!btStore.budgetLines) btStore.budgetLines = {};
+  if (!btStore.disbursements) btStore.disbursements = {};
+  if (!btStore.reportingSchedule) btStore.reportingSchedule = {};
+  if (!Array.isArray(btStore.programs)) btStore.programs = [];
+
+  const programName = gsState.selectedProgram?.program_name || `Program ${progId}`;
+  const fyLabel = gsFYLabelById(fyId);
+  if (!btStore.programs.find(p => p.id === progId)) {
+    btStore.programs.push({
+      id: progId,
+      name: programName,
+      fy: fyLabel,
+      state: programName
+    });
+  }
+
+  if (!btStore.grants[progId]) btStore.grants[progId] = [];
+  const grantRecord = {
+    id: grantRow.grant_id,
+    donor: donorName || 'Donor',
+    code: grantRow.grant_code || String(grantRow.grant_id),
+    status: grantRow.grant_status || gsV('gs-g-status') || 'active',
+    total: grantRow.total_committed_amount ?? (parseFloat(gsV('gs-g-amount')) || 0),
+    css: gsGrantCssByDonor(donorName),
+    start: grantRow.start_date || gsV('gs-g-start') || '',
+    end: grantRow.end_date || gsV('gs-g-end') || '',
+    currency: grantRow.currency || gsV('gs-g-currency') || 'INR'
+  };
+  const existingIdx = btStore.grants[progId].findIndex(g => g.id === grantRecord.id);
+  if (existingIdx >= 0) btStore.grants[progId][existingIdx] = grantRecord;
+  else btStore.grants[progId].push(grantRecord);
+
+  btStore.budgetLines[grantRecord.id] = gsState.budgetLines.map((l, i) => ({
+    id: `${grantRecord.id}-L${i + 1}`,
+    code: l.code || `L.${i + 1}`,
+    cat: l.cat || 'A',
+    head: l.head || 'Budget head',
+    allocated: parseFloat(l.allocated) || 0,
+    revised: null,
+    utilised: 0,
+    units: parseFloat(l.units) || null,
+    cpu: parseFloat(l.cpu) || null
+  }));
+
+  btStore.disbursements[grantRecord.id] = gsState.disbRows.map((d, i) => ({
+    no: i + 1,
+    due: d.due || '',
+    expected: parseFloat(d.expected) || 0,
+    received: 0,
+    date: null,
+    status: d.status || 'planned',
+    notes: d.notes || ''
+  }));
+
+  const repLabel = {
+    narrative: 'Narrative Report',
+    financial: 'Financial Report',
+    indicator: 'Indicator Report',
+    utilization: 'Utilization Certificate',
+    quarterly: 'Quarterly Report',
+    annual: 'Annual Report',
+    other: 'Report'
+  };
+  btStore.reportingSchedule[grantRecord.id] = gsState.reportRows.map(r => ({
+    type: r.type || 'other',
+    label: repLabel[r.type] || 'Report',
+    period: r.periodEnd || '—',
+    due: r.due || '—',
+    submitted: null,
+    status: 'planned'
+  }));
+}
+
 // ── State ──────────────────────────────────────────────────────
 const gsState = {
   step:       1,
@@ -9629,7 +9894,10 @@ function gsValidate(step) {
 // ── Step 2: FY chips ─────────────────────────────────────────
 function gsRenderFYChips() {
   const chips = $('gs-fy-chips'); if (!chips) return;
-  const fys = [{v:'FY2324',l:'FY 2023-24'},{v:'FY2425',l:'FY 2024-25'},{v:'FY2526',l:'FY 2025-26'},{v:'FY2627',l:'FY 2026-27'}];
+  const fallback = [{v:'FY2324',l:'FY 2023-24'},{v:'FY2425',l:'FY 2024-25'},{v:'FY2526',l:'FY 2025-26'},{v:'FY2627',l:'FY 2026-27'}];
+  const fys = (gsState.dbFinancialYears || []).length
+    ? gsState.dbFinancialYears.map(f => ({ v: f.financial_year_id, l: f.fy_name || '—' }))
+    : fallback;
   chips.innerHTML = fys.map(f =>
     `<div class="gs-fy-chip${gsState.selectedFYs.has(f.v)?' on':''}" onclick="gsToggleFY('${f.v}',this)">${f.l}</div>`
   ).join('');
@@ -9703,7 +9971,12 @@ function gsIntvOpts(selId) {
 
 function gsActOpts(intvId, selAct) {
   const acts = GS_ACTIVITIES[intvId] || [];
-  return '<option value="">— Select —</option>' + acts.map(a => `<option value="${esc(a)}"${selAct===a?' selected':''}>${esc(a)}</option>`).join('');
+  return '<option value="">— Select —</option>' + acts.map(a => {
+    const val = typeof a === 'string' ? a : (a.id || a.activity_id || a.name || a.activity_name || '');
+    const lbl = typeof a === 'string' ? a : (a.name || a.activity_name || val);
+    const selected = selAct === val || selAct === lbl;
+    return `<option value="${esc(val)}"${selected?' selected':''}>${esc(lbl)}</option>`;
+  }).join('');
 }
 
 const GS_CAT_LABEL = {A:'Activity',B:'Program',C:'Logistics',D:'Infrastructure',E:'Admin',F:'Volunteer'};
@@ -10185,20 +10458,19 @@ async function gsActivate() {
   // Show loading
   const lo = $('gs-loading'); if(lo) lo.classList.add('show');
   const setLo = (t, s) => { if($('gs-loading-title')) $('gs-loading-title').textContent=t; if($('gs-loading-sub')) $('gs-loading-sub').textContent=s; };
+  let grantId = null;
+  let donorId = null;
+  let donorWasCreated = false;
 
   try {
-    // ── 1: Donor — use selected Budget Book donor or create new ──
-    setLo('Saving donor…','Step 1 of 8');
-    let donorId;
+    // Step 1: Donor
+    setLo('Saving donor...','Step 1 of 8');
     const dSelVal = document.getElementById('gs-d-sel')?.value;
     if (dSelVal && dSelVal !== '__new__') {
-      // Existing donor chosen from Budget Book dropdown
       donorId = dSelVal;
     } else {
-      // New donor — create in Budget Book donor table
       const dName = document.getElementById('gs-d-name')?.value?.trim() || '';
       if (!dName) throw new Error('Donor name is required');
-      // donor_code is system-generated by DB trigger (DOR-001 format)
       const donor = await gsSbInsert('donor', {
         donor_name: dName,
         donor_type: document.getElementById('gs-d-type')?.value || null,
@@ -10207,14 +10479,13 @@ async function gsActivate() {
         is_active: true,
       });
       donorId = donor?.donor_id;
+      donorWasCreated = true;
     }
 
-    // ── 2: Grant ─────────────────────────────────────────────────
-    //  grant_code is system-generated by DB trigger (GRT-2526-001 format)
-    setLo('Saving grant…','Step 2 of 8');
+    // Step 2: Grant
+    setLo('Saving grant...','Step 2 of 8');
     const fyId   = gsState.selectedFYId || gsV('gs-g-fy') || null;
     const progId = gsState.selectedProgram?.program_id || null;
-    // grant_code intentionally omitted — DB trigger generates it
     const grant = await gsSbInsert('grants', {
       donor_id: donorId, grant_name: gsV('gs-g-name'),
       grant_status: gsV('gs-g-status'),
@@ -10223,16 +10494,17 @@ async function gsActivate() {
       start_date: gsV('gs-g-start'), end_date: gsV('gs-g-end'),
       description: gsV('gs-g-desc'), is_active: true,
     });
-    const grantId = grant?.grant_id;
+    grantId = grant?.grant_id;
+    if (!grantId) throw new Error('Grant save failed: missing grant ID');
 
-    // ── 3: Multi-year FY mapping ──────────────────────────────────
-    setLo('Saving FY mapping…','Step 3 of 8');
+    // Step 3: Multi-year FY mapping
+    setLo('Saving FY mapping...','Step 3 of 8');
     for (const fyMapId of gsState.selectedFYs) {
       await gsSbInsert('grant_financial_year_mapping', { grant_id: grantId, financial_year_id: fyMapId });
     }
 
-    // ── 4: Program scope + Intervention scopes ────────────────────
-    setLo('Saving program scope…','Step 4 of 8');
+    // Step 4: Program scope + intervention scopes
+    setLo('Saving program scope...','Step 4 of 8');
     await gsSbInsert('grant_program_scope', {
       grant_id: grantId, program_id: progId,
       financial_year_id: fyId, allocated_amount: parseFloat(gsV('gs-scope-alloc')), is_active: true,
@@ -10244,8 +10516,8 @@ async function gsActivate() {
       });
     }
 
-    // ── 5: Budget lines ───────────────────────────────────────────
-    setLo('Saving budget lines…','Step 5 of 8');
+    // Step 5: Budget lines
+    setLo('Saving budget lines...','Step 5 of 8');
     for (const [i, l] of gsState.budgetLines.entries()) {
       await gsSbInsert('grant_framework_budget', {
         grant_id: grantId, financial_year_id: fyId, program_id: progId,
@@ -10256,8 +10528,8 @@ async function gsActivate() {
       });
     }
 
-    // ── 6: Disbursement schedule ──────────────────────────────────
-    setLo('Saving disbursements…','Step 6 of 8');
+    // Step 6: Disbursement schedule
+    setLo('Saving disbursements...','Step 6 of 8');
     for (const [i, d] of gsState.disbRows.entries()) {
       await gsSbInsert('grant_disbursement_schedule', {
         grant_id: grantId, installment_no: i + 1,
@@ -10266,8 +10538,8 @@ async function gsActivate() {
       });
     }
 
-    // ── 7: Reporting schedule ─────────────────────────────────────
-    setLo('Saving reporting schedule…','Step 7 of 8');
+    // Step 7: Reporting schedule
+    setLo('Saving reporting schedule...','Step 7 of 8');
     for (const r of gsState.reportRows) {
       await gsSbInsert('grant_reporting_schedule', {
         grant_id: grantId, report_type: r.type,
@@ -10276,8 +10548,8 @@ async function gsActivate() {
       });
     }
 
-    // ── 8: Outcome commitments + MOU document ────────────────────
-    setLo('Saving outcome commitments…','Step 8 of 8');
+    // Step 8: Outcome commitments + MOU document
+    setLo('Saving outcome commitments...','Step 8 of 8');
     for (const oc of gsState.committedOutcomes) {
       await gsSbInsert('grant_indicator_commitment', {
         grant_id: grantId, indicator_id: oc.indicatorId, financial_year_id: fyId,
@@ -10293,12 +10565,24 @@ async function gsActivate() {
       });
     }
 
+    const donorName = (window.gsDbDonors || []).find(d => d.donor_id === donorId)?.donor_name
+      || (document.getElementById('gs-d-name')?.value?.trim() || '');
+    gsSyncGrantToBudgetTracker(grant, donorName, fyId, progId);
+
     if(lo) lo.classList.remove('show');
     gsShowSuccess();
   } catch(err) {
+    let rollbackNote = '';
+    if (grantId) {
+      setLo('Reverting failed save...','Cleaning partial records');
+      const rolledBack = await gsRollbackGrantRecords(grantId);
+      rollbackNote = rolledBack ? ' Partial data rolled back.' : ' Rollback may be incomplete.';
+    } else if (donorWasCreated && donorId) {
+      await gsSbDelete('donor', `donor_id=eq.${donorId}`);
+    }
     if(lo) lo.classList.remove('show');
     console.error('[gsActivate]', err);
-    toast(IC.warning + ' Save error: ' + (err.message || 'Unknown error — check console'));
+    toast(IC.warning + ' Save error: ' + (err.message || 'Unknown error - check console') + rollbackNote);
   }
 }
 
@@ -12075,12 +12359,13 @@ function showPage(route) {
   if (route === 'budget-tracker') route = 'grant-mgmt';
 
   // ── Sub-nav active state ──────────────────────────────────────────
-  const isGrantMgmt = route === 'grant-mgmt' || route === 'grant-setup' || route === 'budget-book';
+  const isGrantMgmt = route === 'grant-mgmt' || route === 'grant-setup' || route === 'budget-book' || route === 'grant-burn-upload';
   $('nav-budget')?.classList.toggle('sub-open', isGrantMgmt);
   $('nav-gm-sub')?.classList.toggle('open', isGrantMgmt);
   $('nav-sub-portfolio')?.classList.toggle('active',    route === 'grant-mgmt');
   $('nav-sub-newgrant')?.classList.toggle('active',     route === 'grant-setup');
   $('nav-sub-budgetbook')?.classList.toggle('active',   route === 'budget-book');
+  $('nav-sub-burnupload')?.classList.toggle('active',   route === 'grant-burn-upload');
 
   // update nav — parent button active when any grant-mgmt sub-route is active
   qsa('.nav-btn').forEach(b => {
@@ -12091,7 +12376,7 @@ function showPage(route) {
   });
 
   // hide all pages
-  ['home','data-entry','data-entry-sheet','me-book','me-builder','lfa','data-upload','budget-book','budget-tracker'].forEach(id => {
+  ['home','data-entry','data-entry-sheet','me-book','me-builder','lfa','data-upload','budget-book','budget-tracker','grant-burn-upload'].forEach(id => {
     $(`page-${id}`)?.classList.add('hidden');
   });
   // also hide the inline grant setup panel if navigating away
@@ -12182,6 +12467,11 @@ function showPage(route) {
     $('crumb-path').textContent = 'Grant Management';
     $('crumb-title').textContent = 'Portfolio Overview';
     btShowProgSelector();
+  } else if (route === 'grant-burn-upload') {
+    $('page-grant-burn-upload')?.classList.remove('hidden');
+    $('crumb-path').textContent = 'Grant Management';
+    $('crumb-title').textContent = 'Upload Monthly Burn';
+    if (typeof gmbInit === 'function') gmbInit();
   } else if (route === 'grant-setup') {
     $('page-grant-setup')?.classList.remove('hidden');
     $('crumb-path').textContent  = 'Grant Management';
@@ -19954,12 +20244,13 @@ function btRenderMonthly() {
   const lines     = btGetLines(grantId);
   const et        = $('bt-monthly-type-sel')?.value || 'actual';
   const wrap      = $('bt-monthly-wrap'); if (!wrap) return;
-  if ($('bt-monthly-title')) $('bt-monthly-title').textContent = `Monthly ${et==='actual'?'Actuals':'Forecast'} — ${grant?.donor||''}`;
+  if ($('bt-monthly-title')) $('bt-monthly-title').textContent = `Monthly ${et==='actual'?'Actuals':'Forecast'} — ${grant?.donor||''} (View only)`;
 
   const catOrder = ['A','B','C','D','E','F'];
   const grouped  = {};
   lines.forEach(l => { if (!grouped[l.cat]) grouped[l.cat]=[]; grouped[l.cat].push(l); });
   const catNames = { A:'Project Activity', B:'Program Cost', C:'Logistics', D:'Infrastructure', E:'Admin', F:'Volunteering' };
+  const fmtCell = v => (v == null || v === '') ? '—' : Number(v).toLocaleString('en-IN');
 
   let trs='', grandTotals=new Array(12).fill(0), grandAlloc=0, grandMonthly=0;
 
@@ -19969,7 +20260,7 @@ function btRenderMonthly() {
     grouped[cat].forEach(l => {
       const cells = MONTHS_FY.map((_,i) => {
         const v = btMonthVal(l.id, i, et);
-        return `<td class="num"><input class="bt-month-inp" type="number" min="0" step="1" data-lid="${l.id}" data-mi="${i}" data-et="${et}" value="${v!==null?v:''}" placeholder="—" /></td>`;
+        return `<td class="num">${fmtCell(v)}</td>`;
       });
       const rowTotal = MONTHS_FY.reduce((s,_,i) => s+(btMonthVal(l.id,i,et)||0), 0);
       const var_ = (l.allocated||0) - rowTotal;
@@ -20004,18 +20295,6 @@ function btRenderMonthly() {
     </tr></thead>
     <tbody>${trs}</tbody>
   </table></div>`;
-
-  qsa('input.bt-month-inp', wrap).forEach(inp => {
-    inp.addEventListener('change', e => {
-      const {lid, mi, et:et_} = e.target.dataset;
-      const val = parseFloat(e.target.value) || null;
-      btSetMonthVal(lid, parseInt(mi), et_, val);
-      if (et_ === 'actual') {
-        const line = btGetLines(grantId).find(l => l.id === lid);
-        if (line) { line.utilised = MONTHS_FY.reduce((s,_,i) => s+(btMonthVal(lid,i,'actual')||0), 0); btRenderGrantStrip(btStore.activeProg); }
-      }
-    });
-  });
 }
 
 function btRenderDisbursements() {
@@ -20607,6 +20886,487 @@ function gmToggleSub(e) {
   }
 }
 
+// Upload Monthly Burn state + helpers (scoped to Grant Management only)
+const gmbState = {
+  inited: false,
+  bound: false,
+  file: null,
+  history: [],
+};
+
+function gmbPrograms() {
+  return Array.isArray(btStore?.programs) ? btStore.programs : [];
+}
+
+function gmbDonorsForProgram(programId) {
+  return Array.isArray(btStore?.grants?.[programId]) ? btStore.grants[programId] : [];
+}
+
+function gmbFormatBytes(n) {
+  const val = Number(n) || 0;
+  if (val >= 1024 * 1024) return `${(val / (1024 * 1024)).toFixed(2)} MB`;
+  if (val >= 1024) return `${(val / 1024).toFixed(1)} KB`;
+  return `${val} B`;
+}
+
+function gmbMonthFromTopbar() {
+  const raw = String($('month-select')?.value || state?.month || '').trim();
+  const token = raw.slice(0, 3);
+  return MONTHS_FY.includes(token) ? token : '';
+}
+
+function gmbCurrentMonthToken() {
+  const idx = new Date().getMonth(); // Jan=0..Dec=11
+  const map = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return map[idx] || 'Apr';
+}
+
+function gmbSetMonthDefault() {
+  const sel = $('gmb-month-sel');
+  if (!sel) return;
+  if (sel.value && MONTHS_FY.includes(sel.value)) return;
+  const fromTop = gmbMonthFromTopbar();
+  const fromNow = gmbCurrentMonthToken();
+  sel.value = MONTHS_FY.includes(fromTop) ? fromTop : (MONTHS_FY.includes(fromNow) ? fromNow : '');
+}
+
+function gmbRenderPrograms() {
+  const sel = $('gmb-program-sel');
+  if (!sel) return;
+  const prev = sel.value || btStore.activeProg || '';
+  const opts = ['<option value="">Select program...</option>']
+    .concat(gmbPrograms().map(p => `<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.id)})</option>`));
+  sel.innerHTML = opts.join('');
+  if (prev && gmbPrograms().some(p => p.id === prev)) sel.value = prev;
+}
+
+function gmbRenderDonors() {
+  const sel = $('gmb-donor-sel');
+  if (!sel) return;
+  const programId = $('gmb-program-sel')?.value || '';
+  const donors = gmbDonorsForProgram(programId);
+  if (!programId) {
+    sel.innerHTML = '<option value="">Select donor grant...</option>';
+    sel.value = '';
+    return;
+  }
+  const opts = ['<option value="">Select donor grant...</option>']
+    .concat(donors.map(g => `<option value="${esc(g.id)}">${esc(g.donor)} · ${esc(g.code || g.id)}</option>`));
+  const prev = sel.value || '';
+  sel.innerHTML = opts.join('');
+  if (prev && donors.some(g => g.id === prev)) sel.value = prev;
+  else if (donors.length === 1) sel.value = donors[0].id;
+}
+
+function gmbClearFile() {
+  gmbState.file = null;
+  const row = $('gmb-file-row');
+  if (row) row.style.display = 'none';
+  const fi = $('gmb-file-input');
+  if (fi) fi.value = '';
+  gmbUpdateUploadBtn();
+}
+
+function gmbSetFile(file) {
+  if (!file) return;
+  if (!/\.(csv|xlsx|xls)$/i.test(file.name || '')) {
+    toast(IC.warning + ' Upload only .csv, .xlsx or .xls files');
+    return;
+  }
+  gmbState.file = file;
+  const row = $('gmb-file-row');
+  const name = $('gmb-file-name');
+  const meta = $('gmb-file-meta');
+  if (name) name.textContent = file.name;
+  if (meta) meta.textContent = `${gmbFormatBytes(file.size)} · ${(file.type || 'Spreadsheet file')}`;
+  if (row) row.style.display = 'flex';
+  gmbUpdateUploadBtn();
+}
+
+function gmbCanUpload() {
+  return !!(
+    $('gmb-program-sel')?.value &&
+    $('gmb-donor-sel')?.value &&
+    $('gmb-fy-sel')?.value &&
+    $('gmb-month-sel')?.value &&
+    gmbState.file
+  );
+}
+
+function gmbUpdateUploadBtn() {
+  const btn = $('gmb-upload-btn');
+  if (!btn) return;
+  btn.disabled = !gmbCanUpload();
+}
+
+function gmbToNumber(v) {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  const s = String(v ?? '').replace(/[^0-9.-]/g, '');
+  if (!s || s === '-' || s === '.' || s === '-.') return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
+function gmbNormKey(v) {
+  return String(v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function gmbFindHeader(headers, patterns) {
+  const list = headers.map(h => ({ raw: h, norm: gmbNormKey(h) }));
+  for (const re of patterns) {
+    const hit = list.find(x => re.test(x.norm));
+    if (hit) return hit.raw;
+  }
+  return null;
+}
+
+function gmbNormCode(v) {
+  const raw = String(v || '').trim().toUpperCase().replace(/\s+/g, '');
+  if (!raw) return '';
+  const m = raw.match(/^([A-Z])(?:[.\-_])?(\d{1,3})$/);
+  if (m) return `${m[1]}.${parseInt(m[2], 10)}`;
+  return raw;
+}
+
+function gmbMonthToken(v) {
+  if (v == null || v === '') return '';
+  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+    return v.toLocaleString('en-US', { month: 'short' });
+  }
+  if (typeof v === 'number' && typeof XLSX !== 'undefined' && XLSX.SSF?.parse_date_code) {
+    const d = XLSX.SSF.parse_date_code(v);
+    if (d?.m) {
+      const dt = new Date(d.y || new Date().getFullYear(), d.m - 1, d.d || 1);
+      return dt.toLocaleString('en-US', { month: 'short' });
+    }
+  }
+  const s = String(v).trim();
+  if (!s) return '';
+  const parsed = new Date(s);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleString('en-US', { month: 'short' });
+  }
+  const m = s.match(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b/i);
+  if (m) return m[1][0].toUpperCase() + m[1].slice(1, 3).toLowerCase();
+  return s.slice(0, 3).replace(/[^A-Za-z]/g, '').replace(/^./, c => c.toUpperCase()).toLowerCase().replace(/^./, c => c.toUpperCase());
+}
+
+function gmbExtractBurnByCode(headers, rows, selectedMonth) {
+  const codeHeader = gmbFindHeader(headers, [
+    /^budget code$/,
+    /budget.*code/,
+    /line.*code/,
+    /^code$/,
+  ]);
+  const amountHeader = gmbFindHeader(headers, [
+    /^allocated amount$/,
+    /allocated.*amount/,
+    /^amount$/,
+    /burn.*amount/,
+    /actual.*amount/,
+    /expense.*amount/,
+  ]);
+  const monthHeader = gmbFindHeader(headers, [
+    /^month$/,
+    /reporting.*month/,
+    /burn.*month/,
+    /^period$/,
+  ]);
+
+  if (!codeHeader) throw new Error('Budget Code column not found in file');
+  if (!amountHeader) throw new Error('Amount column not found in file');
+
+  const monthsFound = new Set();
+  if (monthHeader) {
+    rows.forEach(r => {
+      const token = gmbMonthToken(r?.[monthHeader]);
+      if (token && MONTHS_FY.includes(token)) monthsFound.add(token);
+    });
+  }
+  const useMonthFilter = !!selectedMonth && monthsFound.size > 0;
+  const byCode = {};
+  let rowsUsed = 0;
+
+  rows.forEach(r => {
+    const code = gmbNormCode(r?.[codeHeader]);
+    const amount = gmbToNumber(r?.[amountHeader]);
+    if (!code || amount == null) return;
+
+    const rowMonth = monthHeader ? gmbMonthToken(r?.[monthHeader]) : '';
+    if (useMonthFilter && rowMonth !== selectedMonth) return;
+
+    byCode[code] = (byCode[code] || 0) + amount;
+    rowsUsed += 1;
+  });
+
+  const amount = Object.values(byCode).reduce((s, n) => s + (Number(n) || 0), 0);
+  return {
+    byCode,
+    amount,
+    rowsUsed,
+    codeCount: Object.keys(byCode).length,
+    codeHeader: String(codeHeader),
+    amountHeader: String(amountHeader),
+    monthHeader: monthHeader ? String(monthHeader) : '',
+    monthsFound: Array.from(monthsFound),
+    monthFiltered: !!(selectedMonth && monthsFound.size > 0),
+  };
+}
+
+function gmbParseCSV(text) {
+  if (typeof duParseCSV === 'function') return duParseCSV(text);
+  const lines = String(text || '').split(/\r?\n/).filter(l => l.trim());
+  if (!lines.length) return { headers: [], rows: [] };
+  const parse = line => {
+    const out = [];
+    let cur = '';
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') inQ = !inQ;
+      else if (c === ',' && !inQ) { out.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    out.push(cur.trim());
+    return out;
+  };
+  const headers = parse(lines[0]);
+  const rows = lines.slice(1).map(line => {
+    const cells = parse(line);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = cells[i] || ''; });
+    return obj;
+  });
+  return { headers, rows };
+}
+
+function gmbReadUploadStats(file, selectedMonth) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onload = e => {
+      try {
+        let headers = [];
+        let rows = [];
+        const name = String(file.name || '').toLowerCase();
+        if (name.endsWith('.csv')) {
+          const parsed = gmbParseCSV(e.target.result);
+          headers = parsed.headers || [];
+          rows = parsed.rows || [];
+        } else {
+          if (typeof XLSX === 'undefined') throw new Error('Sheet parser is not available');
+          const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const headerGrid = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: false });
+          headers = Array.isArray(headerGrid[0]) ? headerGrid[0].map(v => String(v || '').trim()) : [];
+          rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+          if (!headers.length && rows.length) headers = Object.keys(rows[0]);
+        }
+        const burn = gmbExtractBurnByCode(headers, rows, selectedMonth);
+        resolve({
+          rows: rows.length,
+          cols: headers.length,
+          amount: Number(burn.amount || 0),
+          byCode: burn.byCode || {},
+          codeCount: burn.codeCount || 0,
+          rowsUsed: burn.rowsUsed || 0,
+          codeHeader: burn.codeHeader || '',
+          amountHeader: burn.amountHeader || '',
+          monthHeader: burn.monthHeader || '',
+          monthsFound: burn.monthsFound || [],
+          monthFiltered: !!burn.monthFiltered,
+        });
+      } catch (err) {
+        reject(err);
+      }
+    };
+    if (String(file.name || '').toLowerCase().endsWith('.csv')) reader.readAsText(file);
+    else reader.readAsArrayBuffer(file);
+  });
+}
+
+function gmbApplyUploadToPortfolio(rec) {
+  const monthIdx = MONTHS_FY.indexOf(rec.month);
+  if (monthIdx < 0) return { ok: false, reason: 'invalid_month' };
+  const lines = btGetLines(rec.grantId);
+  if (!lines.length) return { ok: false, reason: 'no_budget_lines' };
+
+  const uploadedByCode = rec.byCode || {};
+  const codeEntries = Object.entries(uploadedByCode)
+    .map(([code, v]) => [code, Number(v)])
+    .filter(([, v]) => Number.isFinite(v));
+  if (!codeEntries.length) return { ok: false, reason: 'no_burn_rows' };
+
+  const lineByCode = new Map();
+  lines.forEach(line => lineByCode.set(gmbNormCode(line.code), line));
+
+  const matched = [];
+  const unmatched = [];
+  codeEntries.forEach(([code, amount]) => {
+    const line = lineByCode.get(gmbNormCode(code));
+    if (!line) {
+      unmatched.push(code);
+      return;
+    }
+    matched.push({ line, amount: Number(amount) || 0, code: gmbNormCode(code) });
+  });
+
+  if (!matched.length) return { ok: false, reason: 'no_code_match', unmatched };
+
+  // Month upload replaces current month's values for this grant.
+  lines.forEach(line => {
+    btSetMonthVal(line.id, monthIdx, 'actual', null);
+  });
+  matched.forEach(item => {
+    btSetMonthVal(item.line.id, monthIdx, 'actual', item.amount);
+  });
+  lines.forEach(line => {
+    line.utilised = MONTHS_FY.reduce((sum, _, mi) => sum + (btMonthVal(line.id, mi, 'actual') || 0), 0);
+  });
+
+  if (btStore.activeProg === rec.programId) {
+    btRenderGrantStrip(btStore.activeProg);
+    if (btStore.activeGrant === rec.grantId) btRenderCurrentView();
+  }
+  return {
+    ok: true,
+    matchedCount: matched.length,
+    matchedAmount: matched.reduce((sum, m) => sum + (Number(m.amount) || 0), 0),
+    unmatched,
+    updatedLineIds: matched.map(m => m.line.id),
+  };
+}
+
+function gmbRenderHistory() {
+  const body = $('gmb-history-body');
+  if (!body) return;
+  if (!gmbState.history.length) {
+    body.innerHTML = '<tr><td colspan="6" class="gmb-empty">No uploads yet.</td></tr>';
+    return;
+  }
+  body.innerHTML = gmbState.history.slice().reverse().map(rec => {
+    const when = new Date(rec.uploadedAt).toLocaleString('en-IN');
+    const monthBlock = `${esc(rec.fy)} / ${esc(rec.month)}`;
+    const fileMeta = `${esc(rec.fileName)}<br><span style="font-size:10px;color:var(--slate);">${gmbFormatBytes(rec.fileSize)} · ${rec.rows} rows · ${rec.cols} cols · ${rec.codeCount || 0} codes</span>`;
+    return `<tr>
+      <td>${when}</td>
+      <td>${esc(rec.programName)}</td>
+      <td>${esc(rec.donorName)}</td>
+      <td>${monthBlock}</td>
+      <td>${fileMeta}</td>
+      <td><span class="gmb-status">${esc(rec.status)} · ${rec.matchedCount || 0} matched · ${FMT(rec.amount)}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function gmbUploadNow() {
+  if (!gmbCanUpload()) {
+    toast(IC.warning + ' Select program, donor, financial year, month and file');
+    gmbUpdateUploadBtn();
+    return;
+  }
+  const btn = $('gmb-upload-btn');
+  const programId = $('gmb-program-sel')?.value || '';
+  const grantId = $('gmb-donor-sel')?.value || '';
+  const fy = $('gmb-fy-sel')?.value || '';
+  const month = $('gmb-month-sel')?.value || '';
+  const program = gmbPrograms().find(p => p.id === programId);
+  const grant = gmbDonorsForProgram(programId).find(g => g.id === grantId);
+  if (!program || !grant) {
+    toast(IC.warning + ' Program/Donor selection is invalid');
+    return;
+  }
+
+  try {
+    if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
+    const stats = await gmbReadUploadStats(gmbState.file, month);
+    const rec = {
+      uploadedAt: new Date().toISOString(),
+      programId,
+      programName: program.name,
+      grantId,
+      donorName: grant.donor,
+      fy,
+      month,
+      fileName: gmbState.file.name,
+      fileSize: gmbState.file.size || 0,
+      rows: stats.rows || 0,
+      cols: stats.cols || 0,
+      amount: Number(stats.amount || 0),
+      byCode: stats.byCode || {},
+      codeCount: stats.codeCount || 0,
+      rowsUsed: stats.rowsUsed || 0,
+      monthFiltered: !!stats.monthFiltered,
+      status: 'Synced',
+    };
+
+    const sync = gmbApplyUploadToPortfolio(rec);
+    if (!sync.ok) {
+      if (sync.reason === 'no_budget_lines') throw new Error('Selected donor grant has no budget lines in portfolio');
+      if (sync.reason === 'invalid_month') throw new Error('Please select a valid month');
+      if (sync.reason === 'no_burn_rows') throw new Error('No burn rows found in file for selected month');
+      if (sync.reason === 'no_code_match') throw new Error('No matching Budget Code found for selected donor grant');
+      throw new Error('Portfolio sync failed');
+    }
+    rec.matchedCount = sync.matchedCount || 0;
+    rec.unmatchedCodes = sync.unmatched || [];
+    rec.amount = Number(sync.matchedAmount || rec.amount || 0);
+
+    gmbState.history.push(rec);
+    gmbRenderHistory();
+    gmbClearFile();
+    const miss = rec.unmatchedCodes.length ? ` · ${rec.unmatchedCodes.length} code(s) not mapped` : '';
+    toast(`${IC['check-circle']} Synced ${rec.matchedCount} budget code(s) for ${program.name} · ${grant.donor} · ${month}${miss}`);
+  } catch (err) {
+    toast(IC.warning + ' Upload failed: ' + (err?.message || 'Unknown error'));
+  } finally {
+    if (btn) { btn.textContent = 'Upload And Sync Portfolio'; gmbUpdateUploadBtn(); }
+  }
+}
+
+function gmbBindEvents() {
+  if (gmbState.bound) return;
+  gmbState.bound = true;
+
+  $('gmb-program-sel')?.addEventListener('change', () => {
+    gmbRenderDonors();
+    gmbUpdateUploadBtn();
+  });
+  $('gmb-donor-sel')?.addEventListener('change', gmbUpdateUploadBtn);
+  $('gmb-fy-sel')?.addEventListener('change', gmbUpdateUploadBtn);
+  $('gmb-month-sel')?.addEventListener('change', gmbUpdateUploadBtn);
+
+  $('gmb-dropzone')?.addEventListener('click', () => $('gmb-file-input')?.click());
+  $('gmb-dropzone')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('gmb-file-input')?.click(); }
+  });
+  $('gmb-dropzone')?.addEventListener('dragover', e => { e.preventDefault(); });
+  $('gmb-dropzone')?.addEventListener('drop', e => {
+    e.preventDefault();
+    const file = e.dataTransfer?.files?.[0];
+    if (file) gmbSetFile(file);
+  });
+  $('gmb-file-input')?.addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (file) gmbSetFile(file);
+  });
+  $('gmb-file-clear-btn')?.addEventListener('click', e => {
+    e.preventDefault();
+    gmbClearFile();
+  });
+  $('gmb-upload-btn')?.addEventListener('click', gmbUploadNow);
+}
+
+function gmbInit() {
+  gmbRenderPrograms();
+  gmbRenderDonors();
+  gmbSetMonthDefault();
+  gmbRenderHistory();
+  gmbUpdateUploadBtn();
+  gmbBindEvents();
+  gmbState.inited = true;
+}
+
 // ── Budget Tracker INIT wiring ────────────────────────────────────
 (function() {
   // View toggle buttons
@@ -20792,7 +21552,7 @@ async function bbLoadHeads() {
           ${h.description ? `<span class="bb-desc">${esc(h.description)}</span>` : ''}
           ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
           <span class="bb-card-actions" onclick="event.stopPropagation()">
-            ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_head_id}','${(h.head_name||'').replace(/'/g,"\\'")}','${(h.category||'').replace(/'/g,"\\'")}','${(h.description||'').replace(/'/g,"\\'")}')">
+            ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_head_id}')">
               ${IC.edit}</button>` : ''}
             ${sw}
           </span>
@@ -20812,7 +21572,7 @@ async function bbLoadHeads() {
   } catch(e) { if (el) el.innerHTML = `<div class="bb-err">${IC.warning} ${e.message}</div>`; }
 }
 
-function bbEditHead(id, name, cat, desc) {
+function bbEditHead(id) {
   document.querySelectorAll('.bb-edit-panel').forEach(ep => ep.style.display = 'none');
   const ep = document.getElementById(`bb-bh-ep-${id}`);
   if (ep) { ep.style.display = 'flex'; document.getElementById(`bb-bh-ei-name-${id}`)?.focus(); }
@@ -21149,7 +21909,7 @@ async function bbLoadCats() {
         </div>
         ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
         <span class="bb-card-actions" onclick="event.stopPropagation()">
-          ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditCat('${c.budget_category_id}','${esc(c.cat_code)}','${esc(c.cat_label)}','${c.cat_color||'#3b82f6'}',${c.sort_order||0})">${IC.edit}</button>` : ''}
+          ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditCat('${c.budget_category_id}')">${IC.edit}</button>` : ''}
           ${sw}
         </span>
         <div class="bb-edit-panel" id="bb-bc-ep-${c.budget_category_id}" style="display:none;width:100%;flex-wrap:wrap;gap:8px;margin-top:8px;">
@@ -21165,7 +21925,7 @@ async function bbLoadCats() {
   } catch(e) { if (el) el.innerHTML = `<div class="bb-err">${IC.warning} ${e.message}</div>`; }
 }
 
-function bbEditCat(id, code, label, color, sort) {
+function bbEditCat(id) {
   const ep = document.getElementById(`bb-bc-ep-${id}`); if (!ep) return;
   ep.style.display = 'flex';
   ep.closest('.bb-card').querySelectorAll('.bb-card-actions').forEach(el => el.style.opacity='0');
