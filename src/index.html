@@ -9924,15 +9924,15 @@ async function gsLoadFromDB() {
 
     // 6. Budget Heads from Budget Book (for budget line dropdowns)
     try {
-      const heads = await gsSbFetch('budget_head', 'is_active=eq.true&select=budget_head_id,head_code,head_name,category&order=sort_order.asc,head_name.asc');
+      const heads = await gsSbFetch('budget_line', 'is_active=eq.true&select=budget_line_id,head_code,head_name,category&order=sort_order.asc,head_name.asc');
       window.gsBudgetHeads = heads;
-    } catch(e3) { console.warn('[gsLoadFromDB] budget_head load failed', e3); }
+    } catch(e3) { console.warn('[gsLoadFromDB] budget_line load failed', e3); }
 
     // 7. Budget Categories from Budget Book
     try {
-      const cats = await gsSbFetch('budget_category', 'is_active=eq.true&select=budget_category_id,cat_code,cat_label,cat_color&order=sort_order.asc');
+      const cats = await gsSbFetch('budget_head', 'is_active=eq.true&select=budget_head_id,cat_code,cat_label,cat_color&order=sort_order.asc');
       window.gsCategoryDefs = cats;
-    } catch(e4) { console.warn('[gsLoadFromDB] budget_category load failed', e4); }
+    } catch(e4) { console.warn('[gsLoadFromDB] budget_head load failed', e4); }
 
     // Re-render chips with live data
     gsRenderFYChips();
@@ -10214,7 +10214,7 @@ function gsRenderBL() {
     <td>
       <select style="min-width:150px;" onchange="gsBlSet('${l.id}','head',this.options[this.selectedIndex]?.text||'');gsBlSet('${l.id}','headId',this.value)">
         <option value="">— Budget Head —</option>
-        ${(window.gsBudgetHeads||[]).map(h=>`<option value="${h.budget_head_id}"${l.headId===h.budget_head_id?' selected':''}>${esc(h.head_name)}</option>`).join('')}
+        ${(window.gsBudgetHeads||[]).map(h=>`<option value="${h.budget_line_id}"${l.headId===h.budget_line_id?' selected':''}>${esc(h.head_name)}</option>`).join('')}
       </select>
     </td>
     <td>
@@ -22014,8 +22014,8 @@ async function bbLoadStats() {
   try {
     const hdr = { ...MEBK_HDR, 'Prefer': 'count=exact' };
     const [bcR, bhR, dnR, grR] = await Promise.all([
-      fetch(`${MEBK_URL}/rest/v1/budget_category?is_active=eq.true&select=budget_category_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/budget_head?is_active=eq.true&select=budget_head_id&limit=1`, { headers: hdr }),
+      fetch(`${MEBK_URL}/rest/v1/budget_line?is_active=eq.true&select=budget_line_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/donor?is_active=eq.true&select=donor_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/grant_program?is_active=eq.true&select=grant_program_id&limit=1`, { headers: hdr }),
     ]);
@@ -22045,10 +22045,10 @@ async function bbLoadHeads() {
   const fv = window.bbFilter.bh;
   const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
   try {
-    // Fetch budget lines joined with parent budget head (budget_category)
+    // Fetch budget lines joined with parent budget head
     const [res, catRes] = await Promise.all([
-      fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,head_code,head_name,description,is_active,budget_category_id,budget_category(cat_code,cat_label,cat_color)&order=budget_category_id.asc.nullsfirst,sort_order.asc,head_name.asc${af}&limit=300`, { headers: MEBK_HDR }),
-      fetch(`${MEBK_URL}/rest/v1/budget_category?select=budget_category_id,cat_code,cat_label,cat_color&is_active=eq.true&order=sort_order.asc`, { headers: MEBK_HDR })
+      fetch(`${MEBK_URL}/rest/v1/budget_line?select=budget_line_id,head_code,head_name,description,is_active,budget_head_id,budget_head(cat_code,cat_label,cat_color)&order=budget_head_id.asc.nullsfirst,sort_order.asc,head_name.asc${af}&limit=300`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,cat_code,cat_label,cat_color&is_active=eq.true&order=sort_order.asc`, { headers: MEBK_HDR })
     ]);
     const data = await res.json();
     const cats = await catRes.json();
@@ -22061,16 +22061,16 @@ async function bbLoadHeads() {
       el.innerHTML = `<div class="bb-empty"><div class="bb-empty-icon">${IC.chart}</div>${msg}</div>`; return;
     }
 
-    // Group lines by parent Budget Head (budget_category)
+    // Group lines by parent Budget Head
     const groups = {};
     data.forEach(h => {
-      const key = h.budget_category_id || '__none__';
-      if (!groups[key]) groups[key] = { cat: h.budget_category, lines: [] };
+      const key = h.budget_head_id || '__none__';
+      if (!groups[key]) groups[key] = { cat: h.budget_head, lines: [] };
       groups[key].lines.push(h);
     });
 
     const catOptsFn = (selId) => window.bbCatsCache.map(c =>
-      `<option value="${c.budget_category_id}" ${selId===c.budget_category_id?'selected':''}>${c.cat_code} — ${esc(c.cat_label)}</option>`
+      `<option value="${c.budget_head_id}" ${selId===c.budget_head_id?'selected':''}>${c.cat_code} — ${esc(c.cat_label)}</option>`
     ).join('');
 
     el.innerHTML = Object.entries(groups).map(([key, grp]) => {
@@ -22079,28 +22079,28 @@ async function bbLoadHeads() {
       const lbl = cat ? `${cat.cat_code} — ${esc(cat.cat_label)}` : 'Uncategorised';
       const lineCards = grp.lines.map(h => {
         const isActive = h.is_active !== false;
-        const sw = bbSwitch(isActive, `bbSetActiveHead('${h.budget_head_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
+        const sw = bbSwitch(isActive, `bbSetActiveHead('${h.budget_line_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
         return `
-        <div class="bb-card${isActive ? '' : ' inactive'}" id="bb-bh-${h.budget_head_id}">
+        <div class="bb-card${isActive ? '' : ' inactive'}" id="bb-bh-${h.budget_line_id}">
           <div class="bb-card-hd">
             <span class="bb-code-chip bh">${h.head_code || '—'}</span>
             <span class="bb-name">${esc(h.head_name)}</span>
             ${h.description ? `<span class="bb-desc">${esc(h.description)}</span>` : ''}
             ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
             <span class="bb-card-actions" onclick="event.stopPropagation()">
-              ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_head_id}')">${IC.edit}</button>` : ''}
+              ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_line_id}')">${IC.edit}</button>` : ''}
               ${sw}
             </span>
           </div>
-          <div class="bb-edit-panel" id="bb-bh-ep-${h.budget_head_id}">
-            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-name-${h.budget_head_id}" value="${(h.head_name||'').replace(/"/g,'&quot;')}" placeholder="Budget line name…"/>
-            <select class="bb-sel" id="bb-bh-ei-cat-${h.budget_head_id}">
+          <div class="bb-edit-panel" id="bb-bh-ep-${h.budget_line_id}">
+            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-name-${h.budget_line_id}" value="${(h.head_name||'').replace(/"/g,'&quot;')}" placeholder="Budget line name…"/>
+            <select class="bb-sel" id="bb-bh-ei-cat-${h.budget_line_id}">
               <option value="">Select Budget Head…</option>
-              ${catOptsFn(h.budget_category_id)}
+              ${catOptsFn(h.budget_head_id)}
             </select>
-            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-desc-${h.budget_head_id}" value="${(h.description||'').replace(/"/g,'&quot;')}" placeholder="Description…"/>
-            <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditHead('${h.budget_head_id}')">Save</button>
-            <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bh-ep-${h.budget_head_id}').style.display='none'">Cancel</button>
+            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-desc-${h.budget_line_id}" value="${(h.description||'').replace(/"/g,'&quot;')}" placeholder="Description…"/>
+            <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditHead('${h.budget_line_id}')">Save</button>
+            <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bh-ep-${h.budget_line_id}').style.display='none'">Cancel</button>
           </div>
         </div>`;
       }).join('');
@@ -22127,9 +22127,9 @@ async function bbSaveEditHead(id) {
   const desc  = document.getElementById(`bb-bh-ei-desc-${id}`)?.value.trim();
   if (!name) { alert('Budget line name is required.'); return; }
   try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}`, {
       method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ head_name: name, budget_category_id: catId || null, description: desc || null })
+      body: JSON.stringify({ head_name: name, budget_head_id: catId || null, description: desc || null })
     });
     if (!res.ok) throw new Error(await res.text());
     await bbLoadHeads(); bbToast('Budget line updated ✓');
@@ -22138,7 +22138,7 @@ async function bbSaveEditHead(id) {
 async function bbSetActiveHead(id, newActive) {
   if (!confirm(`${newActive ? 'Reactivate' : 'Deactivate'} this budget line?`)) return;
   try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}`, {
       method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
       body: JSON.stringify({ is_active: newActive })
     });
@@ -22149,12 +22149,12 @@ async function bbSetActiveHead(id, newActive) {
 }
 async function bbShowForm(tab) {
   if (tab === 'bh') {
-    // Populate Budget Head dropdown dynamically from budget_category cache
+    // Populate Budget Head dropdown dynamically from budget_head cache
     const sel = document.getElementById('bb-bh-cat');
     if (sel) {
       const cats = window.bbCatsCache || [];
       sel.innerHTML = `<option value="">Select Budget Head…</option>` +
-        cats.map(c => `<option value="${c.budget_category_id}">${c.cat_code} — ${esc(c.cat_label)}</option>`).join('');
+        cats.map(c => `<option value="${c.budget_head_id}">${c.cat_code} — ${esc(c.cat_label)}</option>`).join('');
     }
     document.getElementById('bb-form-bh').style.display = 'flex';
     document.getElementById('bb-bh-name')?.focus();
@@ -22176,9 +22176,9 @@ async function bbSaveHead() {
   const btn = document.getElementById('bb-bh-save-btn');
   if (btn) btn.disabled = true;
   try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line`, {
       method: 'POST', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ head_name: name, budget_category_id: catId || null, description: desc || null, is_active: true })
+      body: JSON.stringify({ head_name: name, budget_head_id: catId || null, description: desc || null, is_active: true })
     });
     if (!res.ok) throw new Error(await res.text());
     document.getElementById('bb-bh-name').value = '';
@@ -22442,182 +22442,7 @@ async function bbSaveGrant() {
   if (btn) btn.disabled = false;
 }
 
-// ── Budget Lines (CRUD) ──────────────────────────────────────────
-let bbLineEditId = null;
-
-async function bbPopulateGrantSelects() {
-  try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/grant_program?is_active=eq.true&select=grant_program_id,grant_name,donor_id,donor(donor_name)&order=grant_name.asc&limit=200`, { headers: MEBK_HDR });
-    const data = await res.json();
-    const opts = data.map(g => `<option value="${g.grant_program_id}">${g.grant_name}${g.donor?.donor_name ? ' — ' + g.donor.donor_name : ''}</option>`).join('');
-    const form = document.getElementById('bb-bl-grant');
-    if (form) form.innerHTML = '<option value="">Select grant…</option>' + opts;
-    const filter = document.getElementById('bb-bl-filter-grant');
-    if (filter) filter.innerHTML = '<option value="">All Grants</option>' + opts;
-  } catch(e) { /* silent */ }
-}
-
-async function bbPopulateHeadSelect() {
-  try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?is_active=eq.true&select=budget_head_id,head_name,budget_category(cat_code)&order=head_name.asc&limit=200`, { headers: MEBK_HDR });
-    const data = await res.json();
-    const el = document.getElementById('bb-bl-head');
-    if (el) el.innerHTML = '<option value="">No budget head…</option>' + data.map(h => `<option value="${h.budget_head_id}">[${h.budget_category?.cat_code||'?'}] ${h.head_name}</option>`).join('');
-  } catch(e) { /* silent */ }
-}
-
-async function bbLoadLines() {
-  const el = document.getElementById('bb-list-bl');
-  if (!el) return;
-  el.innerHTML = '<div class="bb-loading">Loading…</div>';
-  try {
-    const grantFilter = document.getElementById('bb-bl-filter-grant')?.value;
-    let url = `${MEBK_URL}/rest/v1/budget_line?select=budget_line_id,line_code,line_desc,sanctioned_amount,allocation_factor,code_aliases,is_active,grant_program(grant_name),budget_head(head_name)&order=line_code.asc&limit=200`;
-    if (grantFilter) url += `&grant_program_id=eq.${grantFilter}`;
-    const res = await fetch(url, { headers: MEBK_HDR });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.message || 'Failed');
-    bbRenderLines(data);
-  } catch(e) {
-    el.innerHTML = `<div class="bb-loading" style="color:var(--danger)">Error: ${e.message}</div>`;
-  }
-}
-
-function bbRenderLines(data) {
-  const el = document.getElementById('bb-list-bl');
-  if (!el) return;
-  if (!data || !data.length) {
-    el.innerHTML = '<div class="bb-empty">No budget lines yet. Add one above.</div>';
-    return;
-  }
-  el.innerHTML = data.map(l => {
-    const aliases = (l.code_aliases||[]).map(a => `<span class="bb-bl-tag alias">${a}</span>`).join('');
-    const factor  = l.allocation_factor != null && l.allocation_factor !== 1 ? `<span class="bb-bl-tag" style="background:#fef9c3;color:#a16207;border:1px solid #fde68a;">${(l.allocation_factor*100).toFixed(0)}% shared</span>` : '';
-    const amount  = l.sanctioned_amount != null ? `<div style="font-size:11px;color:var(--slate);margin-top:4px;">₹${Number(l.sanctioned_amount).toLocaleString('en-IN')}</div>` : '';
-    const inactive = !l.is_active ? 'opacity:.5;' : '';
-    return `<div class="bb-bl-card" style="${inactive}">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-        <div>
-          <span class="bb-bl-code">${l.line_code}</span>
-          <div style="font-size:13px;font-weight:600;color:var(--ink);margin:6px 0 2px;">${l.line_desc||'—'}</div>
-          <div style="font-size:11px;color:var(--slate);">${l.grant_program?.grant_name||'—'} ${l.budget_head?.head_name ? '· '+l.budget_head.head_name : ''}</div>
-          ${amount}
-          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${factor}${aliases}</div>
-        </div>
-        <div style="display:flex;gap:5px;flex-shrink:0;">
-          <button class="bb-card-action" title="Edit" onclick="bbEditLine(${l.budget_line_id})">✏️</button>
-          <button class="bb-card-action" title="${l.is_active?'Deactivate':'Activate'}" onclick="bbToggleLine(${l.budget_line_id},${!l.is_active})">${l.is_active?'🔕':'✅'}</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function bbShowLineForm() {
-  bbLineEditId = null;
-  ['bb-bl-code','bb-bl-desc','bb-bl-amount','bb-bl-aliases'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
-  const f = document.getElementById('bb-bl-factor'); if(f) f.value='1';
-  const g = document.getElementById('bb-bl-grant'); if(g) g.value='';
-  const h = document.getElementById('bb-bl-head'); if(h) h.value='';
-  document.getElementById('bb-bl-save-btn').textContent = 'Save Line';
-  bbPopulateGrantSelects();
-  bbPopulateHeadSelect();
-  const form = document.getElementById('bb-form-bl');
-  form.style.display = 'block';
-  document.getElementById('bb-bl-code')?.focus();
-}
-
-function bbHideLineForm() {
-  document.getElementById('bb-form-bl').style.display = 'none';
-  bbLineEditId = null;
-}
-
-async function bbEditLine(id) {
-  try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}&select=*&limit=1`, { headers: MEBK_HDR });
-    const [l] = await res.json();
-    if (!l) return;
-    bbLineEditId = id;
-    await bbPopulateGrantSelects();
-    await bbPopulateHeadSelect();
-    const s = (eid, val) => { const e = document.getElementById(eid); if(e && val != null) e.value = val; };
-    s('bb-bl-grant',  l.grant_program_id);
-    s('bb-bl-code',   l.line_code);
-    s('bb-bl-desc',   l.line_desc);
-    s('bb-bl-head',   l.budget_head_id);
-    s('bb-bl-amount', l.sanctioned_amount);
-    s('bb-bl-factor', l.allocation_factor ?? 1);
-    s('bb-bl-aliases', (l.code_aliases||[]).join(', '));
-    document.getElementById('bb-bl-save-btn').textContent = 'Update Line';
-    const form = document.getElementById('bb-form-bl');
-    form.style.display = 'block';
-    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } catch(e) { alert('Error loading line: ' + e.message); }
-}
-
-async function bbSaveLine() {
-  const grant  = document.getElementById('bb-bl-grant')?.value;
-  const code   = document.getElementById('bb-bl-code')?.value.trim().toUpperCase();
-  const desc   = document.getElementById('bb-bl-desc')?.value.trim();
-  const head   = document.getElementById('bb-bl-head')?.value;
-  const amt    = document.getElementById('bb-bl-amount')?.value;
-  const factor = document.getElementById('bb-bl-factor')?.value;
-  const aliasRaw = document.getElementById('bb-bl-aliases')?.value.trim();
-  const aliases  = aliasRaw ? aliasRaw.split(',').map(a=>a.trim().toUpperCase()).filter(Boolean) : [];
-  if (!grant) { alert('Please select a grant.'); return; }
-  if (!code)  { alert('Please enter a budget code (e.g. A.1).'); return; }
-  if (!desc)  { alert('Please enter a description.'); return; }
-  const btn = document.getElementById('bb-bl-save-btn');
-  if (btn) btn.disabled = true;
-  const body = {
-    grant_program_id: grant,
-    line_code: code,
-    line_desc: desc,
-    budget_head_id: head || null,
-    sanctioned_amount: amt !== '' && amt != null ? parseFloat(amt) : null,
-    allocation_factor: factor !== '' && factor != null ? parseFloat(factor) : 1.0,
-    code_aliases: aliases,
-    is_active: true
-  };
-  try {
-    let res;
-    if (bbLineEditId) {
-      delete body.is_active;
-      res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${bbLineEditId}`, {
-        method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' }, body: JSON.stringify(body)
-      });
-    } else {
-      res = await fetch(`${MEBK_URL}/rest/v1/budget_line`, {
-        method: 'POST', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' }, body: JSON.stringify(body)
-      });
-    }
-    if (!res.ok) throw new Error(await res.text());
-    bbHideLineForm();
-    await Promise.all([bbLoadLines(), bbLoadStats()]);
-    bbToast(bbLineEditId ? 'Budget line updated ✓' : 'Budget line added ✓');
-    bbLineEditId = null;
-  } catch(e) { alert('Error: ' + e.message); }
-  if (btn) btn.disabled = false;
-}
-
-async function bbToggleLine(id, newActive) {
-  try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}`, {
-      method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ is_active: newActive })
-    });
-    if (!res.ok) throw new Error(await res.text());
-    await Promise.all([bbLoadLines(), bbLoadStats()]);
-    bbToast(newActive ? 'Budget line activated ✓' : 'Budget line deactivated ✓');
-  } catch(e) { alert('Error: ' + e.message); }
-}
-
-function bbSearchLines(q) {
-  const lq = (q||'').toLowerCase();
-  document.querySelectorAll('#bb-list-bl .bb-bl-card').forEach(card => {
-    card.style.display = (!lq || card.textContent.toLowerCase().includes(lq)) ? '' : 'none';
-  });
-}
+// ── Budget Heads (CRUD) — formerly "Budget Categories" ───────────
 
 // ── Budget Categories (CRUD) ──────────────────────────────────────
 async function bbLoadCats() {
@@ -22627,7 +22452,7 @@ async function bbLoadCats() {
     const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
     const q  = (document.getElementById('bb-search-bc')?.value||'').toLowerCase();
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/budget_category?select=budget_category_id,cat_code,cat_label,cat_color,sort_order,is_active&order=sort_order.asc,cat_code.asc${af}&limit=100`,
+      `${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,cat_code,cat_label,cat_color,sort_order,is_active&order=sort_order.asc,cat_code.asc${af}&limit=100`,
       { headers: MEBK_HDR }
     );
     let data = await res.json();
@@ -22642,8 +22467,8 @@ async function bbLoadCats() {
     el.innerHTML = data.map(c => {
       const isActive = c.is_active !== false;
       const color = c.cat_color || '#6b7280';
-      const sw = bbSwitch(isActive, `bbSetActiveCat('${c.budget_category_id}',${!isActive})`, 'Active', 'Inactive');
-      return `<div class="bb-card${isActive?'':' inactive'}" id="bb-bc-${c.budget_category_id}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;">
+      const sw = bbSwitch(isActive, `bbSetActiveCat('${c.budget_head_id}',${!isActive})`, 'Active', 'Inactive');
+      return `<div class="bb-card${isActive?'':' inactive'}" id="bb-bc-${c.budget_head_id}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;">
         <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:${color}20;border:2px solid ${color};font-weight:800;font-size:15px;font-family:var(--mono);color:${color};flex-shrink:0;">${esc(c.cat_code)}</span>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:600;font-size:13px;">${esc(c.cat_label)}</div>
@@ -22651,16 +22476,16 @@ async function bbLoadCats() {
         </div>
         ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
         <span class="bb-card-actions" onclick="event.stopPropagation()">
-          ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditCat('${c.budget_category_id}')">${IC.edit}</button>` : ''}
+          ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditCat('${c.budget_head_id}')">${IC.edit}</button>` : ''}
           ${sw}
         </span>
-        <div class="bb-edit-panel" id="bb-bc-ep-${c.budget_category_id}" style="display:none;width:100%;flex-wrap:wrap;gap:8px;margin-top:8px;">
-          <input class="bb-inp" id="bb-bc-ei-code-${c.budget_category_id}" value="${esc(c.cat_code)}" placeholder="Code" style="width:70px;text-transform:uppercase;" maxlength="10"/>
-          <input class="bb-inp bb-inp-lg" id="bb-bc-ei-label-${c.budget_category_id}" value="${esc(c.cat_label)}" placeholder="Label…"/>
-          <input class="bb-inp" id="bb-bc-ei-color-${c.budget_category_id}" type="color" value="${c.cat_color||'#3b82f6'}" style="width:44px;padding:2px 4px;height:34px;cursor:pointer;"/>
-          <input class="bb-inp" id="bb-bc-ei-sort-${c.budget_category_id}" type="number" value="${c.sort_order||0}" style="width:64px;" min="0"/>
-          <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditCat('${c.budget_category_id}')">Save</button>
-          <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bc-ep-${c.budget_category_id}').style.display='none'">Cancel</button>
+        <div class="bb-edit-panel" id="bb-bc-ep-${c.budget_head_id}" style="display:none;width:100%;flex-wrap:wrap;gap:8px;margin-top:8px;">
+          <input class="bb-inp" id="bb-bc-ei-code-${c.budget_head_id}" value="${esc(c.cat_code)}" placeholder="Code" style="width:70px;text-transform:uppercase;" maxlength="10"/>
+          <input class="bb-inp bb-inp-lg" id="bb-bc-ei-label-${c.budget_head_id}" value="${esc(c.cat_label)}" placeholder="Label…"/>
+          <input class="bb-inp" id="bb-bc-ei-color-${c.budget_head_id}" type="color" value="${c.cat_color||'#3b82f6'}" style="width:44px;padding:2px 4px;height:34px;cursor:pointer;"/>
+          <input class="bb-inp" id="bb-bc-ei-sort-${c.budget_head_id}" type="number" value="${c.sort_order||0}" style="width:64px;" min="0"/>
+          <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditCat('${c.budget_head_id}')">Save</button>
+          <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bc-ep-${c.budget_head_id}').style.display='none'">Cancel</button>
         </div>
       </div>`;
     }).join('');
@@ -22679,7 +22504,7 @@ async function bbSaveEditCat(id) {
   const color = document.getElementById(`bb-bc-ei-color-${id}`)?.value;
   const sort  = parseInt(document.getElementById(`bb-bc-ei-sort-${id}`)?.value) || 0;
   if (!code || !label) { bbToast('Code and label are required'); return; }
-  const res = await fetch(`${MEBK_URL}/rest/v1/budget_category?budget_category_id=eq.${id}`, {
+  const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
     method: 'PATCH', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ cat_code: code, cat_label: label, cat_color: color, sort_order: sort })
   });
@@ -22688,7 +22513,7 @@ async function bbSaveEditCat(id) {
 }
 
 async function bbSetActiveCat(id, newActive) {
-  const res = await fetch(`${MEBK_URL}/rest/v1/budget_category?budget_category_id=eq.${id}`, {
+  const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
     method: 'PATCH', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ is_active: newActive })
   });
@@ -22703,7 +22528,7 @@ async function bbSaveCat() {
   const sort  = parseInt(document.getElementById('bb-bc-sort')?.value) || 0;
   if (!code) { bbToast('Budget head code is required'); return; }
   if (!label) { bbToast('Budget head name is required'); return; }
-  const res = await fetch(`${MEBK_URL}/rest/v1/budget_category`, {
+  const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
     method: 'POST', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ cat_code: code, cat_label: label, cat_color: color, sort_order: sort, is_active: true })
   });
