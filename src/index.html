@@ -7867,6 +7867,46 @@ select:focus:not(:focus-visible) { outline: none; }
       .bt-grant-pct.warn{color:var(--warn);}
       .bt-grant-mini-bar{height:3px;background:var(--mist-3);border-radius:999px;margin-top:8px;overflow:hidden;}
       .bt-grant-mini-fill{height:100%;border-radius:999px;}
+      .bt-grant-health{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;display:inline-block;margin-top:6px;text-transform:uppercase;letter-spacing:.4px;}
+      .bt-grant-health.on-track{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;}
+      .bt-grant-health.at-risk{background:#fef9c3;color:#ca8a04;border:1px solid #fef08a;}
+      .bt-grant-health.over-budget{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+      .bt-grant-health.pipeline{background:#ede9fe;color:#7c3aed;border:1px solid #ddd6fe;}
+      .bt-grant-health.completed{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;}
+      .bt-grant-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+      .bt-grant-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+      .bt-grant-status-dot.active{background:var(--ok);}
+      .bt-grant-status-dot.pipeline{background:var(--purple, #7c3aed);}
+      .bt-grant-status-dot.completed{background:var(--blue);}
+      /* ── Grant KPI bar (shows after grant selected) ── */
+      .bt-kpi-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;}
+      @media(max-width:1100px){.bt-kpi-bar{grid-template-columns:repeat(3,1fr);}}
+      @media(max-width:700px){.bt-kpi-bar{grid-template-columns:repeat(2,1fr);}}
+      .bt-kpi-tile{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:12px 14px;box-shadow:var(--shadow-xs);}
+      .bt-kpi-label{font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+      .bt-kpi-val{font-size:18px;font-weight:800;font-family:var(--mono);color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+      .bt-kpi-sub{font-size:10px;color:var(--slate);margin-top:2px;}
+      .bt-kpi-tile.danger .bt-kpi-val{color:var(--danger);}
+      .bt-kpi-tile.warn .bt-kpi-val{color:var(--warn);}
+      .bt-kpi-tile.ok .bt-kpi-val{color:var(--ok);}
+      .bt-kpi-tile.alert{border-left:3px solid var(--warn);}
+      /* ── Disbursement improvements ── */
+      .bt-disb-progress{height:4px;background:var(--mist-3);border-radius:999px;overflow:hidden;margin-top:5px;}
+      .bt-disb-progress-fill{height:100%;border-radius:999px;background:var(--ok);}
+      .bt-disb-status.danger{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+      /* ── Reporting improvements ── */
+      .bt-report-row{display:grid;grid-template-columns:1fr 110px 110px 100px;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--mist-3);font-size:12px;}
+      .bt-report-days{font-size:10px;font-weight:600;margin-top:2px;}
+      .bt-report-days.ok{color:var(--ok);}
+      .bt-report-days.warn{color:var(--warn);}
+      .bt-report-days.danger{color:var(--danger);}
+      /* ── Grant Edit Modal ── */
+      .bt-edit-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+      @media(max-width:600px){.bt-edit-modal-grid{grid-template-columns:1fr;}}
+      .bt-edit-field{display:flex;flex-direction:column;gap:5px;}
+      .bt-edit-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
+      .bt-edit-field input,.bt-edit-field select{padding:8px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);font-size:13px;font-family:var(--sans);outline:none;color:var(--ink);background:var(--white);}
+      .bt-edit-field input:focus,.bt-edit-field select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.1);}
 
       /* ── Budget table ── */
       .bt-table-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-xs);}
@@ -8502,6 +8542,9 @@ select:focus:not(:focus-visible) { outline: none; }
             </div>
           </div><!-- /bt-grant-outcome-panel -->
 
+          <!-- ── Grant KPI Bar (rendered by btRenderKpiBar) ── -->
+          <div class="bt-kpi-bar" id="bt-kpi-bar" style="display:none;"></div>
+
           <!-- View toggle: Budget Lines | Monthly Burn | Disbursements | Reporting -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
             <div class="bt-view-toggle">
@@ -8510,7 +8553,10 @@ select:focus:not(:focus-visible) { outline: none; }
               <button class="bt-view-btn" data-bt-view="disbursements">Disbursements</button>
               <button class="bt-view-btn" data-bt-view="reporting">Reporting Schedule</button>
             </div>
-            <div id="bt-selected-grant-label" style="font-size:12px;font-weight:600;color:var(--blue);"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div id="bt-selected-grant-label" style="font-size:12px;font-weight:600;color:var(--blue);"></div>
+              <button class="btn" id="bt-edit-grant-btn" style="font-size:11px;padding:4px 10px;display:none;" onclick="btOpenEditModal()">✏️ Edit Grant</button>
+            </div>
           </div>
 
           <!-- ── View: Budget Lines ── -->
@@ -8611,6 +8657,59 @@ select:focus:not(:focus-visible) { outline: none; }
           </div>
 
         </div><!-- /bt-detail -->
+
+        <!-- ── Grant Edit Modal ── -->
+        <div id="bt-edit-modal" class="modal-backdrop hidden">
+          <div class="modal" style="width:min(560px,100%);">
+            <h3>Edit Grant</h3>
+            <div class="modal-sub" id="bt-edit-modal-sub">Update grant details</div>
+            <div class="bt-edit-modal-grid">
+              <div class="bt-edit-field" style="grid-column:1/-1;">
+                <label>Donor Name</label>
+                <input id="bt-edit-donor" type="text" placeholder="Donor organisation name…"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Grant Code</label>
+                <input id="bt-edit-code" type="text" placeholder="e.g. WF-KA-2526"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Total Amount (₹)</label>
+                <input id="bt-edit-total" type="number" min="0" step="1" placeholder="0"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Start Date</label>
+                <input id="bt-edit-start" type="date"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>End Date</label>
+                <input id="bt-edit-end" type="date"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Status</label>
+                <select id="bt-edit-status">
+                  <option value="active">Active</option>
+                  <option value="pipeline">Pipeline</option>
+                  <option value="completed">Completed</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="bt-edit-field">
+                <label>Currency</label>
+                <select id="bt-edit-currency">
+                  <option value="INR">INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="btn" onclick="btCloseEditModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="btSaveGrantEdit()">Save Changes</button>
+            </div>
+          </div>
+        </div>
 
         <!-- ── UC Modal ── -->
         <div id="bt-uc-modal" class="modal-backdrop hidden">
@@ -20027,15 +20126,28 @@ function btRenderGrantStrip(progId) {
     const pctCls   = t.pct >= 90 ? 'ok' : t.pct >= 60 ? 'warn' : 'danger';
     const barColor = t.pct >= 90 ? 'var(--ok)' : t.pct >= 60 ? 'var(--warn)' : 'var(--danger)';
     const gopActive = btGopState.activeGrant === g.id && $('bt-grant-outcome-panel')?.classList.contains('open');
+    // Health badge
+    const isOverBudget = t.pct > 100;
+    const healthCls  = g.status === 'pipeline' ? 'pipeline' : g.status === 'completed' ? 'completed'
+                     : isOverBudget ? 'over-budget' : t.pct >= 85 ? 'on-track' : t.pct >= 50 ? 'at-risk' : 'at-risk';
+    const healthTxt  = g.status === 'pipeline' ? 'Pipeline' : g.status === 'completed' ? 'Completed'
+                     : isOverBudget ? 'Over Budget' : t.pct >= 85 ? 'On Track' : 'At Risk';
+    const dotCls = g.status || 'active';
     return `<div class="bt-grant-card ${g.css}${g.id===btStore.activeGrant?' selected':''}" onclick="btSelectGrant('${g.id}')">
-      <div class="bt-grant-donor">${esc(g.donor)}</div>
-      <div class="bt-grant-amount">${FMT(t.allocated)}</div>
-      <div class="bt-grant-util">${FMT(t.utilised)} utilised · ${FMT(t.variance)} var</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
-        <span class="bt-grant-pct ${pctCls}">${t.pct}%</span>
+      <div class="bt-grant-top-row">
+        <div style="display:flex;align-items:center;gap:5px;">
+          <div class="bt-grant-status-dot ${dotCls}"></div>
+          <span class="bt-grant-donor">${esc(g.donor)}</span>
+        </div>
         <span style="font-size:10px;color:var(--slate);">${g.code}</span>
       </div>
-      <div class="bt-grant-mini-bar"><div class="bt-grant-mini-fill" style="width:${t.pct}%;background:${barColor};"></div></div>
+      <div class="bt-grant-amount">${FMT(t.allocated)}</div>
+      <div class="bt-grant-util">${FMT(t.utilised)} utilised · ${FMT(t.variance)} balance</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+        <span class="bt-grant-pct ${pctCls}">${t.pct}%</span>
+        <span class="bt-grant-health ${healthCls}">${healthTxt}</span>
+      </div>
+      <div class="bt-grant-mini-bar"><div class="bt-grant-mini-fill" style="width:${Math.min(t.pct,100)}%;background:${barColor};"></div></div>
       <button class="bt-gop-btn${gopActive?' active':''}"
         onclick="event.stopPropagation();btGopOpen('${g.id}')"
         title="View outcome commitments &amp; impact for ${esc(g.donor)}">
@@ -20050,7 +20162,10 @@ function btSelectGrant(grantId) {
   const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
   if (!grant) return;
   $('bt-selected-grant-label').textContent = `${grant.donor} · ${grant.code}`;
+  const editBtn = $('bt-edit-grant-btn');
+  if (editBtn) editBtn.style.display = 'inline-flex';
   btRenderGrantStrip(btStore.activeProg);
+  btRenderKpiBar(grantId);
   btRenderCurrentView();
 }
 
@@ -20297,6 +20412,71 @@ function btRenderMonthly() {
   </table></div>`;
 }
 
+
+// ── KPI Bar ──────────────────────────────────────────────────────────
+function btRenderKpiBar(grantId) {
+  const bar   = $('bt-kpi-bar'); if (!bar) return;
+  const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
+  const t     = btGrantTotals(grantId);
+  const disbs = btGetDisb(grantId);
+  const reports = btGetReports(grantId);
+  const today = new Date();
+
+  // Next disbursement
+  const nextDisb = disbs.find(d => d.status === 'due' || d.status === 'planned');
+  const nextDisbTxt = nextDisb ? nextDisb.due : '—';
+  const nextDisbSub = nextDisb ? FMT(nextDisb.expected) : 'None pending';
+
+  // Next report
+  const nextRpt = reports.find(r => r.status === 'due' || r.status === 'planned');
+  const nextRptTxt = nextRpt ? nextRpt.due : '—';
+  const nextRptSub = nextRpt ? nextRpt.label : 'None pending';
+
+  // Days left on grant
+  const endDate   = grant?.end ? new Date(grant.end) : null;
+  const daysLeft  = endDate ? Math.ceil((endDate - today) / 86400000) : null;
+  const daysLeftTxt = daysLeft !== null ? (daysLeft > 0 ? `${daysLeft}d left` : `${Math.abs(daysLeft)}d ago`) : '—';
+  const daysLeftCls = daysLeft !== null && daysLeft < 30 ? 'warn' : '';
+
+  // Health class
+  const healthCls = t.pct > 100 ? 'danger' : t.pct >= 85 ? 'ok' : 'warn';
+
+  bar.style.display = 'grid';
+  bar.innerHTML = `
+    <div class="bt-kpi-tile">
+      <div class="bt-kpi-label">Total Granted</div>
+      <div class="bt-kpi-val">${FMT(t.allocated)}</div>
+      <div class="bt-kpi-sub">${grant?.donor || ''}</div>
+    </div>
+    <div class="bt-kpi-tile">
+      <div class="bt-kpi-label">Utilised</div>
+      <div class="bt-kpi-val">${FMT(t.utilised)}</div>
+      <div class="bt-kpi-sub">of sanctioned amount</div>
+    </div>
+    <div class="bt-kpi-tile ${t.allocated - t.utilised < 0 ? 'danger' : ''}">
+      <div class="bt-kpi-label">Remaining</div>
+      <div class="bt-kpi-val">${FMT(Math.abs(t.allocated - t.utilised))}</div>
+      <div class="bt-kpi-sub">${t.allocated - t.utilised < 0 ? '⚠ Over budget' : 'unspent balance'}</div>
+    </div>
+    <div class="bt-kpi-tile ${healthCls}">
+      <div class="bt-kpi-label">Burn Rate</div>
+      <div class="bt-kpi-val">${t.pct}%</div>
+      <div class="bt-kpi-sub">${t.pct > 100 ? 'Over budget' : t.pct >= 85 ? 'On Track' : 'At Risk'}</div>
+    </div>
+    <div class="bt-kpi-tile ${nextDisb ? 'alert' : ''}">
+      <div class="bt-kpi-label">Next Disbursement</div>
+      <div class="bt-kpi-val" style="font-size:13px;">${nextDisbTxt}</div>
+      <div class="bt-kpi-sub">${nextDisbSub}</div>
+    </div>
+    <div class="bt-kpi-tile ${nextRpt ? 'alert' : ''}">
+      <div class="bt-kpi-label">Next Report Due</div>
+      <div class="bt-kpi-val" style="font-size:13px;">${nextRptTxt}</div>
+      <div class="bt-kpi-sub">${nextRptSub}</div>
+    </div>
+  `;
+}
+
+// ── Improved Disbursements ───────────────────────────────────────────
 function btRenderDisbursements() {
   const grantId = btStore.activeGrant;
   const grant   = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
@@ -20304,25 +20484,60 @@ function btRenderDisbursements() {
   if ($('bt-disb-title')) $('bt-disb-title').textContent = `Disbursements — ${grant?.donor||''}`;
   const body = $('bt-disb-body'); if (!body) return;
   if (!disbs.length) { body.innerHTML = `<div class="bt-empty">No installments recorded yet</div>`; return; }
-  const sLabels = { received_full:'Received', received_partial:'Partial', due:'Due', planned:'Planned', delayed:'Delayed', cancelled:'Cancelled' };
-  const sCls    = s => s==='received_full'?'ok':s==='delayed'?'warn':'muted';
-  const totalE  = disbs.reduce((s,d)=>s+(d.expected||0),0);
-  const totalR  = disbs.reduce((s,d)=>s+(d.received||0),0);
-  body.innerHTML = disbs.map(d => `<div class="bt-disb-row">
-    <div class="bt-disb-num ${sCls(d.status)}">${d.no}</div>
-    <div style="flex:1;"><div style="font-weight:600;">Installment ${d.no}</div><div class="bt-disb-date">${d.notes||'No notes'}</div></div>
-    <div class="bt-disb-date">Due: ${d.due}</div>
-    <div class="bt-disb-amt">${FMT(d.expected)}</div>
-    <div class="bt-disb-date">Recd: ${d.date||'—'}</div>
-    <div class="bt-disb-amt" style="color:var(--ok);">${FMT(d.received)}</div>
-    <div><span class="bt-disb-status ${sCls(d.status)}">${sLabels[d.status]||d.status}</span></div>
-  </div>`).join('') + `<div style="display:flex;justify-content:flex-end;gap:24px;padding:12px 14px;background:var(--canvas);border-top:2px solid var(--mist-2);font-size:12px;font-weight:700;">
-    <span>Expected: <span style="font-family:var(--mono);">${FMT(totalE)}</span></span>
-    <span>Received: <span style="font-family:var(--mono);color:var(--ok);">${FMT(totalR)}</span></span>
-    <span>Pending: <span style="font-family:var(--mono);color:${totalE-totalR>0?'var(--warn)':'var(--ok)'};">${FMT(totalE-totalR)}</span></span>
-  </div>`;
+
+  const today = new Date();
+  const sLabels = { received_full:'✓ Received', received_partial:'Partial', due:'Due', planned:'Planned', delayed:'⚠ Delayed', cancelled:'Cancelled' };
+  const sCls = s => s==='received_full'?'ok':s==='delayed'||s==='due'?'warn':s==='cancelled'?'danger':'muted';
+
+  const totalE = disbs.reduce((s,d)=>s+(d.expected||0),0);
+  const totalR = disbs.reduce((s,d)=>s+(d.received||0),0);
+  const pctRecvd = totalE > 0 ? Math.round(totalR/totalE*100) : 0;
+
+  // Auto-detect overdue
+  const rows = disbs.map(d => {
+    const dueDate = d.due ? new Date(d.due) : null;
+    const isOverdue = dueDate && dueDate < today && d.status === 'due';
+    const effectiveCls = isOverdue ? 'danger' : sCls(d.status);
+    const effectiveTxt = isOverdue ? '⚠ Overdue' : sLabels[d.status]||d.status;
+    const pct = d.expected > 0 ? Math.round((d.received||0)/d.expected*100) : 0;
+    const daysOverdue = isOverdue ? Math.ceil((today - dueDate)/86400000) : null;
+
+    return `<div class="bt-disb-row">
+      <div class="bt-disb-num ${effectiveCls}">${d.no}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;">Installment ${d.no}${d.notes ? ` · <span style="font-weight:400;color:var(--slate);">${esc(d.notes)}</span>` : ''}</div>
+        <div class="bt-disb-progress"><div class="bt-disb-progress-fill" style="width:${pct}%;background:${pct>=100?'var(--ok)':'var(--warn)'};"></div></div>
+        ${daysOverdue ? `<div style="font-size:10px;color:var(--danger);margin-top:2px;">${daysOverdue} days overdue</div>` : ''}
+      </div>
+      <div>
+        <div class="bt-disb-date">Due: <strong>${d.due||'—'}</strong></div>
+        <div class="bt-disb-date">Received: ${d.date||'—'}</div>
+      </div>
+      <div>
+        <div class="bt-disb-amt">${FMT(d.expected)}</div>
+        <div class="bt-disb-amt" style="color:var(--ok);font-size:11px;">${FMT(d.received)} recd</div>
+      </div>
+      <div><span class="bt-disb-status ${effectiveCls}">${effectiveTxt}</span></div>
+    </div>`;
+  });
+
+  body.innerHTML = rows.join('') + `
+    <div style="padding:12px 14px;background:var(--canvas);border-top:2px solid var(--mist-2);">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;gap:20px;font-size:12px;font-weight:700;">
+          <span>Expected: <span style="font-family:var(--mono);">${FMT(totalE)}</span></span>
+          <span>Received: <span style="font-family:var(--mono);color:var(--ok);">${FMT(totalR)}</span></span>
+          <span>Pending: <span style="font-family:var(--mono);color:${totalE-totalR>0?'var(--warn)':'var(--ok)'};">${FMT(totalE-totalR)}</span></span>
+        </div>
+        <div style="min-width:180px;">
+          <div style="font-size:10px;color:var(--slate);font-weight:700;margin-bottom:3px;">${pctRecvd}% RECEIVED</div>
+          <div class="bt-disb-progress"><div class="bt-disb-progress-fill" style="width:${pctRecvd}%;"></div></div>
+        </div>
+      </div>
+    </div>`;
 }
 
+// ── Improved Reporting Schedule ──────────────────────────────────────
 function btRenderReporting() {
   const grantId = btStore.activeGrant;
   const grant   = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
@@ -20330,14 +20545,98 @@ function btRenderReporting() {
   if ($('bt-rep-title')) $('bt-rep-title').textContent = `Reporting Schedule — ${grant?.donor||''}`;
   const body = $('bt-reporting-body'); if (!body) return;
   if (!reports.length) { body.innerHTML = `<div class="bt-empty">No reports scheduled yet</div>`; return; }
-  const sCls  = s => s==='submitted'?'ok':s==='due'?'warn':'muted';
-  const sTxt  = s => ({submitted:'Submitted',due:'Due',planned:'Planned',overdue:'Overdue',closed:'Closed'}[s]||s);
-  body.innerHTML = reports.map(r => `<div class="bt-report-row">
-    <div><div class="bt-report-type">${esc(r.label)}</div><div class="bt-report-period">${esc(r.period)} · ${r.type}</div></div>
-    <div style="font-size:12px;">${r.due}</div>
-    <div style="font-size:12px;color:var(--ok);">${r.submitted||'—'}</div>
-    <div><span class="bt-disb-status ${sCls(r.status)}">${sTxt(r.status)}</span></div>
-  </div>`).join('');
+
+  const today = new Date();
+  const typeIcon = { utilization:'📋', narrative:'📝', annual:'📊', indicator:'📈' };
+
+  const sCls = s => s==='submitted'?'ok':s==='overdue'||s==='due'?'warn':'muted';
+  const sTxt = s => ({submitted:'✓ Submitted',due:'Due Soon',planned:'Planned',overdue:'⚠ Overdue',closed:'Closed'})[s]||s;
+
+  const rows = reports.map(r => {
+    const dueDate = r.due ? new Date(r.due) : null;
+    const isOverdue = dueDate && dueDate < today && !r.submitted && r.status !== 'submitted';
+    const daysRemaining = dueDate && !r.submitted ? Math.ceil((dueDate - today)/86400000) : null;
+    const effectiveCls = isOverdue ? 'danger' : r.status==='submitted'?'ok':'warn';
+    const effectiveTxt = isOverdue ? '⚠ Overdue' : sTxt(r.status);
+
+    let daysNote = '';
+    if (r.submitted) {
+      daysNote = `<div class="bt-report-days ok">Submitted ${r.submitted}</div>`;
+    } else if (daysRemaining !== null) {
+      const dc = daysRemaining < 0 ? 'danger' : daysRemaining <= 14 ? 'warn' : 'ok';
+      daysNote = `<div class="bt-report-days ${dc}">${daysRemaining < 0 ? Math.abs(daysRemaining)+' days overdue' : daysRemaining+' days left'}</div>`;
+    }
+
+    return `<div class="bt-report-row">
+      <div>
+        <div class="bt-report-type">${typeIcon[r.type]||'📄'} ${esc(r.label)}</div>
+        <div class="bt-report-period">${esc(r.period)} · ${r.type}</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;">${r.due||'—'}</div>
+        ${daysNote}
+      </div>
+      <div style="font-size:12px;color:${r.submitted?'var(--ok)':'var(--slate)'};">${r.submitted||'—'}</div>
+      <div><span class="bt-disb-status ${effectiveCls}">${effectiveTxt}</span></div>
+    </div>`;
+  });
+
+  // Summary count
+  const submittedCount = reports.filter(r=>r.status==='submitted').length;
+  const overdueCount = reports.filter(r => { const d=r.due?new Date(r.due):null; return d&&d<today&&!r.submitted&&r.status!=='submitted'; }).length;
+
+  body.innerHTML = `
+    <div style="display:flex;gap:12px;padding:8px 14px;background:var(--canvas);border-bottom:1px solid var(--mist-2);font-size:11px;font-weight:700;flex-wrap:wrap;">
+      <span style="color:var(--ok);">✓ ${submittedCount} Submitted</span>
+      <span style="color:${overdueCount>0?'var(--danger)':'var(--slate)'};">${overdueCount > 0 ? '⚠ '+overdueCount+' Overdue' : '0 Overdue'}</span>
+      <span style="color:var(--slate);">${reports.length - submittedCount - overdueCount} Upcoming</span>
+    </div>
+    ${rows.join('')}`;
+}
+
+// ── Grant Edit Modal ─────────────────────────────────────────────────
+function btOpenEditModal() {
+  const grantId = btStore.activeGrant; if (!grantId) return;
+  const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
+  if (!grant) return;
+  if ($('bt-edit-modal-sub')) $('bt-edit-modal-sub').textContent = `${grant.donor} · ${grant.code}`;
+  if ($('bt-edit-donor'))    $('bt-edit-donor').value    = grant.donor || '';
+  if ($('bt-edit-code'))     $('bt-edit-code').value     = grant.code  || '';
+  if ($('bt-edit-total'))    $('bt-edit-total').value    = grant.total || '';
+  if ($('bt-edit-start'))    $('bt-edit-start').value    = grant.start || '';
+  if ($('bt-edit-end'))      $('bt-edit-end').value      = grant.end   || '';
+  if ($('bt-edit-status'))   $('bt-edit-status').value   = grant.status   || 'active';
+  if ($('bt-edit-currency')) $('bt-edit-currency').value = grant.currency || 'INR';
+  $('bt-edit-modal').classList.remove('hidden');
+}
+
+function btCloseEditModal() {
+  $('bt-edit-modal').classList.add('hidden');
+}
+
+function btSaveGrantEdit() {
+  const grantId = btStore.activeGrant; if (!grantId) return;
+  const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
+  if (!grant) return;
+  const donor = $('bt-edit-donor')?.value.trim();
+  const code  = $('bt-edit-code')?.value.trim();
+  const total = parseFloat($('bt-edit-total')?.value);
+  if (!donor) { toast(IC.warning + ' Donor name is required'); return; }
+  if (!code)  { toast(IC.warning + ' Grant code is required'); return; }
+  if (isNaN(total) || total < 0) { toast(IC.warning + ' Enter a valid total amount'); return; }
+  grant.donor    = donor;
+  grant.code     = code;
+  grant.total    = total;
+  grant.start    = $('bt-edit-start')?.value  || grant.start;
+  grant.end      = $('bt-edit-end')?.value    || grant.end;
+  grant.status   = $('bt-edit-status')?.value || 'active';
+  grant.currency = $('bt-edit-currency')?.value || 'INR';
+  // Update budget lines totals proportionally is complex — only update grant-level fields
+  btCloseEditModal();
+  $('bt-selected-grant-label').textContent = `${grant.donor} · ${grant.code}`;
+  btRenderGrantStrip(btStore.activeProg);
+  btRenderKpiBar(grantId);
+  toast(`✓ Grant updated — ${grant.donor} · ${grant.code}`);
 }
 
 function btGenerateUC() {
