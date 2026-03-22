@@ -6927,6 +6927,63 @@ select:focus:not(:focus-visible) { outline: none; }
       .du-prog-udise-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
       .du-prog-udise-stat{font-size:11px;color:var(--slate);margin-bottom:10px;}
       .du-prog-udise-stat strong{color:var(--ok);font-family:var(--mono);}
+
+      /* Activity template mapping tab */
+      .du-template-prog-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+      @media(max-width:1100px){.du-template-prog-grid{grid-template-columns:repeat(3,1fr);}}
+      @media(max-width:760px){.du-template-prog-grid{grid-template-columns:repeat(2,1fr);}}
+      .du-template-prog-card{background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:12px 13px;cursor:pointer;transition:all .12s;box-shadow:var(--shadow-xs);}
+      .du-template-prog-card:hover{border-color:var(--blue-border);background:var(--blue-dim);}
+      .du-template-prog-card.active{border-color:var(--blue);background:var(--blue-dim);}
+      .du-template-prog-name{font-size:12.5px;font-weight:700;color:var(--ink);}
+      .du-template-prog-meta{font-size:10.5px;color:var(--slate);margin-top:4px;display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;}
+      .du-template-workspace{display:flex;flex-direction:column;gap:10px;}
+      .du-template-form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-items:end;}
+      @media(max-width:1100px){.du-template-form-grid{grid-template-columns:repeat(2,1fr);}}
+      @media(max-width:700px){.du-template-form-grid{grid-template-columns:1fr;}}
+      .du-template-field{display:flex;flex-direction:column;gap:4px;}
+      .du-template-label{font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.45px;}
+      .du-template-input,.du-template-select{font-size:12px;padding:7px 10px;border:1.5px solid var(--mist-2);border-radius:var(--r);background:var(--white);color:var(--ink);font-family:var(--sans);outline:none;}
+      .du-template-input:focus,.du-template-select:focus{border-color:var(--blue);}
+      .du-template-col-builder{margin-top:8px;border:1px solid var(--mist-2);border-radius:var(--r);padding:10px;background:var(--canvas);}
+      .du-template-col-head{display:grid;grid-template-columns:2fr 1fr 80px 1fr 32px;gap:8px;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+      .du-template-col-row{display:grid;grid-template-columns:2fr 1fr 80px 1fr 32px;gap:8px;align-items:center;margin-bottom:6px;}
+      .du-template-col-row:last-child{margin-bottom:0;}
+      .du-template-col-required{display:flex;align-items:center;justify-content:center;}
+      @media(max-width:900px){.du-template-col-head,.du-template-col-row{grid-template-columns:1fr;}.du-template-col-required{justify-content:flex-start;}}
+      .du-template-geo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px;}
+      @media(max-width:1200px){.du-template-geo-grid{grid-template-columns:repeat(3,1fr);}}
+      @media(max-width:700px){.du-template-geo-grid{grid-template-columns:repeat(2,1fr);}}
+      .du-template-geo-card{border:1px solid var(--mist-2);border-radius:var(--r);padding:9px;background:var(--canvas);}
+      .du-template-geo-title{font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+      .du-template-stk-map{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+      .du-template-stk-row{display:grid;grid-template-columns:180px 140px 1fr;gap:8px;align-items:center;}
+      @media(max-width:900px){.du-template-stk-row{grid-template-columns:1fr;}}
+      .du-template-stk-pill{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--ink);}
+      .du-template-stk-pill input{accent-color:var(--blue);}
+      .du-template-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+      .du-template-table{width:100%;border-collapse:collapse;font-size:12px;}
+      .du-template-table th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;background:var(--canvas);border-bottom:1px solid var(--mist-2);}
+      .du-template-table td{padding:10px;border-bottom:1px solid var(--mist-3);}
+      .du-template-table tr:last-child td{border-bottom:none;}
+      .du-template-chip{display:inline-flex;font-size:10px;padding:2px 7px;border-radius:999px;border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);margin-right:4px;margin-bottom:4px;}
+      .du-geo-workspace{display:flex;flex-direction:column;gap:10px;}
+      .du-geo-table td{vertical-align:middle;}
+      .du-geo-row-custom td{background:var(--blue-dim);}
+      .du-geo-stk-input{min-width:170px;}
+      .du-geo-scope-input{min-width:260px;}
+      .du-geo-check{display:flex;align-items:center;justify-content:center;}
+      .du-geo-check input{accent-color:var(--blue);}
+      .du-geo-cascade-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
+      @media(max-width:900px){.du-geo-cascade-grid{grid-template-columns:1fr;}}
+      .du-geo-cascade-card{border:1px solid var(--mist-2);border-radius:var(--r);padding:8px;background:var(--canvas);}
+      .du-geo-cascade-card select[multiple]{min-height:120px;width:100%;}
+      .du-geo-cascade-note{font-size:10px;color:var(--slate);margin-top:5px;line-height:1.35;}
+      .du-geo-cascade-toggle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+      .du-geo-cascade-toggle input{accent-color:var(--blue);}
+      .du-geo-pillbox{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+      .du-geo-pill{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;padding:3px 8px;border-radius:999px;border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);}
+      .du-geo-pill button{border:none;background:transparent;color:var(--blue);font-size:12px;line-height:1;cursor:pointer;padding:0;}
       body.dark .du-kpi,.du-mapper,.du-log-card,.du-setup-card,.du-prog-udise-card{background:var(--white);}
       body.dark .du-upload-zone{background:var(--canvas);border-color:var(--mist-2);}
       body.dark .du-map-file{background:var(--mist-3);}
@@ -6976,11 +7033,51 @@ select:focus:not(:focus-visible) { outline: none; }
         <div class="du-tabs">
           <button class="du-tab active" data-du-tab="upload">Monthly Upload</button>
           <button class="du-tab" data-du-tab="history">Upload History</button>
+          <button class="du-tab" data-du-tab="templates">Activity Templates</button>
           <button class="du-tab" data-du-tab="setup" id="du-tab-setup">UDISE Setup</button>
+          <button class="du-tab" data-du-tab="geo-map">Geography Mapping</button>
         </div>
 
         <!-- ── Tab: Monthly Upload ── -->
         <div id="du-panel-upload">
+
+          <div class="du-setup-card" style="margin-bottom:12px;">
+            <div class="du-setup-title">Upload Flow</div>
+            <div class="du-setup-sub">Use top filters (Program, Financial Year, Frequency, Period), then select Intervention, Activity Type, Activity and Stakeholder Type before upload.</div>
+            <div class="du-template-form-grid">
+              <div class="du-template-field" style="grid-column:1 / -1;">
+                <label class="du-template-label">Top Filter Context</label>
+                <div id="du-up-context" class="du-template-input" style="min-height:34px;display:flex;align-items:center;">Program/FY/Frequency/Period will appear here.</div>
+              </div>
+              <div class="du-template-field">
+                <label class="du-template-label">Intervention</label>
+                <select id="du-up-intv-sel" class="du-template-select"></select>
+              </div>
+              <div class="du-template-field">
+                <label class="du-template-label">Activity Type</label>
+                <select id="du-up-activity-type-sel" class="du-template-select"></select>
+              </div>
+              <div class="du-template-field">
+                <label class="du-template-label">Activity</label>
+                <select id="du-up-activity-sel" class="du-template-select"></select>
+              </div>
+              <div class="du-template-field">
+                <label class="du-template-label">Stakeholder Type</label>
+                <select id="du-up-stk-sel" class="du-template-select"></select>
+              </div>
+            </div>
+            <div id="du-up-activity-profile" class="du-validation-row ok hidden" style="margin-top:8px;align-items:flex-start;">
+              <div style="flex:1;">
+                <div id="du-up-activity-title" style="font-size:12px;font-weight:700;color:var(--ink);">Activity profile</div>
+                <div id="du-up-activity-meta" style="font-size:11px;color:var(--slate);margin-top:2px;"></div>
+                <div id="du-up-activity-desc" style="font-size:11px;color:var(--ink-2);margin-top:4px;"></div>
+                <div id="du-up-activity-stks" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;"></div>
+                <div style="font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-top:8px;">Activity Response Matrix</div>
+                <div id="du-up-activity-matrix" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;"></div>
+              </div>
+            </div>
+            <div id="du-up-gate-msg" style="margin-top:8px;font-size:11px;color:var(--slate);">Complete all filters to enable file upload.</div>
+          </div>
 
           <!-- Drop zone -->
           <div class="du-upload-zone" id="du-dropzone">
@@ -7069,6 +7166,179 @@ select:focus:not(:focus-visible) { outline: none; }
         </div>
 
         <!-- ── Tab: UDISE Setup ── -->
+        <div id="du-panel-templates" class="hidden">
+          <div class="du-setup-card">
+            <div class="du-setup-title">Program-wise activity response templates</div>
+            <div class="du-setup-sub">Create multiple templates per program (workshop, training, review meeting). Template geography and stakeholder mapping define the UDISE universe used during bulk upload.</div>
+            <div class="du-template-prog-grid" id="du-template-prog-grid">
+              <!-- injected by duRenderTemplateProgramCards() -->
+            </div>
+          </div>
+
+          <div class="du-template-workspace hidden" id="du-template-workspace">
+            <div class="du-setup-card">
+              <div class="du-setup-title" id="du-template-form-title">Create activity response template</div>
+              <div class="du-setup-sub">Map stakeholder to geography level. Example: DIET at district level includes all UDISE schools in that district.</div>
+
+              <div class="du-template-form-grid">
+                <div class="du-template-field">
+                  <label class="du-template-label">Template Name</label>
+                  <input id="du-tpl-name" class="du-template-input" placeholder="e.g. DIET review meeting - Q1" />
+                </div>
+                <div class="du-template-field">
+                  <label class="du-template-label">Frequency</label>
+                  <select id="du-tpl-frequency" class="du-template-select">
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarter">Quarter</option>
+                    <option value="Annual">Annual</option>
+                  </select>
+                </div>
+                <div class="du-template-field">
+                  <label class="du-template-label">Intervention</label>
+                  <select id="du-tpl-intv" class="du-template-select"></select>
+                </div>
+                <div class="du-template-field">
+                  <label class="du-template-label">Activity Type</label>
+                  <select id="du-tpl-activity-type" class="du-template-select">
+                    <option value="Workshop">Workshop</option>
+                    <option value="Training">Training</option>
+                    <option value="Review Meeting">Review Meeting</option>
+                    <option value="Mentoring Session">Mentoring Session</option>
+                    <option value="Field Visit">Field Visit</option>
+                  </select>
+                </div>
+                <div class="du-template-field">
+                  <label class="du-template-label">Activity Name</label>
+                  <input id="du-tpl-activity-name" class="du-template-input" placeholder="e.g. Block FLN Orientation" />
+                </div>
+                <div class="du-template-field" style="grid-column:1 / -1;">
+                  <label class="du-template-label">Activity Description</label>
+                  <textarea id="du-tpl-activity-desc" class="du-template-input" rows="3" placeholder="Describe the activity objective, approach, and expected response details."></textarea>
+                </div>
+                <div class="du-template-field" style="grid-column:1 / -1;">
+                  <label class="du-template-label">Intervention Context</label>
+                  <div id="du-tpl-intv-meta" class="du-template-input" style="min-height:34px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">Select intervention to view type and categories.</div>
+                </div>
+                <div class="du-template-field">
+                  <label class="du-template-label">Financial Year</label>
+                  <input id="du-tpl-fy" class="du-template-input" placeholder="e.g. 2025-26" />
+                </div>
+                <div class="du-template-field" style="grid-column:1 / -1;">
+                  <label class="du-template-label">Target Stakeholder(s)</label>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input id="du-tpl-target-stk-combo" class="du-template-input" list="du-tpl-target-stk-list" placeholder="Type stakeholder type" />
+                    <datalist id="du-tpl-target-stk-list"></datalist>
+                    <button class="btn" id="du-tpl-target-stk-add-btn" style="font-size:11px;padding:5px 10px;">Add</button>
+                  </div>
+                  <div id="du-tpl-target-stk-pillbox" class="du-geo-pillbox"></div>
+                  <select id="du-tpl-target-stk" class="du-template-select" multiple style="display:none;"></select>
+                  <div style="font-size:11px;color:var(--slate);margin-top:4px;">Select one or many stakeholder types for this activity template. Counts are shown from Geography Mapping coverage for quick verification.</div>
+                </div>
+              </div>
+
+              <div class="du-template-label" style="margin-top:12px;">Response Columns (Google Sheet style)</div>
+              <div class="du-template-col-builder">
+                <div class="du-template-col-head">
+                  <span>Column Name</span>
+                  <span>Type</span>
+                  <span>Required</span>
+                  <span>Mapping Role</span>
+                  <span></span>
+                </div>
+                <div id="du-template-columns">
+                  <!-- injected by duRenderTemplateColumnRows() -->
+                </div>
+                <div style="margin-top:8px;">
+                  <button class="btn" id="du-tpl-add-col-btn" style="font-size:11px;padding:5px 10px;">+ Add column</button>
+                </div>
+              </div>
+
+              <div class="du-template-label" style="margin-top:12px;">Geography Scope (dropdown from mapping)</div>
+              <div class="du-template-geo-grid">
+                <div class="du-template-geo-card">
+                  <div class="du-template-geo-title">State</div>
+                  <select id="du-tpl-geo-state-sel" class="du-template-select"></select>
+                  <input id="du-tpl-geo-state" type="hidden" />
+                </div>
+                <div class="du-template-geo-card">
+                  <div class="du-template-geo-title">District</div>
+                  <select id="du-tpl-geo-district-sel" class="du-template-select"></select>
+                  <input id="du-tpl-geo-district" type="hidden" />
+                </div>
+                <div class="du-template-geo-card">
+                  <div class="du-template-geo-title">Block</div>
+                  <select id="du-tpl-geo-block-sel" class="du-template-select"></select>
+                  <input id="du-tpl-geo-block" type="hidden" />
+                </div>
+                <div class="du-template-geo-card">
+                  <div class="du-template-geo-title">Cluster</div>
+                  <select id="du-tpl-geo-cluster-sel" class="du-template-select"></select>
+                  <input id="du-tpl-geo-cluster" type="hidden" />
+                </div>
+                <div class="du-template-geo-card">
+                  <div class="du-template-geo-title">School / UDISE</div>
+                  <select id="du-tpl-geo-school-sel" class="du-template-select"></select>
+                  <input id="du-tpl-geo-school" type="hidden" />
+                </div>
+              </div>
+              <div id="du-tpl-geo-note" style="margin-top:8px;font-size:11px;color:var(--slate);">Dropdown options come from Geography Mapping. Choose a level value or keep &ldquo;All mapped&rdquo;.</div>
+
+              <div class="du-template-stk-map" id="du-template-stk-map" style="display:none;">
+                <!-- internal mapping state (hidden; Target Stakeholder combobox is the visible control) -->
+              </div>
+
+              <div class="du-template-label" style="margin-top:12px;">Activity Matrix (drives upload KPIs)</div>
+              <div class="du-template-col-builder">
+                <div class="du-template-col-head">
+                  <span>Matrix Metric</span>
+                  <span>Source Column</span>
+                  <span>Aggregation</span>
+                  <span>Output Key</span>
+                  <span></span>
+                </div>
+                <div id="du-template-matrix-rows">
+                  <!-- injected by duRenderTemplateMatrixRows() -->
+                </div>
+                <div style="margin-top:8px;">
+                  <button class="btn" id="du-tpl-add-matrix-btn" style="font-size:11px;padding:5px 10px;">+ Add matrix metric</button>
+                </div>
+              </div>
+
+              <div class="du-template-actions">
+                <button class="btn" id="du-tpl-reset-btn" style="font-size:12px;">Reset</button>
+                <button class="btn btn-primary" id="du-tpl-save-btn" style="font-size:12px;">Save Draft</button>
+                <button class="btn btn-ok" id="du-tpl-publish-btn" style="font-size:12px;">Publish Template</button>
+                <button class="btn" id="du-tpl-generate-btn" style="font-size:12px;">Generate Upload Template</button>
+              </div>
+            </div>
+
+            <div class="du-log-card">
+              <div class="du-log-hd">
+                <span class="du-log-title">Templates for selected program</span>
+                <span style="font-size:11px;color:var(--slate);" id="du-template-list-meta">No program selected</span>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="du-template-table">
+                  <thead>
+                    <tr>
+                      <th>Template</th>
+                      <th>Reporting Cycle</th>
+                      <th>Activity</th>
+                      <th>Stakeholders</th>
+                      <th>Activity Matrix</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="du-template-list-body">
+                    <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to start creating templates</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id="du-panel-setup" class="hidden">
           <div class="du-setup-card">
             <div class="du-setup-title">UDISE master data — per-program school universe</div>
@@ -7097,6 +7367,168 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="du-progress-bar" id="du-udise-progress-bar"></div>
             </div>
             <div id="du-udise-result" style="margin-top:10px;font-size:12px;color:var(--ok);display:none;"></div>
+          </div>
+        </div>
+
+        <div id="du-panel-geo-map" class="hidden">
+          <div class="du-setup-card">
+            <div class="du-setup-title">Program geography mapping (one-time setup)</div>
+            <div class="du-setup-sub">Configure stakeholder-to-geography mapping once for each program. You can keep default stakeholder types or add custom stakeholders with custom geography scopes.</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+              <input id="du-geo-new-prog-name" class="du-template-input" style="min-width:220px;" placeholder="Add custom program (e.g. Mantrax)" />
+              <button class="btn" id="du-geo-add-prog-btn" style="font-size:11px;padding:5px 10px;">+ Add Program</button>
+              <span style="font-size:11px;color:var(--slate);">Custom program names are supported. Define reach scope below.</span>
+            </div>
+            <div class="du-template-prog-grid" id="du-geo-prog-grid">
+              <!-- injected by duRenderGeoProgramCards() -->
+            </div>
+          </div>
+
+          <div class="du-geo-workspace hidden" id="du-geo-workspace">
+            <div class="du-setup-card">
+              <div class="du-setup-title" id="du-geo-form-title">Stakeholder geography mapping</div>
+              <div class="du-setup-sub">These mappings are reused by activity templates and bulk upload processing for the selected program.</div>
+
+              <div class="du-template-label" style="margin-top:12px;">Program Coverage Blueprint</div>
+              <div style="font-size:11px;color:var(--slate);margin-top:4px;">Define overall program scope first. Stakeholder mapping can only use this coverage.</div>
+              <div style="margin-top:8px;max-width:360px;">
+                <div class="du-template-geo-title">Program Scope Type</div>
+                <select id="du-geo-scope-type" class="du-template-select">
+                  <option value="state_multi">Multi-state level</option>
+                  <option value="state_single">State level (single state)</option>
+                  <option value="district_multi">Multi-district level</option>
+                  <option value="district_single">District level (single district)</option>
+                  <option value="block_multi">Multi-block level</option>
+                  <option value="block_single">Block level (single block)</option>
+                  <option value="cluster_multi">Multi-cluster level</option>
+                  <option value="cluster_single">Cluster level (single cluster)</option>
+                  <option value="school_multi">Multi-school level</option>
+                  <option value="school_single">School level (single school)</option>
+                </select>
+                <div class="du-geo-cascade-note">This controls whether a level is single/multiple and which lower levels stay auto-all.</div>
+              </div>
+              <div class="du-geo-cascade-grid">
+                <div class="du-geo-cascade-card">
+                  <div class="du-template-geo-title">States (Name/Code)</div>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input id="du-geo-state-combo" class="du-template-input" list="du-geo-state-list" placeholder="Type state name/code" />
+                    <datalist id="du-geo-state-list"></datalist>
+                    <button class="btn" id="du-geo-state-add-btn" style="font-size:11px;padding:5px 10px;">Add</button>
+                  </div>
+                  <div id="du-geo-state-pillbox" class="du-geo-pillbox"></div>
+                  <select id="du-geo-state-sel" class="du-template-select" multiple style="display:none;"></select>
+                  <div class="du-geo-cascade-note">Use combobox to add one or many states for this program.</div>
+                </div>
+                <div class="du-geo-cascade-card">
+                  <label class="du-geo-cascade-toggle"><input type="checkbox" id="du-geo-district-all" checked /> Default all districts under selected states</label>
+                  <div class="du-template-geo-title">Districts (Name/Code)</div>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input id="du-geo-district-combo" class="du-template-input" list="du-geo-district-list" placeholder="Type district name/code" />
+                    <datalist id="du-geo-district-list"></datalist>
+                    <button class="btn" id="du-geo-district-add-btn" style="font-size:11px;padding:5px 10px;">Add</button>
+                  </div>
+                  <div id="du-geo-district-pillbox" class="du-geo-pillbox"></div>
+                  <select id="du-geo-district-sel" class="du-template-select" multiple style="display:none;"></select>
+                  <div class="du-geo-cascade-note">Uncheck "all" to select specific districts.</div>
+                </div>
+                <div class="du-geo-cascade-card">
+                  <label class="du-geo-cascade-toggle"><input type="checkbox" id="du-geo-block-all" checked /> Default all blocks under selected districts</label>
+                  <div class="du-template-geo-title">Blocks (Name/Code)</div>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input id="du-geo-block-combo" class="du-template-input" list="du-geo-block-list" placeholder="Type block name/code" />
+                    <datalist id="du-geo-block-list"></datalist>
+                    <button class="btn" id="du-geo-block-add-btn" style="font-size:11px;padding:5px 10px;">Add</button>
+                  </div>
+                  <div id="du-geo-block-pillbox" class="du-geo-pillbox"></div>
+                  <select id="du-geo-block-sel" class="du-template-select" multiple style="display:none;"></select>
+                  <div class="du-geo-cascade-note">Uncheck "all" to select specific blocks.</div>
+                </div>
+                <div class="du-geo-cascade-card">
+                  <label class="du-geo-cascade-toggle"><input type="checkbox" id="du-geo-skip-cluster" /> Skip cluster and map blocks directly to schools</label>
+                  <label class="du-geo-cascade-toggle"><input type="checkbox" id="du-geo-cluster-all" checked /> Default all clusters under selected blocks</label>
+                  <div class="du-template-geo-title">Clusters (Name/Code)</div>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <input id="du-geo-cluster-combo" class="du-template-input" list="du-geo-cluster-list" placeholder="Type cluster name/code" />
+                    <datalist id="du-geo-cluster-list"></datalist>
+                    <button class="btn" id="du-geo-cluster-add-btn" style="font-size:11px;padding:5px 10px;">Add</button>
+                  </div>
+                  <div id="du-geo-cluster-pillbox" class="du-geo-pillbox"></div>
+                  <select id="du-geo-cluster-sel" class="du-template-select" multiple style="display:none;"></select>
+                  <div class="du-geo-cascade-note">Optional: keep clusters skipped when not used in program design.</div>
+                </div>
+                <div class="du-geo-cascade-card" style="grid-column:1 / -1;">
+                  <label class="du-geo-cascade-toggle"><input type="checkbox" id="du-geo-school-all" checked /> Default all schools under selected scope</label>
+                  <div class="du-template-geo-title">Schools (Name/UDISE)</div>
+                  <select id="du-geo-school-sel" class="du-template-select" multiple></select>
+                  <div class="du-geo-cascade-note">When cluster is skipped, schools are derived directly from selected blocks.</div>
+                </div>
+              </div>
+              <div style="overflow-x:auto;margin-top:8px;">
+                <table class="du-template-table du-geo-table">
+                  <thead>
+                    <tr>
+                      <th>Level</th>
+                      <th>Mode</th>
+                      <th>Scope Summary</th>
+                    </tr>
+                  </thead>
+                  <tbody id="du-geo-coverage-body">
+                    <tr><td colspan="3" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to define coverage</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="du-template-label" style="margin-top:14px;">Stakeholder Mapping Within Coverage</div>
+              <div class="du-template-actions" style="margin-top:8px;">
+                <button class="btn" id="du-geo-add-row-btn" style="font-size:11px;padding:5px 10px;">+ Add stakeholder mapping</button>
+              </div>
+
+              <div style="overflow-x:auto;margin-top:8px;">
+                <table class="du-template-table du-geo-table">
+                  <thead>
+                    <tr>
+                      <th>Stakeholder Type</th>
+                      <th>Hierarchy Tag</th>
+                      <th>Geography Level</th>
+                      <th>Geography Scope (comma-separated)</th>
+                      <th>Active</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="du-geo-rows-body">
+                    <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to start geography mapping</td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="du-template-actions">
+                <button class="btn" id="du-geo-reset-btn" style="font-size:12px;">Reset</button>
+                <button class="btn btn-primary" id="du-geo-save-btn" style="font-size:12px;">Save Geography Mapping</button>
+              </div>
+            </div>
+
+            <div class="du-log-card">
+              <div class="du-log-hd">
+                <span class="du-log-title">Saved geography mappings</span>
+                <span style="font-size:11px;color:var(--slate);" id="du-geo-list-meta">No program selected</span>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="du-template-table">
+                  <thead>
+                    <tr>
+                      <th>Stakeholder</th>
+                      <th>Hierarchy Tag</th>
+                      <th>Geography Level</th>
+                      <th>Scope</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="du-geo-list-body">
+                    <tr><td colspan="5" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to view saved mappings</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -11722,9 +12154,24 @@ function showPage(route) {
     $('page-data-upload').classList.remove('hidden');
     $('crumb-path').textContent = 'Data Upload';
     $('crumb-title').textContent = 'Response File Upload & Impact KPIs';
+    duEnsureProgramMasterLoaded();
+    const preferredProgram = $('du-prog-sel')?.value || duTemplateState.program || duGeoMapState.program || '';
+    duRenderProgramSelectors(preferredProgram);
     duRefreshKPIs();
     duRenderUdiseGrid();
     duRenderHistory();
+    duRenderTemplateProgramCards();
+    duRenderGeoProgramCards();
+    const selectedProgram = $('du-prog-sel')?.value || duTemplateState.program || '';
+    if (selectedProgram) {
+      const shouldReset = duTemplateState.program !== selectedProgram || !duTemplateState.columns.length;
+      duSelectTemplateProgram(selectedProgram, { syncTopSelect: false, resetForm: shouldReset });
+      const shouldLoadGeo = duGeoMapState.program !== selectedProgram || !duGeoMapState.rows.length;
+      duSelectGeoProgram(selectedProgram, { syncTopSelect: false, loadRows: shouldLoadGeo });
+    } else {
+      duSelectTemplateProgram('', { syncTopSelect: false, resetForm: false });
+      duSelectGeoProgram('', { syncTopSelect: false, loadRows: false });
+    }
   } else if (route === 'budget-book') {
     $('page-budget-book').classList.remove('hidden');
     $('crumb-path').textContent = 'Grant Management';
@@ -14859,9 +15306,3366 @@ let duState = {
   mapping:    {},     // { colName: systemFieldKey | 'ignore' }
   program:    '',
   month:      '',
+  frequency:  '',
+  period:     '',
+  intervention: '',
+  activityType: '',
+  activityId: '',
+  activity:   '',
+  stakeholder:'',
 };
 
 // ── CSV / XLSX parser (pure JS — no library needed for CSV) ─────
+const DU_TEMPLATE_STAKEHOLDERS = ['State', 'DIET', 'BRC', 'CRC', 'HM', 'Parents', 'Student', 'Teacher'];
+const DU_STAKEHOLDER_DEFAULT_LEVEL = {
+  'State': 'state',
+  'DIET': 'district',
+  'BRC': 'block',
+  'CRC': 'cluster',
+  'HM': 'school',
+  'Parents': 'school',
+  'Student': 'school',
+  'Teacher': 'school',
+};
+const DU_STAKEHOLDER_DEFAULT_HIERARCHY = {
+  'State': 'state',
+  'DIET': 'diet',
+  'BRC': 'brc',
+  'CRC': 'crc',
+  'HM': 'hm',
+  'Parents': 'school',
+  'Student': 'school',
+  'Teacher': 'school',
+};
+const DU_GEO_HIERARCHY_OPTIONS = [
+  { key: 'state', label: 'State' },
+  { key: 'diet', label: 'DIET' },
+  { key: 'diet_brc_mid', label: 'Between DIET and BRC (ADC)' },
+  { key: 'brc', label: 'BRC' },
+  { key: 'crc', label: 'CRC' },
+  { key: 'hm', label: 'HM' },
+  { key: 'school', label: 'School / Community' },
+  { key: 'custom', label: 'Custom placement' },
+];
+const DU_GEO_LEVEL_OPTIONS = ['state', 'district', 'block', 'cluster', 'school'];
+const DU_TEMPLATE_GEO_LEVELS = ['state', 'district', 'block', 'cluster', 'school'];
+const DU_GEO_SCOPE_TYPES = [
+  { key: 'state_multi', label: 'Multi-state level', level: 'state', multi: true },
+  { key: 'state_single', label: 'State level (single state)', level: 'state', multi: false },
+  { key: 'district_multi', label: 'Multi-district level', level: 'district', multi: true },
+  { key: 'district_single', label: 'District level (single district)', level: 'district', multi: false },
+  { key: 'block_multi', label: 'Multi-block level', level: 'block', multi: true },
+  { key: 'block_single', label: 'Block level (single block)', level: 'block', multi: false },
+  { key: 'cluster_multi', label: 'Multi-cluster level', level: 'cluster', multi: true },
+  { key: 'cluster_single', label: 'Cluster level (single cluster)', level: 'cluster', multi: false },
+  { key: 'school_multi', label: 'Multi-school level', level: 'school', multi: true },
+  { key: 'school_single', label: 'School level (single school)', level: 'school', multi: false },
+];
+const DU_COLUMN_ROLE_OPTIONS = [
+  { key: 'udise_code', label: 'UDISE code' },
+  { key: 'stakeholder_type', label: 'Stakeholder type' },
+  { key: 'participants', label: 'Participants' },
+  { key: 'activity', label: 'Activity name/type' },
+  { key: 'date', label: 'Date' },
+  { key: 'school_name', label: 'School name' },
+  { key: 'custom', label: 'Custom field' },
+];
+const DU_TEMPLATE_DEFAULT_COLUMNS = [
+  { name: 'Timestamp', type: 'datetime', required: true, role: 'custom' },
+  { name: 'UDISE Code', type: 'text', required: true, role: 'udise_code' },
+  { name: 'Stakeholder Type', type: 'text', required: true, role: 'stakeholder_type' },
+  { name: 'Participant Count', type: 'number', required: true, role: 'participants' },
+  { name: 'Activity Name', type: 'text', required: true, role: 'activity' },
+];
+const DU_TEMPLATE_DEFAULT_MATRIX = [
+  { label: 'Unique Schools', source: '__unique_udise__', aggregation: 'unique_count', key: 'unique_schools' },
+  { label: 'No. of Students', source: 'role:participants', aggregation: 'sum', key: 'no_of_students' },
+  { label: 'No. of Teachers', source: 'role:participants', aggregation: 'sum', key: 'no_of_teachers' },
+];
+const DU_MATRIX_AGG_OPTIONS = [
+  { key: 'sum', label: 'Sum' },
+  { key: 'count', label: 'Count Rows' },
+  { key: 'unique_count', label: 'Unique Count' },
+  { key: 'average', label: 'Average' },
+];
+const DU_TEMPLATE_FREQUENCY_OPTIONS = ['Monthly', 'Quarter', 'Annual'];
+const DU_UPLOAD_DEMO_ACTIVITIES = [
+  {
+    id: 'demo-monthly-workshop',
+    name: 'Block FLN Workshop',
+    intervention: 'Foundational Literacy & Numeracy',
+    interventionCode: 'FLN',
+    interventionTypes: ['Learning Improvement'],
+    interventionCategories: ['Classroom Support'],
+    type: 'Workshop',
+    frequency: 'Monthly',
+    financialYear: '2025-26',
+    description: 'Monthly block-level FLN workshop with attendance and action tracking.',
+    stakeholders: ['Teacher', 'HM', 'CRC'],
+    matrixLabels: ['No. of Schools', 'No. of Teachers', 'No. of Stakeholders'],
+    columnsCount: 8,
+    metricsCount: 3,
+    demo: true,
+  },
+  {
+    id: 'demo-monthly-training',
+    name: 'Teacher Micro-Training',
+    intervention: 'Teacher Capacity Building',
+    interventionCode: 'TCB',
+    interventionTypes: ['Capacity Building'],
+    interventionCategories: ['Training'],
+    type: 'Training',
+    frequency: 'Monthly',
+    financialYear: '2025-26',
+    description: 'Monthly short-cycle teacher training with attendance and completion capture.',
+    stakeholders: ['Teacher', 'CRC'],
+    matrixLabels: ['No. of Teachers', 'No. of Stakeholders'],
+    columnsCount: 9,
+    metricsCount: 2,
+    demo: true,
+  },
+  {
+    id: 'demo-monthly-parent',
+    name: 'Parent Engagement Circle',
+    intervention: 'Community Engagement',
+    interventionCode: 'CE',
+    interventionTypes: ['Community Mobilization'],
+    interventionCategories: ['Outreach'],
+    type: 'Community Meeting',
+    frequency: 'Monthly',
+    financialYear: '2025-26',
+    description: 'Monthly parent-community dialogue event at school and cluster level.',
+    stakeholders: ['Parents', 'HM'],
+    matrixLabels: ['No. of Parents', 'No. of Schools', 'No. of Stakeholders'],
+    columnsCount: 8,
+    metricsCount: 3,
+    demo: true,
+  },
+  {
+    id: 'demo-quarterly-review',
+    name: 'District Review Meeting',
+    intervention: 'School Leadership Development',
+    interventionCode: 'SLD',
+    interventionTypes: ['Leadership'],
+    interventionCategories: ['Review Meeting'],
+    type: 'Review Meeting',
+    frequency: 'Quarter',
+    financialYear: '2025-26',
+    description: 'Quarterly review with district leadership and implementation teams.',
+    stakeholders: ['DIET', 'BRC', 'CRC'],
+    matrixLabels: ['No. of Schools', 'No. of Stakeholders'],
+    columnsCount: 10,
+    metricsCount: 4,
+    demo: true,
+  },
+  {
+    id: 'demo-quarterly-mentoring',
+    name: 'Quarterly Mentoring Sprint',
+    intervention: 'Teacher Capacity Building',
+    interventionCode: 'TCB',
+    interventionTypes: ['Capacity Building'],
+    interventionCategories: ['Mentoring'],
+    type: 'Mentoring Session',
+    frequency: 'Quarter',
+    financialYear: '2025-26',
+    description: 'Quarter-end mentoring cycle review and action planning.',
+    stakeholders: ['BRC', 'CRC', 'Teacher'],
+    matrixLabels: ['No. of Teachers', 'No. of Stakeholders'],
+    columnsCount: 9,
+    metricsCount: 2,
+    demo: true,
+  },
+  {
+    id: 'demo-annual-summit',
+    name: 'Annual Program Reflection',
+    intervention: 'Foundational Literacy & Numeracy',
+    interventionCode: 'FLN',
+    interventionTypes: ['Learning Improvement'],
+    interventionCategories: ['Review Meeting'],
+    type: 'Workshop',
+    frequency: 'Annual',
+    financialYear: '2025-26',
+    description: 'Annual reflection and planning activity for all program stakeholders.',
+    stakeholders: ['State', 'DIET', 'Teacher', 'Student'],
+    matrixLabels: ['No. of Schools', 'No. of Teachers', 'No. of Students', 'No. of Stakeholders'],
+    columnsCount: 12,
+    metricsCount: 5,
+    demo: true,
+  },
+  {
+    id: 'demo-annual-field-visit',
+    name: 'Annual Field Validation Visit',
+    intervention: 'School Leadership Development',
+    interventionCode: 'SLD',
+    interventionTypes: ['Leadership'],
+    interventionCategories: ['Field Visit'],
+    type: 'Field Visit',
+    frequency: 'Annual',
+    financialYear: '2025-26',
+    description: 'Annual field validation visit with district and school stakeholders.',
+    stakeholders: ['DIET', 'HM', 'Teacher'],
+    matrixLabels: ['No. of Schools', 'No. of Teachers', 'No. of Stakeholders'],
+    columnsCount: 11,
+    metricsCount: 3,
+    demo: true,
+  },
+];
+
+const DU_TEMPLATE_DEMO_INTERVENTIONS = [
+  {
+    id: 'intv-tcb',
+    name: 'Teacher Capacity Building',
+    code: 'TCB',
+    types: ['Capacity Building'],
+    categories: ['Training'],
+    stakeholders: ['Teacher', 'CRC', 'BRC'],
+  },
+  {
+    id: 'intv-sld',
+    name: 'School Leadership Development',
+    code: 'SLD',
+    types: ['Leadership'],
+    categories: ['Review Meeting'],
+    stakeholders: ['HM', 'BRC', 'DIET'],
+  },
+  {
+    id: 'intv-ce',
+    name: 'Community Engagement',
+    code: 'CE',
+    types: ['Community Mobilization'],
+    categories: ['Outreach'],
+    stakeholders: ['Parents', 'HM', 'CRC'],
+  },
+  {
+    id: 'intv-fln',
+    name: 'Foundational Literacy & Numeracy',
+    code: 'FLN',
+    types: ['Learning Improvement'],
+    categories: ['Classroom Support'],
+    stakeholders: ['Teacher', 'Student', 'HM'],
+  },
+];
+
+const duTemplateStore = {}; // { [program]: [templateObj] }
+const duTemplateInterventionStore = {}; // { [program]: { rows:[], loaded:boolean, loading:boolean } }
+let duTemplateState = {
+  program: '',
+  editId: null,
+  columns: [],
+  matrix: [],
+};
+let duTemplateGeoScopeState = {
+  state: [],
+  district: [],
+  block: [],
+  cluster: [],
+  school: [],
+};
+const duGeoMapStore = {}; // { [program]: { coverageRows:[], rows:[], updatedAt } }
+let duGeoMapState = {
+  program: '',
+  coverageRows: [],
+  rows: [],
+  cascade: null,
+};
+let duProgramMaster = [];
+let duUploadFlowCache = { activities: [] };
+
+function duOptionProgramsFromDOM(id) {
+  const sel = $(id);
+  if (!sel) return [];
+  return Array.from(sel.options).map(o => String(o.value || '').trim()).filter(Boolean);
+}
+
+function duEnsureProgramMasterLoaded() {
+  if (duProgramMaster.length) return;
+  const fromHeader = duOptionProgramsFromDOM('du-prog-sel');
+  const fromUdise = duOptionProgramsFromDOM('du-udise-prog');
+  const seen = new Set();
+  duProgramMaster = [...fromHeader, ...fromUdise].filter(p => {
+    const k = p.toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function duRenderProgramSelectors(selectedProgram = '') {
+  duEnsureProgramMasterLoaded();
+  const optHtml = duProgramMaster.map(p => `<option>${esc(p)}</option>`).join('');
+
+  const progSel = $('du-prog-sel');
+  if (progSel) {
+    const prev = selectedProgram || progSel.value || '';
+    progSel.innerHTML = `<option value="">— Select Program —</option>${optHtml}`;
+    if (prev && duProgramMaster.some(p => p.toLowerCase() === prev.toLowerCase())) {
+      const exact = duProgramMaster.find(p => p.toLowerCase() === prev.toLowerCase()) || prev;
+      progSel.value = exact;
+    }
+  }
+
+  const udiseSel = $('du-udise-prog');
+  if (udiseSel) {
+    const prev = selectedProgram || udiseSel.value || '';
+    udiseSel.innerHTML = `<option value="">— Select Program —</option>${optHtml}`;
+    if (prev && duProgramMaster.some(p => p.toLowerCase() === prev.toLowerCase())) {
+      const exact = duProgramMaster.find(p => p.toLowerCase() === prev.toLowerCase()) || prev;
+      udiseSel.value = exact;
+    }
+  }
+
+}
+
+function duAddProgram(programName) {
+  const name = String(programName || '').trim();
+  if (!name) { toast(IC.warning + ' Program name is required'); return null; }
+  duEnsureProgramMasterLoaded();
+  const exists = duProgramMaster.find(p => p.toLowerCase() === name.toLowerCase());
+  if (exists) {
+    duRenderProgramSelectors(exists);
+    return exists;
+  }
+  duProgramMaster.push(name);
+  duRenderProgramSelectors(name);
+  duRenderUdiseGrid();
+  duRenderTemplateProgramCards();
+  duRenderGeoProgramCards();
+  duUploadRenderFlowSelectors({ preserve: true });
+  return name;
+}
+
+function duTemplatePrograms() {
+  duEnsureProgramMasterLoaded();
+  if (duProgramMaster.length) return [...duProgramMaster];
+  const sel = $('du-prog-sel');
+  if (!sel) return [];
+  return Array.from(sel.options).map(o => o.value).filter(Boolean);
+}
+
+function duTemplateNewId() {
+  return `du-tpl-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+function duCurrentFinancialYearLabel(dt = new Date()) {
+  const d = dt instanceof Date ? dt : new Date();
+  const year = d.getMonth() >= 3 ? d.getFullYear() : (d.getFullYear() - 1);
+  const nextYY = String((year + 1) % 100).padStart(2, '0');
+  return `${year}-${nextYY}`;
+}
+
+function duNormalizeFrequencyLabel(freq = '') {
+  const key = String(freq || '').trim().toLowerCase();
+  if (key === 'monthly') return 'Monthly';
+  if (key === 'quarter' || key === 'quarterly') return 'Quarter';
+  if (key === 'annual' || key === 'yearly') return 'Annual';
+  return '';
+}
+
+function duUploadStakeholderNames(rawList = [], fallbackProgram = '') {
+  const names = (rawList || [])
+    .map(item => {
+      if (typeof item === 'string') return item.trim();
+      if (!item) return '';
+      if (Object.prototype.hasOwnProperty.call(item, 'enabled') && !item.enabled) return '';
+      return String(item.stakeholder || item.name || '').trim();
+    })
+    .filter(Boolean);
+  if (names.length) return duGeoUniqueIds(names);
+
+  const mapped = duTemplateStakeholderRowsFromProgram(fallbackProgram)
+    .filter(r => r?.enabled)
+    .map(r => String(r.stakeholder || '').trim())
+    .filter(Boolean);
+  if (mapped.length) return duGeoUniqueIds(mapped);
+
+  return duGeoUniqueIds(DU_TEMPLATE_STAKEHOLDERS);
+}
+
+function duUploadActivityTypeNames(activities = []) {
+  return duGeoUniqueIds((activities || [])
+    .map(a => String(a?.type || 'Activity').trim() || 'Activity'))
+    .sort((a, b) => String(a).localeCompare(String(b)));
+}
+
+function duUploadInterventionRows(activities = []) {
+  const map = new Map();
+  (activities || []).forEach(a => {
+    const name = String(a?.intervention || '').trim();
+    if (!name) return;
+    const key = duGeoCanon(name);
+    if (!key) return;
+    if (!map.has(key)) {
+      map.set(key, {
+        name,
+        code: String(a?.interventionCode || '').trim(),
+        types: [],
+        categories: [],
+      });
+    }
+    const hit = map.get(key);
+    if (!hit.code && a?.interventionCode) hit.code = String(a.interventionCode || '').trim();
+    (a?.interventionTypes || []).forEach(v => hit.types.push(String(v || '').trim()));
+    (a?.interventionCategories || []).forEach(v => hit.categories.push(String(v || '').trim()));
+  });
+  return Array.from(map.values())
+    .map(r => ({
+      ...r,
+      types: duGeoUniqueIds((r.types || []).filter(Boolean)),
+      categories: duGeoUniqueIds((r.categories || []).filter(Boolean)),
+    }))
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+function duUploadDefaultMatrixLabels(stakeholders = []) {
+  const out = ['No. of Schools'];
+  const names = (stakeholders || []).map(s => String(s || '').trim().toLowerCase());
+  if (names.some(n => n.includes('teacher'))) out.push('No. of Teachers');
+  if (names.some(n => n.includes('student'))) out.push('No. of Students');
+  if (names.some(n => n.includes('parent'))) out.push('No. of Parents');
+  if (out.length === 1) out.push('No. of Stakeholders');
+  return duGeoUniqueIds(out);
+}
+
+function duUploadMatrixLabels(activity = null) {
+  if (!activity) return [];
+  const explicit = duGeoUniqueIds((activity.matrixLabels || [])
+    .map(m => String(m || '').trim())
+    .filter(Boolean));
+  if (explicit.length) return explicit;
+  return duUploadDefaultMatrixLabels(activity.stakeholders || []);
+}
+
+function duUploadMonthlyPeriods() {
+  const fromTop = Array.from(($('month-select')?.options || []))
+    .map(o => String(o.value || o.textContent || '').trim())
+    .filter(Boolean);
+  if (fromTop.length) return duGeoUniqueIds(fromTop);
+  const fromDu = Array.from(($('du-month-sel')?.options || []))
+    .map(o => String(o.value || o.textContent || '').trim())
+    .filter(Boolean);
+  if (fromDu.length) return duGeoUniqueIds(fromDu);
+  const months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+  const fy = duCurrentFinancialYearLabel();
+  const [startY] = fy.split('-').map(v => parseInt(v, 10));
+  return months.map((m, idx) => `${m} ${idx < 9 ? startY : startY + 1}`);
+}
+
+function duUploadPeriodOptions(freq = '') {
+  const f = duNormalizeFrequencyLabel(freq);
+  if (f === 'Monthly') return duUploadMonthlyPeriods();
+  if (f === 'Quarter') {
+    const fy = duCurrentFinancialYearLabel();
+    return [`Q1 (Apr-Jun) FY ${fy}`, `Q2 (Jul-Sep) FY ${fy}`, `Q3 (Oct-Dec) FY ${fy}`, `Q4 (Jan-Mar) FY ${fy}`];
+  }
+  if (f === 'Annual') {
+    const fy = duCurrentFinancialYearLabel();
+    return [`Annual FY ${fy}`];
+  }
+  return [];
+}
+
+function duUploadTopFilterState() {
+  const fySel = $('fy-select');
+  const fyText = fySel?.options?.[fySel.selectedIndex]?.text || fySel?.value || duCurrentFinancialYearLabel();
+  const fy = String(fyText || '').replace(/^fy\s*/i, '').trim() || duCurrentFinancialYearLabel();
+  const topMonthSel = $('month-select');
+  const duMonthSel = $('du-month-sel');
+  const topPeriod = topMonthSel?.value || topMonthSel?.options?.[topMonthSel.selectedIndex]?.text || '';
+  const duPeriod = duMonthSel?.value || duMonthSel?.options?.[duMonthSel.selectedIndex]?.text || '';
+  const period = String(topPeriod || duPeriod || '').trim();
+  const frequency = duNormalizeFrequencyLabel($('freq-select')?.value || 'monthly') || 'Monthly';
+  const program = String($('du-prog-sel')?.value || duTemplateState.program || duGeoMapState.program || state.program || '').trim();
+  return { program, fy, frequency, period };
+}
+
+function duUploadTemplateActivities(program = '', frequency = '', financialYear = '') {
+  const f = duNormalizeFrequencyLabel(frequency);
+  const all = duTemplateStore[program] || [];
+  if (!program || !f || !all.length) return [];
+  const published = all.filter(t => String(t.status || '').toLowerCase() === 'published');
+  const source = published.length ? published : all;
+  const fy = String(financialYear || '').replace(/^fy\s*/i, '').trim();
+  return source
+    .filter(t => {
+      if (duNormalizeFrequencyLabel(t.frequency) !== f) return false;
+      if (!fy) return true;
+      const rowFy = String(t.financialYear || '').replace(/^fy\s*/i, '').trim();
+      return !rowFy || rowFy === fy;
+    })
+    .map(t => ({
+      id: String(t.id),
+      name: String(t.activityName || t.name || 'Untitled Activity').trim(),
+      intervention: String(t.intervention || t.interventionName || t.intv || '').trim(),
+      interventionCode: String(t.interventionCode || t.intvCode || '').trim(),
+      interventionTypes: duGeoUniqueIds(
+        []
+          .concat((t.interventionTypes || []))
+          .concat(t.interventionType ? [t.interventionType] : [])
+          .concat(t.intvType ? [t.intvType] : [])
+          .map(v => String(v || '').trim())
+          .filter(Boolean)
+      ),
+      interventionCategories: duGeoUniqueIds(
+        []
+          .concat((t.interventionCategories || []))
+          .concat(t.interventionCategory ? [t.interventionCategory] : [])
+          .concat(t.intvCategory ? [t.intvCategory] : [])
+          .map(v => String(v || '').trim())
+          .filter(Boolean)
+      ),
+      type: String(t.activityType || t.activity_type || t.type || t.activity || 'Activity').trim(),
+      frequency: duNormalizeFrequencyLabel(t.frequency) || f,
+      financialYear: String(t.financialYear || '').trim(),
+      description: String(t.activityDescription || '').trim(),
+      stakeholders: duUploadStakeholderNames(t.stakeholders || [], program),
+      columnsCount: (t.columns || []).length,
+      matrixLabels: duGeoUniqueIds((t.matrix || [])
+        .map(m => String(m?.label || m?.key || '').trim())
+        .filter(Boolean)),
+      metricsCount: (t.matrix || []).length,
+      demo: false,
+    }));
+}
+
+function duUploadDemoActivities(program = '', frequency = '', financialYear = '') {
+  const f = duNormalizeFrequencyLabel(frequency);
+  const byFreq = DU_UPLOAD_DEMO_ACTIVITIES.filter(a => duNormalizeFrequencyLabel(a.frequency) === f);
+  const rows = byFreq.length ? byFreq : DU_UPLOAD_DEMO_ACTIVITIES;
+  const fy = String(financialYear || '').replace(/^fy\s*/i, '').trim() || duCurrentFinancialYearLabel();
+  return rows.map((a, idx) => ({
+    id: `${a.id}-${duGeoCanon(program || 'demo')}-${idx + 1}`,
+    name: a.name,
+    intervention: String(a.intervention || '').trim(),
+    interventionCode: String(a.interventionCode || '').trim(),
+    interventionTypes: duGeoUniqueIds((a.interventionTypes || []).map(v => String(v || '').trim()).filter(Boolean)),
+    interventionCategories: duGeoUniqueIds((a.interventionCategories || []).map(v => String(v || '').trim()).filter(Boolean)),
+    type: a.type,
+    frequency: duNormalizeFrequencyLabel(a.frequency),
+    financialYear: fy,
+    description: `${a.description}${program ? ` (${program})` : ''}`,
+    stakeholders: duUploadStakeholderNames(a.stakeholders || [], program),
+    columnsCount: a.columnsCount || 0,
+    matrixLabels: duGeoUniqueIds((a.matrixLabels || []).map(m => String(m || '').trim()).filter(Boolean)),
+    metricsCount: a.metricsCount || (a.matrixLabels || []).length || 0,
+    demo: true,
+  }));
+}
+
+function duUploadActivityRows(program = '', frequency = '', financialYear = '') {
+  const f = duNormalizeFrequencyLabel(frequency);
+  if (!f) return [];
+  const real = program ? duUploadTemplateActivities(program, f, financialYear) : [];
+  const rows = real.length ? real : duUploadDemoActivities(program || 'All Programs', f, financialYear);
+  return rows.sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+function duUploadFillSelect(sel, options = [], placeholder = 'Select', selectedVal = '', disabled = false) {
+  if (!sel) return '';
+  const opts = options || [];
+  sel.innerHTML = `<option value="">${esc(placeholder)}</option>` +
+    opts.map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
+  const hasSelected = !!selectedVal && opts.some(o => o.value === selectedVal);
+  sel.value = hasSelected ? selectedVal : '';
+  sel.disabled = !!disabled;
+  return sel.value;
+}
+
+function duUploadCurrentActivity() {
+  const actId = $('du-up-activity-sel')?.value || '';
+  return (duUploadFlowCache.activities || []).find(a => a.id === actId) || null;
+}
+
+function duUploadRenderActivityProfile(activity = null) {
+  const wrap = $('du-up-activity-profile');
+  const title = $('du-up-activity-title');
+  const meta = $('du-up-activity-meta');
+  const desc = $('du-up-activity-desc');
+  const stks = $('du-up-activity-stks');
+  const matrixEl = $('du-up-activity-matrix');
+  if (!wrap || !title || !meta || !desc || !stks || !matrixEl) return;
+  if (!activity) {
+    wrap.classList.add('hidden');
+    title.textContent = 'Activity profile';
+    meta.textContent = '';
+    desc.textContent = '';
+    stks.innerHTML = '';
+    matrixEl.innerHTML = '';
+    return;
+  }
+  title.textContent = activity.name || 'Activity';
+  const fyTxt = activity.financialYear ? ` · FY ${activity.financialYear}` : '';
+  const demoTxt = activity.demo ? ' · Demo profile' : '';
+  const intvTxt = activity.intervention ? ` · ${activity.intervention}` : '';
+  meta.textContent = `${activity.type || 'Activity'}${intvTxt} · ${activity.frequency || ''}${fyTxt}${demoTxt}`;
+  const intvTypeChips = duGeoUniqueIds((activity.interventionTypes || []).filter(Boolean))
+    .map(v => `<span class="du-template-chip">Type: ${esc(v)}</span>`)
+    .join('');
+  const intvCatChips = duGeoUniqueIds((activity.interventionCategories || []).filter(Boolean))
+    .map(v => `<span class="du-template-chip">Category: ${esc(v)}</span>`)
+    .join('');
+  desc.textContent = activity.description || 'No description available for this activity.';
+  stks.innerHTML = (activity.stakeholders || [])
+    .map(s => `<span class="du-template-chip">${esc(s)}</span>`)
+    .join('') +
+    (activity.intervention ? `<span class="du-template-chip">Intervention: ${esc(activity.intervention)}</span>` : '') +
+    intvTypeChips +
+    intvCatChips +
+    `<span class="du-template-chip">${esc((activity.columnsCount || 0) + ' columns')}</span>` +
+    `<span class="du-template-chip">${esc((activity.metricsCount || 0) + ' metrics')}</span>`;
+  const matrixLabels = duUploadMatrixLabels(activity);
+  matrixEl.innerHTML = matrixLabels.length
+    ? matrixLabels.map(label => `<span class="du-template-chip">${esc(label)}</span>`).join('')
+    : `<span style="font-size:11px;color:var(--slate);">No matrix configured</span>`;
+  wrap.classList.remove('hidden');
+}
+
+function duUploadRenderFlowSelectors(opts = {}) {
+  const preserve = opts.preserve !== false;
+  const intvSel = $('du-up-intv-sel');
+  const typeSel = $('du-up-activity-type-sel');
+  const actSel = $('du-up-activity-sel');
+  const stkSel = $('du-up-stk-sel');
+  const ctxEl = $('du-up-context');
+  if (!intvSel || !typeSel || !actSel || !stkSel || !ctxEl) return;
+
+  const top = duUploadTopFilterState();
+  const program = top.program;
+  const nextFreq = top.frequency;
+  const periodValue = top.period;
+  const fy = top.fy;
+  ctxEl.textContent = `Program: ${program || '—'} · FY: ${fy || '—'} · Frequency: ${nextFreq || '—'} · Period: ${periodValue || '—'}`;
+
+  const activities = (program && nextFreq) ? duUploadActivityRows(program, nextFreq, fy) : [];
+  duUploadFlowCache.activities = activities;
+  const intvRows = duUploadInterventionRows(activities);
+  const intvItems = [{ value: '__all__', label: 'All interventions' }, ...intvRows.map(r => ({
+    value: r.name,
+    label: r.code ? `${r.name} (${r.code})` : r.name,
+  }))];
+  const prevIntv = preserve ? (intvSel.value || '') : '';
+  const intvValue = duUploadFillSelect(
+    intvSel,
+    intvItems,
+    nextFreq ? 'Select intervention' : 'Select frequency from top bar',
+    prevIntv || '__all__',
+    !nextFreq || !activities.length
+  );
+  const selectedIntv = intvValue || '__all__';
+  const filteredByIntervention = (selectedIntv && selectedIntv !== '__all__')
+    ? activities.filter(a => duGeoCanon(a.intervention || '') === duGeoCanon(selectedIntv))
+    : activities;
+
+  const typeNames = duUploadActivityTypeNames(filteredByIntervention);
+  const typeItems = [{ value: '__all__', label: 'All activity types' }, ...typeNames.map(type => ({ value: type, label: type }))];
+  const prevType = preserve ? (typeSel.value || '') : '';
+  const typeValue = duUploadFillSelect(
+    typeSel,
+    typeItems,
+    nextFreq ? 'Select activity type' : 'Select frequency from top bar',
+    prevType || '__all__',
+    !nextFreq || !filteredByIntervention.length
+  );
+
+  const selectedType = typeValue || '__all__';
+  const filteredByType = (selectedType && selectedType !== '__all__')
+    ? filteredByIntervention.filter(a => duGeoCanon(a.type || 'Activity') === duGeoCanon(selectedType))
+    : filteredByIntervention;
+  const filteredActivities = filteredByType.length ? filteredByType : filteredByIntervention;
+  const actItems = filteredActivities.map(a => ({ value: a.id, label: `${a.name} (${a.type})` }));
+  const prevAct = preserve ? (actSel.value || '') : '';
+  const actValue = duUploadFillSelect(
+    actSel,
+    actItems,
+    nextFreq ? 'Select activity' : 'Select frequency from top bar',
+    prevAct,
+    !nextFreq || !actItems.length
+  );
+
+  const chosenActivity = filteredActivities.find(a => a.id === actValue) || null;
+  const stkNames = chosenActivity ? duUploadStakeholderNames(chosenActivity.stakeholders || [], program) : [];
+  const stkItems = stkNames.map(s => ({ value: s, label: s }));
+  const prevStk = preserve ? (stkSel.value || '') : '';
+  duUploadFillSelect(
+    stkSel,
+    stkItems,
+    chosenActivity ? 'Select stakeholder type' : 'Select activity first',
+    prevStk,
+    !chosenActivity || !stkItems.length
+  );
+
+  duUploadRenderActivityProfile(chosenActivity);
+
+  const ready = !!(program && nextFreq && periodValue && actSel.value && stkSel.value);
+  const browseBtn = $('du-browse-btn');
+  const dropzone = $('du-dropzone');
+  const gateMsg = $('du-up-gate-msg');
+  const fileInp = $('du-file-input');
+  if (browseBtn) browseBtn.disabled = !ready;
+  if (fileInp) fileInp.disabled = !ready;
+  if (dropzone) dropzone.style.opacity = ready ? '1' : '.65';
+  if (gateMsg) {
+    gateMsg.textContent = ready
+      ? 'Top filters + intervention/activity/stakeholder are ready. Upload is enabled.'
+      : 'Use top filters (Program/FY/Frequency/Period), then choose Intervention, Activity and Stakeholder Type.';
+  }
+}
+
+function duCloneTemplateColumns() {
+  return DU_TEMPLATE_DEFAULT_COLUMNS.map(c => ({ ...c }));
+}
+
+function duCloneTemplateMatrix() {
+  return DU_TEMPLATE_DEFAULT_MATRIX.map(m => ({ ...m }));
+}
+
+function duEnsureTemplateProgramStore(program) {
+  if (!program) return;
+  if (!duTemplateStore[program]) duTemplateStore[program] = [];
+}
+
+function duNormalizeStakeholderName(v) {
+  return String(v || '').trim().toLowerCase();
+}
+
+function duGeoHierarchyTagFromLevel(level = 'school') {
+  const lvl = String(level || '').trim().toLowerCase();
+  if (lvl === 'state') return 'state';
+  if (lvl === 'district') return 'diet';
+  if (lvl === 'block') return 'brc';
+  if (lvl === 'cluster') return 'crc';
+  return 'school';
+}
+
+function duGeoHierarchyDefaultOrderFromLevel(level = 'school') {
+  const lvl = String(level || '').trim().toLowerCase();
+  if (lvl === 'state') return 10;
+  if (lvl === 'district') return 20;
+  if (lvl === 'block') return 30;
+  if (lvl === 'cluster') return 40;
+  return 60;
+}
+
+function duGeoDefaultHierarchyTag(stakeholder = '', level = 'school') {
+  const name = duNormalizeStakeholderName(stakeholder);
+  if (DU_STAKEHOLDER_DEFAULT_HIERARCHY[stakeholder]) return DU_STAKEHOLDER_DEFAULT_HIERARCHY[stakeholder];
+  if (name.includes('adc')) return 'diet_brc_mid';
+  if (name.includes('diet')) return 'diet';
+  if (name.includes('brc')) return 'brc';
+  if (name.includes('crc')) return 'crc';
+  if (name.includes('hm') || name.includes('head')) return 'hm';
+  if (name.includes('state')) return 'state';
+  return duGeoHierarchyTagFromLevel(level);
+}
+
+function duGeoNormalizeHierarchyTag(tag = '', stakeholder = '', level = 'school') {
+  const raw = String(tag || '').trim().toLowerCase();
+  if (DU_GEO_HIERARCHY_OPTIONS.some(o => o.key === raw)) return raw;
+  return duGeoDefaultHierarchyTag(stakeholder, level);
+}
+
+function duGeoNormalizeHierarchyLabel(label = '', tag = '', stakeholder = '', level = 'school') {
+  const txt = String(label || '').trim();
+  const key = duGeoNormalizeHierarchyTag(tag, stakeholder, level);
+  if (key === 'custom') return txt || String(stakeholder || '').trim() || 'Custom';
+  return '';
+}
+
+function duGeoNormalizeHierarchyOrder(order = '', tag = '', level = 'school') {
+  const key = duGeoNormalizeHierarchyTag(tag, '', level);
+  if (key !== 'custom') return null;
+  const num = Number(order);
+  if (Number.isFinite(num) && num > 0) return Math.round(num);
+  return duGeoHierarchyDefaultOrderFromLevel(level) + 1;
+}
+
+function duGeoHierarchyTagLabel(tag = '', stakeholder = '', level = 'school', hierarchyLabel = '') {
+  const key = duGeoNormalizeHierarchyTag(tag, stakeholder, level);
+  if (key === 'custom') return duGeoNormalizeHierarchyLabel(hierarchyLabel, key, stakeholder, level);
+  return DU_GEO_HIERARCHY_OPTIONS.find(o => o.key === key)?.label || key;
+}
+
+function duGeoHierarchyWeight(tag = '', stakeholder = '', level = 'school', hierarchyOrder = null) {
+  const key = duGeoNormalizeHierarchyTag(tag, stakeholder, level);
+  if (key === 'custom') return duGeoNormalizeHierarchyOrder(hierarchyOrder, key, level);
+  if (key === 'state') return 10;
+  if (key === 'diet') return 20;
+  if (key === 'diet_brc_mid') return 25;
+  if (key === 'brc') return 30;
+  if (key === 'crc') return 40;
+  if (key === 'hm') return 50;
+  if (key === 'school') return 60;
+  return 70;
+}
+
+function duGeoSortStakeholderRows(rows = []) {
+  return (rows || []).slice().sort((a, b) => {
+    const wa = duGeoHierarchyWeight(a?.hierarchyTag, a?.stakeholder, a?.level, a?.hierarchyOrder);
+    const wb = duGeoHierarchyWeight(b?.hierarchyTag, b?.stakeholder, b?.level, b?.hierarchyOrder);
+    if (wa !== wb) return wa - wb;
+    const sa = String(a?.stakeholder || '').trim().toLowerCase();
+    const sb = String(b?.stakeholder || '').trim().toLowerCase();
+    if (sa < sb) return -1;
+    if (sa > sb) return 1;
+    return 0;
+  });
+}
+
+function duSplitScopeValues(scopeText) {
+  return String(scopeText || '')
+    .split(/[\n,;|]+/)
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+function duScopePreview(values, max = 10) {
+  const arr = Array.from(new Set(values || []));
+  if (!arr.length) return '';
+  if (arr.length <= max) return arr.join(', ');
+  return `${arr.slice(0, max).join(', ')} (+${arr.length - max} more)`;
+}
+
+function duNormalizeGeoToken(v) {
+  return duGeoCanon(v);
+}
+
+function duGeoCoverageConstraint(coverageRows = []) {
+  const fullLevels = new Set();
+  const valueMaps = {
+    state: new Map(),
+    district: new Map(),
+    block: new Map(),
+    cluster: new Map(),
+    school: new Map(),
+  };
+
+  (coverageRows || []).filter(r => r?.enabled).forEach(r => {
+    const lvl = String(r.level || '').trim().toLowerCase();
+    if (!DU_GEO_LEVEL_OPTIONS.includes(lvl)) return;
+    const mode = String(r.mode || 'selected').toLowerCase() === 'full' ? 'full' : 'selected';
+    if (mode === 'full') fullLevels.add(lvl);
+    duSplitScopeValues(r.scope).forEach(raw => {
+      const key = duNormalizeGeoToken(raw);
+      if (!key) return;
+      if (!valueMaps[lvl].has(key)) valueMaps[lvl].set(key, raw.trim());
+    });
+  });
+
+  const valuesByLevel = {
+    state: new Set(Array.from(valueMaps.state.values())),
+    district: new Set(Array.from(valueMaps.district.values())),
+    block: new Set(Array.from(valueMaps.block.values())),
+    cluster: new Set(Array.from(valueMaps.cluster.values())),
+    school: new Set(Array.from(valueMaps.school.values())),
+  };
+  return { fullLevels, valuesByLevel };
+}
+
+function duGeoCoverageLevels(coverageRows = []) {
+  const lvls = new Set();
+  (coverageRows || []).filter(r => r?.enabled).forEach(r => {
+    const lvl = String(r.level || '').trim().toLowerCase();
+    if (DU_GEO_LEVEL_OPTIONS.includes(lvl)) lvls.add(lvl);
+  });
+  return Array.from(lvls);
+}
+
+const DU_GEO_STATE_CODES = {
+  Bihar: 'BR',
+  Jharkhand: 'JH',
+  'Uttar Pradesh': 'UP',
+  Odisha: 'OD',
+  Karnataka: 'KA',
+  Punjab: 'PB',
+  Rajasthan: 'RJ',
+  'Madhya Pradesh': 'MP',
+  Assam: 'AS',
+  Maharashtra: 'MH',
+};
+const DU_GEO_STATE_DISTRICTS = {
+  Bihar: ['PATNA','GAYA','MUZAFFARPUR','BHAGALPUR','NALANDA','VAISHALI','SITAMARHI','DARBHANGA'],
+  Jharkhand: ['RANCHI','DHANBAD','BOKARO','DEOGHAR','HAZARIBAGH','GIRIDIH'],
+  'Uttar Pradesh': ['LUCKNOW','AGRA','VARANASI','KANPUR NAGAR','PRAYAGRAJ','MEERUT'],
+  Odisha: ['ANGUL','BALASORE','CUTTACK','DHENKANAL','BOLANGIR','GAJAPATI'],
+  Karnataka: ['BENGALURU URBAN','MYSURU','BELAGAVI','KALABURAGI','SHIVAMOGGA','TUMAKURU'],
+  Punjab: ['LUDHIANA','AMRITSAR','JALANDHAR','PATIALA','BATHINDA'],
+  Rajasthan: ['JAIPUR','JODHPUR','KOTA','AJMER','UDAIPUR'],
+  'Madhya Pradesh': ['BHOPAL','INDORE','JABALPUR','GWALIOR','UJJAIN'],
+  Assam: ['KAMRUP','DIBRUGARH','JORHAT','NAGAON','TINSUKIA'],
+  Maharashtra: ['PUNE','NASHIK','AURANGABAD','NAGPUR','SOLAPUR'],
+};
+let duGeoCatalogCache = null;
+
+function duGeoDefaultCascadeState() {
+  return {
+    scopeType: 'state_multi',
+    states: [],
+    districtAll: true,
+    districts: [],
+    blockAll: true,
+    blocks: [],
+    clusterAll: true,
+    clusters: [],
+    schoolAll: true,
+    schools: [],
+    skipCluster: false,
+  };
+}
+
+function duGeoCanon(v) {
+  return String(v || '')
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\[[^\]]*\]/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function duGeoUniqueIds(ids = []) {
+  return Array.from(new Set((ids || []).filter(Boolean)));
+}
+
+function duGeoScopeTypeDef(scopeType) {
+  return DU_GEO_SCOPE_TYPES.find(t => t.key === scopeType) || DU_GEO_SCOPE_TYPES[0];
+}
+
+function duGeoScopeUiFlags(scopeType) {
+  const def = duGeoScopeTypeDef(scopeType);
+  const idx = DU_GEO_LEVEL_OPTIONS.indexOf(def.level);
+  return {
+    def,
+    targetLevel: def.level,
+    targetIndex: idx < 0 ? 0 : idx,
+    lockDistrict: idx < 1,
+    lockBlock: idx < 2,
+    lockCluster: idx < 3,
+    lockSchool: idx < 4,
+  };
+}
+
+function duGeoScopeTypeFromCoverageRows(coverageRows = []) {
+  const byLevel = {};
+  (coverageRows || []).filter(r => r?.enabled).forEach(r => {
+    byLevel[String(r.level || '').trim().toLowerCase()] = r;
+  });
+  const ordered = ['school', 'cluster', 'block', 'district', 'state'];
+  for (const level of ordered) {
+    const row = byLevel[level];
+    if (!row) continue;
+    const mode = String(row.mode || 'selected').toLowerCase() === 'full' ? 'full' : 'selected';
+    const tokens = duSplitScopeValues(row.scope || '');
+    if (mode !== 'selected' || !tokens.length) continue;
+    return `${level}_${tokens.length > 1 ? 'multi' : 'single'}`;
+  }
+  return 'state_multi';
+}
+
+function duGeoApplyScopeTypeRules(cascade) {
+  const c = cascade || duGeoDefaultCascadeState();
+  const { def, targetIndex } = duGeoScopeUiFlags(c.scopeType);
+  c.scopeType = def.key;
+  c.states = duGeoUniqueIds(c.states);
+  c.districts = duGeoUniqueIds(c.districts);
+  c.blocks = duGeoUniqueIds(c.blocks);
+  c.clusters = duGeoUniqueIds(c.clusters);
+  c.schools = duGeoUniqueIds(c.schools);
+
+  if (def.level === 'state' && !def.multi) {
+    c.states = c.states.slice(0, 1);
+  }
+  if (def.level === 'district' && !def.multi) {
+    c.districtAll = false;
+    c.districts = c.districts.slice(0, 1);
+  }
+  if (def.level === 'block' && !def.multi) {
+    c.blockAll = false;
+    c.blocks = c.blocks.slice(0, 1);
+  }
+  if (def.level === 'cluster' && !def.multi) {
+    c.clusterAll = false;
+    c.clusters = c.clusters.slice(0, 1);
+  }
+  if (def.level === 'school' && !def.multi) {
+    c.schoolAll = false;
+    c.schools = c.schools.slice(0, 1);
+  }
+
+  if (targetIndex < 1) {
+    c.districtAll = true;
+    c.districts = [];
+  }
+  if (targetIndex < 2) {
+    c.blockAll = true;
+    c.blocks = [];
+  }
+  if (targetIndex < 3) {
+    c.clusterAll = true;
+    c.clusters = [];
+  }
+  if (targetIndex < 4) {
+    c.schoolAll = true;
+    c.schools = [];
+  }
+
+  if (targetIndex >= 3) {
+    c.skipCluster = false;
+  }
+
+  return c;
+}
+
+function duGeoBuildCatalog() {
+  const states = Object.keys(DU_GEO_STATE_DISTRICTS).map((stateName, sIdx) => {
+    const stateCode = DU_GEO_STATE_CODES[stateName] || `S${String(sIdx + 1).padStart(2, '0')}`;
+    const districts = (DU_GEO_STATE_DISTRICTS[stateName] || []).map((districtName, dIdx) => {
+      const districtCode = `${stateCode}-D${String(dIdx + 1).padStart(2, '0')}`;
+      const blocks = [1,2,3,4].map(bNo => {
+        const blockCode = `${districtCode}-B${String(bNo).padStart(2, '0')}`;
+        const blockName = `${districtName} Block ${bNo}`;
+        const clusters = [1,2,3].map(cNo => {
+          const clusterCode = `${blockCode}-C${String(cNo).padStart(2, '0')}`;
+          const clusterName = `${blockName} Cluster ${cNo}`;
+          const schools = [1,2,3,4].map(sNo => {
+            const udise = `${String(sIdx + 11).padStart(2, '0')}${String(dIdx + 1).padStart(2, '0')}${String(bNo).padStart(2, '0')}${String(cNo).padStart(2, '0')}${String(sNo).padStart(3, '0')}`.slice(0,11);
+            const schoolName = `${clusterName} School ${sNo}`;
+            return {
+              id: `SCH:${udise}`,
+              udise,
+              name: schoolName,
+              label: `${schoolName} (${udise})`,
+              stateName,
+              stateCode,
+              districtName,
+              districtCode,
+              blockName,
+              blockCode,
+              clusterName,
+              clusterCode,
+            };
+          });
+          return {
+            id: `CL:${clusterCode}`,
+            code: clusterCode,
+            name: clusterName,
+            label: `${clusterName} (${clusterCode})`,
+            schools,
+            stateName,
+            stateCode,
+            districtName,
+            districtCode,
+            blockName,
+            blockCode,
+          };
+        });
+        const blockSchools = clusters.flatMap(c => c.schools);
+        return {
+          id: `BL:${blockCode}`,
+          code: blockCode,
+          name: blockName,
+          label: `${blockName} (${blockCode})`,
+          clusters,
+          schools: blockSchools,
+          stateName,
+          stateCode,
+          districtName,
+          districtCode,
+        };
+      });
+      return {
+        id: `DT:${districtCode}`,
+        code: districtCode,
+        name: districtName,
+        label: `${districtName} (${districtCode})`,
+        blocks,
+        stateName,
+        stateCode,
+      };
+    });
+    return {
+      id: `ST:${stateCode}`,
+      code: stateCode,
+      name: stateName,
+      label: `${stateName} (${stateCode})`,
+      districts,
+    };
+  });
+  return { states };
+}
+
+function duGeoCatalog() {
+  if (!duGeoCatalogCache) duGeoCatalogCache = duGeoBuildCatalog();
+  return duGeoCatalogCache;
+}
+
+function duGeoMultiValues(id) {
+  const sel = $(id);
+  if (!sel) return [];
+  return Array.from(sel.selectedOptions).map(o => o.value);
+}
+
+function duGeoRenderMultiSelect(id, items, selectedIds = [], disabled = false) {
+  const sel = $(id);
+  if (!sel) return;
+  const selectedSet = new Set(selectedIds || []);
+  sel.innerHTML = items.map(it => `<option value="${esc(it.id)}" ${selectedSet.has(it.id) ? 'selected' : ''}>${esc(it.label)}</option>`).join('');
+  sel.disabled = !!disabled || !items.length;
+}
+
+function duGeoResolveByInput(inputText, items = []) {
+  const token = duGeoCanon(inputText);
+  if (!token) return null;
+  const exact = items.find(it =>
+    token === duGeoCanon(it.name) ||
+    token === duGeoCanon(it.code) ||
+    token === duGeoCanon(it.label)
+  );
+  if (exact) return exact;
+  return items.find(it =>
+    duGeoCanon(it.name).includes(token) ||
+    duGeoCanon(it.code).includes(token) ||
+    duGeoCanon(it.label).includes(token)
+  ) || null;
+}
+
+function duGeoResolveStateByInput(inputText, states = []) {
+  return duGeoResolveByInput(inputText, states);
+}
+
+function duGeoResolveDistrictByInput(inputText, districts = []) {
+  return duGeoResolveByInput(inputText, districts);
+}
+
+function duGeoResolveBlockByInput(inputText, blocks = []) {
+  return duGeoResolveByInput(inputText, blocks);
+}
+
+function duGeoResolveClusterByInput(inputText, clusters = []) {
+  return duGeoResolveByInput(inputText, clusters);
+}
+
+function duGeoResetCascadeBelowState(cascade) {
+  cascade.districtAll = true;
+  cascade.districts = [];
+  duGeoResetCascadeBelowDistrict(cascade);
+}
+
+function duGeoResetCascadeBelowDistrict(cascade) {
+  cascade.blockAll = true;
+  cascade.blocks = [];
+  duGeoResetCascadeBelowBlock(cascade);
+}
+
+function duGeoResetCascadeBelowBlock(cascade) {
+  cascade.clusterAll = true;
+  cascade.clusters = [];
+  duGeoResetCascadeBelowCluster(cascade);
+}
+
+function duGeoResetCascadeBelowCluster(cascade) {
+  cascade.schoolAll = true;
+  cascade.schools = [];
+}
+
+function duGeoRenderStateCombobox(states, selectedIds = [], maxOne = false) {
+  const list = $('du-geo-state-list');
+  if (list) {
+    list.innerHTML = (states || []).map(s => `<option value="${esc(s.label)}"></option>`).join('');
+  }
+
+  const pillbox = $('du-geo-state-pillbox');
+  if (!pillbox) return;
+  const selectedSet = new Set(selectedIds || []);
+  const selectedStates = (states || []).filter(s => selectedSet.has(s.id));
+  if (!selectedStates.length) {
+    pillbox.innerHTML = `<span style="font-size:10px;color:var(--slate);">No state selected yet.</span>`;
+    return;
+  }
+
+  pillbox.innerHTML = selectedStates.map(s =>
+    `<span class="du-geo-pill">${esc(s.label)} <button type="button" data-geo-state-remove="${esc(s.id)}">&times;</button></span>`
+  ).join('');
+
+  qsa('[data-geo-state-remove]', pillbox).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+      duGeoMapState.cascade.states = (duGeoMapState.cascade.states || []).filter(id => id !== btn.dataset.geoStateRemove);
+      duGeoResetCascadeBelowState(duGeoMapState.cascade);
+      duRenderGeoCascadeSelectors();
+    });
+  });
+
+  const input = $('du-geo-state-combo');
+  if (input) {
+    if (maxOne && selectedStates.length >= 1) {
+      input.value = '';
+      input.placeholder = 'Single state scope selected';
+    } else {
+      input.placeholder = 'Type state name/code';
+    }
+  }
+}
+
+function duGeoRenderDistrictCombobox(districts, selectedIds = [], opts = {}) {
+  const disabled = !!opts.disabled;
+  const maxOne = !!opts.maxOne;
+
+  const list = $('du-geo-district-list');
+  if (list) {
+    list.innerHTML = (districts || []).map(d => `<option value="${esc(d.label)}"></option>`).join('');
+  }
+
+  const pillbox = $('du-geo-district-pillbox');
+  if (!pillbox) return;
+  const selectedSet = new Set(selectedIds || []);
+  const selectedDistricts = (districts || []).filter(d => selectedSet.has(d.id));
+  if (!selectedDistricts.length) {
+    pillbox.innerHTML = `<span style="font-size:10px;color:var(--slate);">${disabled ? 'District selection is locked by scope type.' : 'No district selected yet.'}</span>`;
+  } else {
+    pillbox.innerHTML = selectedDistricts.map(d =>
+      `<span class="du-geo-pill">${esc(d.label)} <button type="button" data-geo-district-remove="${esc(d.id)}">&times;</button></span>`
+    ).join('');
+  }
+
+  qsa('[data-geo-district-remove]', pillbox).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+      duGeoMapState.cascade.districts = (duGeoMapState.cascade.districts || []).filter(id => id !== btn.dataset.geoDistrictRemove);
+      duGeoResetCascadeBelowDistrict(duGeoMapState.cascade);
+      duRenderGeoCascadeSelectors();
+    });
+  });
+
+  const input = $('du-geo-district-combo');
+  if (input) {
+    if (disabled) {
+      input.value = '';
+      input.placeholder = 'District selection disabled';
+    } else if (maxOne && selectedDistricts.length >= 1) {
+      input.value = '';
+      input.placeholder = 'Single district scope selected';
+    } else {
+      input.placeholder = 'Type district name/code';
+    }
+  }
+}
+
+function duGeoRenderBlockCombobox(blocks, selectedIds = [], opts = {}) {
+  const disabled = !!opts.disabled;
+  const maxOne = !!opts.maxOne;
+
+  const list = $('du-geo-block-list');
+  if (list) {
+    list.innerHTML = (blocks || []).map(b => `<option value="${esc(b.label)}"></option>`).join('');
+  }
+
+  const pillbox = $('du-geo-block-pillbox');
+  if (!pillbox) return;
+  const selectedSet = new Set(selectedIds || []);
+  const selectedBlocks = (blocks || []).filter(b => selectedSet.has(b.id));
+  if (!selectedBlocks.length) {
+    pillbox.innerHTML = `<span style="font-size:10px;color:var(--slate);">${disabled ? 'Block selection is locked by scope type.' : 'No block selected yet.'}</span>`;
+  } else {
+    pillbox.innerHTML = selectedBlocks.map(b =>
+      `<span class="du-geo-pill">${esc(b.label)} <button type="button" data-geo-block-remove="${esc(b.id)}">&times;</button></span>`
+    ).join('');
+  }
+
+  qsa('[data-geo-block-remove]', pillbox).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+      duGeoMapState.cascade.blocks = (duGeoMapState.cascade.blocks || []).filter(id => id !== btn.dataset.geoBlockRemove);
+      duGeoResetCascadeBelowBlock(duGeoMapState.cascade);
+      duRenderGeoCascadeSelectors();
+    });
+  });
+
+  const input = $('du-geo-block-combo');
+  if (input) {
+    if (disabled) {
+      input.value = '';
+      input.placeholder = 'Block selection disabled';
+    } else if (maxOne && selectedBlocks.length >= 1) {
+      input.value = '';
+      input.placeholder = 'Single block scope selected';
+    } else {
+      input.placeholder = 'Type block name/code';
+    }
+  }
+}
+
+function duGeoRenderClusterCombobox(clusters, selectedIds = [], opts = {}) {
+  const disabled = !!opts.disabled;
+  const maxOne = !!opts.maxOne;
+  const skipped = !!opts.skipped;
+
+  const list = $('du-geo-cluster-list');
+  if (list) {
+    list.innerHTML = (clusters || []).map(c => `<option value="${esc(c.label)}"></option>`).join('');
+  }
+
+  const pillbox = $('du-geo-cluster-pillbox');
+  if (!pillbox) return;
+  const selectedSet = new Set(selectedIds || []);
+  const selectedClusters = (clusters || []).filter(c => selectedSet.has(c.id));
+  if (!selectedClusters.length) {
+    const msg = skipped
+      ? 'Cluster is skipped. Disable "Skip cluster" to select.'
+      : (disabled ? 'Cluster selection is locked by scope type.' : 'No cluster selected yet.');
+    pillbox.innerHTML = `<span style="font-size:10px;color:var(--slate);">${msg}</span>`;
+  } else {
+    pillbox.innerHTML = selectedClusters.map(c =>
+      `<span class="du-geo-pill">${esc(c.label)} <button type="button" data-geo-cluster-remove="${esc(c.id)}">&times;</button></span>`
+    ).join('');
+  }
+
+  qsa('[data-geo-cluster-remove]', pillbox).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+      duGeoMapState.cascade.clusters = (duGeoMapState.cascade.clusters || []).filter(id => id !== btn.dataset.geoClusterRemove);
+      duGeoResetCascadeBelowCluster(duGeoMapState.cascade);
+      duRenderGeoCascadeSelectors();
+    });
+  });
+
+  const input = $('du-geo-cluster-combo');
+  if (input) {
+    if (disabled) {
+      input.value = '';
+      input.placeholder = 'Cluster selection disabled';
+    } else if (maxOne && selectedClusters.length >= 1) {
+      input.value = '';
+      input.placeholder = 'Single cluster scope selected';
+    } else {
+      input.placeholder = 'Type cluster name/code';
+    }
+  }
+}
+
+function duGeoAddStateFromComboInput() {
+  if (!duGeoMapState.program) {
+    toast(IC.warning + ' Select a program card first');
+    return;
+  }
+  const input = $('du-geo-state-combo');
+  const raw = (input?.value || '').trim();
+  if (!raw) {
+    toast(IC.warning + ' Type a state name or code');
+    return;
+  }
+  const states = duGeoCatalog().states || [];
+  const hit = duGeoResolveStateByInput(raw, states);
+  if (!hit) {
+    toast(IC.warning + ' State not found in catalog');
+    return;
+  }
+  if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+  const maxOne = duGeoScopeTypeDef(duGeoMapState.cascade.scopeType).key === 'state_single';
+  const next = new Set(duGeoMapState.cascade.states || []);
+  if (maxOne) {
+    duGeoMapState.cascade.states = [hit.id];
+  } else {
+    next.add(hit.id);
+    duGeoMapState.cascade.states = Array.from(next);
+  }
+  duGeoResetCascadeBelowState(duGeoMapState.cascade);
+  if (input) input.value = '';
+  duRenderGeoCascadeSelectors();
+}
+
+function duGeoAddDistrictFromComboInput() {
+  if (!duGeoMapState.program) {
+    toast(IC.warning + ' Select a program card first');
+    return;
+  }
+  if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+  const scopeDef = duGeoScopeTypeDef(duGeoMapState.cascade.scopeType);
+  if (DU_GEO_LEVEL_OPTIONS.indexOf(scopeDef.level) < 1) {
+    toast(IC.warning + ' District selection is locked for current scope type');
+    return;
+  }
+  const input = $('du-geo-district-combo');
+  const raw = (input?.value || '').trim();
+  if (!raw) {
+    toast(IC.warning + ' Type a district name or code');
+    return;
+  }
+  const available = duGeoCascadeAvailable(duGeoMapState.cascade).districts || [];
+  const hit = duGeoResolveDistrictByInput(raw, available);
+  if (!hit) {
+    toast(IC.warning + ' District not found under selected states');
+    return;
+  }
+  duGeoMapState.cascade.districtAll = false;
+  const next = new Set(duGeoMapState.cascade.districts || []);
+  if (scopeDef.key === 'district_single') {
+    duGeoMapState.cascade.districts = [hit.id];
+  } else {
+    next.add(hit.id);
+    duGeoMapState.cascade.districts = Array.from(next);
+  }
+  duGeoResetCascadeBelowDistrict(duGeoMapState.cascade);
+  if (input) input.value = '';
+  duRenderGeoCascadeSelectors();
+}
+
+function duGeoAddBlockFromComboInput() {
+  if (!duGeoMapState.program) {
+    toast(IC.warning + ' Select a program card first');
+    return;
+  }
+  if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+  const scopeDef = duGeoScopeTypeDef(duGeoMapState.cascade.scopeType);
+  if (DU_GEO_LEVEL_OPTIONS.indexOf(scopeDef.level) < 2) {
+    toast(IC.warning + ' Block selection is locked for current scope type');
+    return;
+  }
+  const input = $('du-geo-block-combo');
+  const raw = (input?.value || '').trim();
+  if (!raw) {
+    toast(IC.warning + ' Type a block name or code');
+    return;
+  }
+  const available = duGeoCascadeAvailable(duGeoMapState.cascade).blocks || [];
+  const hit = duGeoResolveBlockByInput(raw, available);
+  if (!hit) {
+    toast(IC.warning + ' Block not found under selected districts');
+    return;
+  }
+  duGeoMapState.cascade.blockAll = false;
+  const next = new Set(duGeoMapState.cascade.blocks || []);
+  if (scopeDef.key === 'block_single') {
+    duGeoMapState.cascade.blocks = [hit.id];
+  } else {
+    next.add(hit.id);
+    duGeoMapState.cascade.blocks = Array.from(next);
+  }
+  duGeoResetCascadeBelowBlock(duGeoMapState.cascade);
+  if (input) input.value = '';
+  duRenderGeoCascadeSelectors();
+}
+
+function duGeoAddClusterFromComboInput() {
+  if (!duGeoMapState.program) {
+    toast(IC.warning + ' Select a program card first');
+    return;
+  }
+  if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+  const scopeDef = duGeoScopeTypeDef(duGeoMapState.cascade.scopeType);
+  if (DU_GEO_LEVEL_OPTIONS.indexOf(scopeDef.level) < 3) {
+    toast(IC.warning + ' Cluster selection is locked for current scope type');
+    return;
+  }
+  if (duGeoMapState.cascade.skipCluster) {
+    toast(IC.warning + ' Disable "Skip cluster" to select clusters');
+    return;
+  }
+  const input = $('du-geo-cluster-combo');
+  const raw = (input?.value || '').trim();
+  if (!raw) {
+    toast(IC.warning + ' Type a cluster name or code');
+    return;
+  }
+  const available = duGeoCascadeAvailable(duGeoMapState.cascade).clusters || [];
+  const hit = duGeoResolveClusterByInput(raw, available);
+  if (!hit) {
+    toast(IC.warning + ' Cluster not found under selected blocks');
+    return;
+  }
+  duGeoMapState.cascade.clusterAll = false;
+  const next = new Set(duGeoMapState.cascade.clusters || []);
+  if (scopeDef.key === 'cluster_single') {
+    duGeoMapState.cascade.clusters = [hit.id];
+  } else {
+    next.add(hit.id);
+    duGeoMapState.cascade.clusters = Array.from(next);
+  }
+  duGeoResetCascadeBelowCluster(duGeoMapState.cascade);
+  if (input) input.value = '';
+  duRenderGeoCascadeSelectors();
+}
+
+function duGeoMatchIdsByTokens(items, tokens = []) {
+  const normTokens = (tokens || []).map(duGeoCanon).filter(Boolean);
+  if (!normTokens.length) return [];
+  const ids = [];
+  items.forEach(it => {
+    const nameN = duGeoCanon(it.name || '');
+    const codeN = duGeoCanon(it.code || '');
+    const labelN = duGeoCanon(it.label || '');
+    const matched = normTokens.some(t =>
+      t === nameN || t === codeN || t === labelN ||
+      (nameN && nameN.includes(t)) || (t && t.includes(nameN)) ||
+      (codeN && codeN.includes(t))
+    );
+    if (matched) ids.push(it.id);
+  });
+  return ids;
+}
+
+function duGeoCascadeAvailable(cascade) {
+  const cat = duGeoCatalog();
+  const states = cat.states || [];
+  const stateMap = new Map(states.map(s => [s.id, s]));
+  const selectedStates = (cascade.states || []).map(id => stateMap.get(id)).filter(Boolean);
+
+  const districts = selectedStates.flatMap(s => s.districts || []);
+  const districtMap = new Map(districts.map(d => [d.id, d]));
+  const districtsForPath = cascade.districtAll
+    ? districts
+    : (cascade.districts || []).map(id => districtMap.get(id)).filter(Boolean);
+
+  const blocks = districtsForPath.flatMap(d => d.blocks || []);
+  const blockMap = new Map(blocks.map(b => [b.id, b]));
+  const blocksForPath = cascade.blockAll
+    ? blocks
+    : (cascade.blocks || []).map(id => blockMap.get(id)).filter(Boolean);
+
+  const clusters = blocksForPath.flatMap(b => b.clusters || []);
+  const clusterMap = new Map(clusters.map(c => [c.id, c]));
+  const clustersForPath = cascade.clusterAll
+    ? clusters
+    : (cascade.clusters || []).map(id => clusterMap.get(id)).filter(Boolean);
+
+  const schoolRaw = cascade.skipCluster
+    ? blocksForPath.flatMap(b => b.schools || [])
+    : clustersForPath.flatMap(c => c.schools || []);
+  const schoolById = new Map();
+  schoolRaw.forEach(s => { if (!schoolById.has(s.id)) schoolById.set(s.id, s); });
+  const schools = Array.from(schoolById.values());
+
+  return { states, districts, blocks, clusters, schools };
+}
+
+function duGeoNormalizeCascade(cascade, available) {
+  const hasId = (arr, id) => arr.some(x => x.id === id);
+  cascade.scopeType = duGeoScopeTypeDef(cascade.scopeType).key;
+  cascade.states = (cascade.states || []).filter(id => hasId(available.states, id));
+  cascade.districts = (cascade.districts || []).filter(id => hasId(available.districts, id));
+  cascade.blocks = (cascade.blocks || []).filter(id => hasId(available.blocks, id));
+  cascade.clusters = (cascade.clusters || []).filter(id => hasId(available.clusters, id));
+  cascade.schools = (cascade.schools || []).filter(id => hasId(available.schools, id));
+  if (cascade.districtAll) cascade.districts = [];
+  if (cascade.blockAll) cascade.blocks = [];
+  if (cascade.clusterAll || cascade.skipCluster) cascade.clusters = [];
+  if (cascade.schoolAll) cascade.schools = [];
+}
+
+function duGeoBuildCoverageRowsFromCascade(cascade, available) {
+  const rows = [];
+  const selectedStates = available.states.filter(s => (cascade.states || []).includes(s.id));
+  if (!selectedStates.length) return rows;
+
+  rows.push({
+    id: duGeoNewId(),
+    level: 'state',
+    mode: 'selected',
+    scope: selectedStates.map(s => s.label).join(', '),
+    enabled: true,
+    builtIn: true,
+  });
+
+  if (available.districts.length) {
+    const selected = available.districts.filter(d => (cascade.districts || []).includes(d.id));
+    rows.push({
+      id: duGeoNewId(),
+      level: 'district',
+      mode: cascade.districtAll ? 'full' : 'selected',
+      scope: cascade.districtAll ? '' : selected.map(d => d.label).join(', '),
+      enabled: true,
+      builtIn: true,
+    });
+  }
+  if (available.blocks.length) {
+    const selected = available.blocks.filter(b => (cascade.blocks || []).includes(b.id));
+    rows.push({
+      id: duGeoNewId(),
+      level: 'block',
+      mode: cascade.blockAll ? 'full' : 'selected',
+      scope: cascade.blockAll ? '' : selected.map(b => b.label).join(', '),
+      enabled: true,
+      builtIn: true,
+    });
+  }
+  if (!cascade.skipCluster && available.clusters.length) {
+    const selected = available.clusters.filter(c => (cascade.clusters || []).includes(c.id));
+    rows.push({
+      id: duGeoNewId(),
+      level: 'cluster',
+      mode: cascade.clusterAll ? 'full' : 'selected',
+      scope: cascade.clusterAll ? '' : selected.map(c => c.label).join(', '),
+      enabled: true,
+      builtIn: true,
+    });
+  }
+  if (available.schools.length) {
+    const selected = available.schools.filter(s => (cascade.schools || []).includes(s.id));
+    rows.push({
+      id: duGeoNewId(),
+      level: 'school',
+      mode: cascade.schoolAll ? 'full' : 'selected',
+      scope: cascade.schoolAll ? '' : selected.map(s => s.label).join(', '),
+      enabled: true,
+      builtIn: true,
+    });
+  }
+  return rows;
+}
+
+function duGeoSyncCoverageRowsFromCascade() {
+  const cascade = duGeoMapState.cascade || duGeoDefaultCascadeState();
+  const available0 = duGeoCascadeAvailable(cascade);
+  duGeoNormalizeCascade(cascade, available0);
+  duGeoApplyScopeTypeRules(cascade);
+  const available = duGeoCascadeAvailable(cascade);
+  duGeoNormalizeCascade(cascade, available);
+  duGeoMapState.coverageRows = duGeoBuildCoverageRowsFromCascade(cascade, available);
+  return { cascade, available };
+}
+
+function duGeoCascadeFromCoverageRows(coverageRows = []) {
+  const cascade = duGeoDefaultCascadeState();
+  cascade.scopeType = duGeoScopeTypeFromCoverageRows(coverageRows);
+  const available0 = duGeoCascadeAvailable(cascade);
+  const byLevel = {};
+  (coverageRows || []).filter(r => r?.enabled).forEach(r => { byLevel[String(r.level || '').toLowerCase()] = r; });
+
+  const stateTokens = duSplitScopeValues(byLevel.state?.scope || '');
+  cascade.states = duGeoMatchIdsByTokens(available0.states, stateTokens);
+
+  let available = duGeoCascadeAvailable(cascade);
+  const districtRow = byLevel.district;
+  if (districtRow) {
+    cascade.districtAll = districtRow.mode === 'full';
+    cascade.districts = cascade.districtAll ? [] : duGeoMatchIdsByTokens(available.districts, duSplitScopeValues(districtRow.scope));
+  }
+  available = duGeoCascadeAvailable(cascade);
+  const blockRow = byLevel.block;
+  if (blockRow) {
+    cascade.blockAll = blockRow.mode === 'full';
+    cascade.blocks = cascade.blockAll ? [] : duGeoMatchIdsByTokens(available.blocks, duSplitScopeValues(blockRow.scope));
+  }
+  available = duGeoCascadeAvailable(cascade);
+  const clusterRow = byLevel.cluster;
+  cascade.skipCluster = !clusterRow;
+  if (clusterRow) {
+    cascade.clusterAll = clusterRow.mode === 'full';
+    cascade.clusters = cascade.clusterAll ? [] : duGeoMatchIdsByTokens(available.clusters, duSplitScopeValues(clusterRow.scope));
+  } else {
+    cascade.clusterAll = true;
+    cascade.clusters = [];
+  }
+  available = duGeoCascadeAvailable(cascade);
+  const schoolRow = byLevel.school;
+  if (schoolRow) {
+    cascade.schoolAll = schoolRow.mode === 'full';
+    cascade.schools = cascade.schoolAll ? [] : duGeoMatchIdsByTokens(available.schools, duSplitScopeValues(schoolRow.scope));
+  }
+  duGeoApplyScopeTypeRules(cascade);
+  return cascade;
+}
+
+function duTemplateStakeholderRowsFromProgram(program, existingRows = []) {
+  const existingMap = new Map(
+    (existingRows || []).map(r => [duNormalizeStakeholderName(r?.stakeholder), r])
+  );
+  const geoRows = duGeoSortStakeholderRows((duGeoMapStore?.[program]?.rows || [])
+    .filter(r => r?.enabled && String(r.stakeholder || '').trim())
+    .map(r => ({
+      stakeholder: String(r.stakeholder || '').trim(),
+      enabled: true,
+      level: r.level || 'school',
+      hierarchyTag: duGeoNormalizeHierarchyTag(r.hierarchyTag, r.stakeholder, r.level || 'school'),
+      hierarchyLabel: duGeoNormalizeHierarchyLabel(r.hierarchyLabel, r.hierarchyTag, r.stakeholder, r.level || 'school'),
+      hierarchyOrder: duGeoNormalizeHierarchyOrder(r.hierarchyOrder, r.hierarchyTag, r.level || 'school'),
+      scope: String(r.scope || '').trim(),
+    })));
+  const fallbackRows = DU_TEMPLATE_STAKEHOLDERS.map(s => ({
+    stakeholder: s,
+    enabled: true,
+    level: DU_STAKEHOLDER_DEFAULT_LEVEL[s] || 'school',
+    hierarchyTag: duGeoDefaultHierarchyTag(s, DU_STAKEHOLDER_DEFAULT_LEVEL[s] || 'school'),
+    hierarchyLabel: '',
+    hierarchyOrder: duGeoNormalizeHierarchyOrder(null, duGeoDefaultHierarchyTag(s, DU_STAKEHOLDER_DEFAULT_LEVEL[s] || 'school'), DU_STAKEHOLDER_DEFAULT_LEVEL[s] || 'school'),
+    scope: '',
+  }));
+  const baseRows = geoRows.length ? geoRows : fallbackRows;
+
+  return duGeoSortStakeholderRows(baseRows.map(r => {
+    const hit = existingMap.get(duNormalizeStakeholderName(r.stakeholder));
+    return {
+      stakeholder: r.stakeholder,
+      enabled: hit ? !!hit.enabled : true,
+      level: r.level,
+      hierarchyTag: r.hierarchyTag,
+      hierarchyLabel: r.hierarchyLabel || '',
+      hierarchyOrder: r.hierarchyOrder,
+      // Geography mapping is source of truth for scope.
+      scope: r.scope,
+    };
+  }));
+}
+
+function duTemplateGeoScopeFromProgram(program) {
+  const available = duTemplateCoverageAvailableByProgram(program);
+  return {
+    state: available.state || [],
+    district: available.district || [],
+    block: available.block || [],
+    cluster: available.cluster || [],
+    school: available.school || [],
+  };
+}
+
+function duTemplateGeoEmptyState() {
+  return { state: [], district: [], block: [], cluster: [], school: [] };
+}
+
+function duTemplateGeoLevelLabel(level) {
+  if (level === 'state') return 'State';
+  if (level === 'district') return 'District';
+  if (level === 'block') return 'Block';
+  if (level === 'cluster') return 'Cluster';
+  return 'School';
+}
+
+function duTemplateGeoFilteredScope(program) {
+  const base = duTemplateGeoScopeFromProgram(program);
+  const stateById = new Map((base.state || []).map(r => [r.id, r]));
+  const districtById = new Map((base.district || []).map(r => [r.id, r]));
+  const blockById = new Map((base.block || []).map(r => [r.id, r]));
+  const clusterById = new Map((base.cluster || []).map(r => [r.id, r]));
+
+  const selectedStates = (duTemplateGeoScopeState.state || []).map(id => stateById.get(id)).filter(Boolean);
+  const selectedDistrictsRaw = (duTemplateGeoScopeState.district || []).map(id => districtById.get(id)).filter(Boolean);
+  const selectedBlocksRaw = (duTemplateGeoScopeState.block || []).map(id => blockById.get(id)).filter(Boolean);
+  const selectedClustersRaw = (duTemplateGeoScopeState.cluster || []).map(id => clusterById.get(id)).filter(Boolean);
+
+  let districts = (base.district || []).slice();
+  if (selectedStates.length) {
+    const stateCodes = new Set(selectedStates.map(s => s.code || s.stateCode).filter(Boolean));
+    districts = stateCodes.size ? districts.filter(d => stateCodes.has(d.stateCode || d.code)) : districts;
+  }
+
+  let blocks = (base.block || []).slice();
+  if (selectedDistrictsRaw.length) {
+    const districtCodes = new Set(selectedDistrictsRaw.map(d => d.code || d.districtCode).filter(Boolean));
+    blocks = districtCodes.size ? blocks.filter(b => districtCodes.has(b.districtCode || b.code)) : blocks;
+  } else if (selectedStates.length) {
+    const stateCodes = new Set(selectedStates.map(s => s.code || s.stateCode).filter(Boolean));
+    blocks = stateCodes.size ? blocks.filter(b => stateCodes.has(b.stateCode || b.code)) : blocks;
+  }
+
+  let clusters = (base.cluster || []).slice();
+  if (selectedBlocksRaw.length) {
+    const blockCodes = new Set(selectedBlocksRaw.map(b => b.code || b.blockCode).filter(Boolean));
+    clusters = blockCodes.size ? clusters.filter(c => blockCodes.has(c.blockCode || c.code)) : clusters;
+  } else if (selectedDistrictsRaw.length) {
+    const districtCodes = new Set(selectedDistrictsRaw.map(d => d.code || d.districtCode).filter(Boolean));
+    clusters = districtCodes.size ? clusters.filter(c => districtCodes.has(c.districtCode || c.code)) : clusters;
+  } else if (selectedStates.length) {
+    const stateCodes = new Set(selectedStates.map(s => s.code || s.stateCode).filter(Boolean));
+    clusters = stateCodes.size ? clusters.filter(c => stateCodes.has(c.stateCode || c.code)) : clusters;
+  }
+
+  let schools = (base.school || []).slice();
+  if (selectedClustersRaw.length) {
+    const clusterCodes = new Set(selectedClustersRaw.map(c => c.code || c.clusterCode).filter(Boolean));
+    schools = clusterCodes.size ? schools.filter(s => clusterCodes.has(s.clusterCode || s.code)) : schools;
+  } else if (selectedBlocksRaw.length) {
+    const blockCodes = new Set(selectedBlocksRaw.map(b => b.code || b.blockCode).filter(Boolean));
+    schools = blockCodes.size ? schools.filter(s => blockCodes.has(s.blockCode || s.code)) : schools;
+  } else if (selectedDistrictsRaw.length) {
+    const districtCodes = new Set(selectedDistrictsRaw.map(d => d.code || d.districtCode).filter(Boolean));
+    schools = districtCodes.size ? schools.filter(s => districtCodes.has(s.districtCode || s.code)) : schools;
+  } else if (selectedStates.length) {
+    const stateCodes = new Set(selectedStates.map(s => s.code || s.stateCode).filter(Boolean));
+    schools = stateCodes.size ? schools.filter(s => stateCodes.has(s.stateCode || s.code)) : schools;
+  }
+
+  return {
+    state: (base.state || []).slice(),
+    district: districts,
+    block: blocks,
+    cluster: clusters,
+    school: schools,
+  };
+}
+
+function duTemplateGeoNormalizeSelections(options) {
+  let changed = false;
+  DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+    const validIds = new Set((options[level] || []).map(it => it.id));
+    const prev = Array.isArray(duTemplateGeoScopeState[level]) ? duTemplateGeoScopeState[level] : [];
+    const nextAll = prev.filter(id => validIds.has(id));
+    const next = nextAll.length ? [nextAll[0]] : [];
+    if (next.length !== prev.length || next[0] !== prev[0]) changed = true;
+    duTemplateGeoScopeState[level] = next;
+  });
+  return changed;
+}
+
+function duTemplateGeoUpdateHiddenFields(optionsByLevel) {
+  DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+    const hidden = $(`du-tpl-geo-${level}`);
+    if (!hidden) return;
+    const selectedId = (duTemplateGeoScopeState[level] || [])[0] || '';
+    const selectedRow = (optionsByLevel[level] || []).find(r => r.id === selectedId);
+    if (selectedRow) {
+      hidden.value = selectedRow.label || selectedRow.name || selectedRow.code || '';
+      return;
+    }
+    const total = (optionsByLevel[level] || []).length;
+    hidden.value = total ? `All in mapped scope (${total})` : '';
+  });
+}
+
+function duTemplateGeoRenderLevel(level, rows, hasProgram) {
+  const sel = $(`du-tpl-geo-${level}-sel`);
+  if (!sel) return;
+
+  const options = rows || [];
+  const selectedId = (duTemplateGeoScopeState[level] || [])[0] || '';
+  const label = duTemplateGeoLevelLabel(level);
+
+  if (!hasProgram) {
+    sel.innerHTML = `<option value="">Select program first</option>`;
+    sel.value = '';
+    sel.disabled = true;
+    return;
+  }
+  if (!options.length) {
+    sel.innerHTML = `<option value="">No mapped ${label.toLowerCase()} available</option>`;
+    sel.value = '';
+    sel.disabled = true;
+    duTemplateGeoScopeState[level] = [];
+    return;
+  }
+  const allLabel = `All mapped ${label.toLowerCase()} (${options.length.toLocaleString()})`;
+  sel.innerHTML = `<option value="">${esc(allLabel)}</option>` +
+    options.map(r => `<option value="${esc(r.id)}">${esc(r.label || r.name || r.code || '')}</option>`).join('');
+  sel.disabled = false;
+  sel.value = selectedId && options.some(r => r.id === selectedId) ? selectedId : '';
+  duTemplateGeoScopeState[level] = sel.value ? [sel.value] : [];
+}
+
+function duTemplateGeoRenderSelectors(program) {
+  if (!program) {
+    duTemplateGeoScopeState = duTemplateGeoEmptyState();
+    DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+      if ($(`du-tpl-geo-${level}`)) $(`du-tpl-geo-${level}`).value = '';
+      duTemplateGeoRenderLevel(level, [], false);
+    });
+    if ($('du-tpl-geo-note')) $('du-tpl-geo-note').textContent = 'Scope options come from Geography Mapping. Keep empty to use full mapped scope for a level.';
+    return;
+  }
+
+  let options = duTemplateGeoFilteredScope(program);
+  if (duTemplateGeoNormalizeSelections(options)) options = duTemplateGeoFilteredScope(program);
+  if (duTemplateGeoNormalizeSelections(options)) options = duTemplateGeoFilteredScope(program);
+
+  DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+    duTemplateGeoRenderLevel(level, options[level] || [], true);
+  });
+  duTemplateGeoUpdateHiddenFields(options);
+
+  const hasSavedGeo = !!duGeoMapStore?.[program]?.updatedAt;
+  if ($('du-tpl-geo-note')) {
+    $('du-tpl-geo-note').textContent = hasSavedGeo
+      ? `Scope options loaded from Geography Mapping for ${program}.`
+      : `Demo geography list (hardcoded) is shown for ${program}. Save Geography Mapping to replace this with program-specific scope.`;
+  }
+}
+
+function duTemplateGeoHandleLevelChange(level) {
+  const sel = $(`du-tpl-geo-${level}-sel`);
+  if (!sel) return;
+  const val = String(sel.value || '').trim();
+  duTemplateGeoScopeState[level] = val ? [val] : [];
+  const idx = DU_TEMPLATE_GEO_LEVELS.indexOf(level);
+  if (idx >= 0) {
+    for (let i = idx + 1; i < DU_TEMPLATE_GEO_LEVELS.length; i++) {
+      duTemplateGeoScopeState[DU_TEMPLATE_GEO_LEVELS[i]] = [];
+    }
+  }
+  duTemplateGeoRenderSelectors(duTemplateState.program);
+}
+
+function duTemplateGeoLoadFromTemplate(program, geography = {}, geographyIds = null) {
+  duTemplateGeoScopeState = duTemplateGeoEmptyState();
+  if (!program) {
+    duTemplateGeoRenderSelectors('');
+    return;
+  }
+
+  if (geographyIds && typeof geographyIds === 'object') {
+    DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+      const ids = duGeoUniqueIds(Array.isArray(geographyIds[level]) ? geographyIds[level] : []);
+      duTemplateGeoScopeState[level] = ids.length ? [ids[0]] : [];
+    });
+    duTemplateGeoRenderSelectors(program);
+    return;
+  }
+
+  const base = duTemplateGeoScopeFromProgram(program);
+  DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+    const raw = String(geography?.[level] || '').trim();
+    if (!raw || /^all\s+in\s+mapped\s+scope/i.test(raw)) {
+      duTemplateGeoScopeState[level] = [];
+      return;
+    }
+    const tokens = duSplitScopeValues(raw);
+    const ids = duGeoUniqueIds(duGeoMatchIdsByTokens(base[level] || [], tokens));
+    duTemplateGeoScopeState[level] = ids.length ? [ids[0]] : [];
+  });
+  duTemplateGeoRenderSelectors(program);
+}
+
+function duApplyGeoScopeToTemplate(program) {
+  duTemplateGeoScopeState = duTemplateGeoEmptyState();
+  duTemplateGeoRenderSelectors(program || '');
+}
+
+function duTemplateSourceOptions() {
+  const opts = [{ value: '__unique_udise__', label: 'UDISE (derived unique)' }];
+  const colSeen = new Set();
+  const roleSeen = new Set();
+  duTemplateState.columns.forEach((col, idx) => {
+    const name = (col.name || '').trim();
+    const slug = name.toLowerCase();
+    if (name && !colSeen.has(slug)) {
+      colSeen.add(slug);
+      opts.push({ value: `col:${name}`, label: `Column: ${name}` });
+    } else if (!name && !colSeen.has(`__unnamed_${idx}`)) {
+      colSeen.add(`__unnamed_${idx}`);
+      opts.push({ value: `col:__idx_${idx}`, label: `Column ${idx + 1} (unnamed)` });
+    }
+    if (col.role && col.role !== 'custom' && !roleSeen.has(col.role)) {
+      roleSeen.add(col.role);
+      const roleLabel = DU_COLUMN_ROLE_OPTIONS.find(o => o.key === col.role)?.label || col.role;
+      opts.push({ value: `role:${col.role}`, label: `${roleLabel} (mapped)` });
+    }
+  });
+  if (!roleSeen.has('participants')) {
+    opts.push({ value: 'role:participants', label: 'Participants (mapped)' });
+  }
+  return opts;
+}
+
+function duRenderTemplateColumnRows() {
+  const wrap = $('du-template-columns');
+  if (!wrap) return;
+  if (!duTemplateState.columns.length) duTemplateState.columns = duCloneTemplateColumns();
+
+  wrap.innerHTML = duTemplateState.columns.map((col, idx) => {
+    const roleOpts = DU_COLUMN_ROLE_OPTIONS
+      .map(o => `<option value="${o.key}" ${col.role === o.key ? 'selected' : ''}>${o.label}</option>`)
+      .join('');
+    return `<div class="du-template-col-row" data-col-idx="${idx}">
+      <input class="du-template-input" data-col-field="name" value="${esc(col.name || '')}" placeholder="Column name" />
+      <select class="du-template-select" data-col-field="type">
+        <option value="text" ${col.type === 'text' ? 'selected' : ''}>Text</option>
+        <option value="number" ${col.type === 'number' ? 'selected' : ''}>Number</option>
+        <option value="date" ${col.type === 'date' ? 'selected' : ''}>Date</option>
+        <option value="datetime" ${col.type === 'datetime' ? 'selected' : ''}>Date & Time</option>
+        <option value="choice" ${col.type === 'choice' ? 'selected' : ''}>Single Choice</option>
+      </select>
+      <div class="du-template-col-required"><input type="checkbox" data-col-field="required" ${col.required ? 'checked' : ''} /></div>
+      <select class="du-template-select" data-col-field="role">${roleOpts}</select>
+      <button class="btn" data-col-remove="${idx}" style="font-size:10px;padding:3px 7px;">×</button>
+    </div>`;
+  }).join('');
+
+  qsa('[data-col-field="name"]', wrap).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.colIdx;
+      if (duTemplateState.columns[idx]) duTemplateState.columns[idx].name = e.target.value;
+      duRenderTemplateMatrixRows();
+    });
+  });
+  qsa('[data-col-field="type"]', wrap).forEach(sel => {
+    sel.addEventListener('change', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.colIdx;
+      if (duTemplateState.columns[idx]) duTemplateState.columns[idx].type = e.target.value;
+    });
+  });
+  qsa('[data-col-field="required"]', wrap).forEach(chk => {
+    chk.addEventListener('change', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.colIdx;
+      if (duTemplateState.columns[idx]) duTemplateState.columns[idx].required = !!e.target.checked;
+    });
+  });
+  qsa('[data-col-field="role"]', wrap).forEach(sel => {
+    sel.addEventListener('change', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.colIdx;
+      if (duTemplateState.columns[idx]) duTemplateState.columns[idx].role = e.target.value;
+      duRenderTemplateMatrixRows();
+    });
+  });
+  qsa('[data-col-remove]', wrap).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.colRemove;
+      if (duTemplateState.columns.length <= 1) {
+        toast(IC.warning + ' Keep at least one response column');
+        return;
+      }
+      duTemplateState.columns.splice(idx, 1);
+      duRenderTemplateColumnRows();
+      duRenderTemplateMatrixRows();
+    });
+  });
+}
+
+function duAddTemplateColumn() {
+  duTemplateState.columns.push({ name: '', type: 'text', required: false, role: 'custom' });
+  duRenderTemplateColumnRows();
+  duRenderTemplateMatrixRows();
+}
+
+function duRenderTemplateMatrixRows() {
+  const wrap = $('du-template-matrix-rows');
+  if (!wrap) return;
+  if (!duTemplateState.matrix.length) duTemplateState.matrix = duCloneTemplateMatrix();
+  const sourceOpts = duTemplateSourceOptions();
+
+  wrap.innerHTML = duTemplateState.matrix.map((m, idx) => {
+    const sourceOptsHtml = sourceOpts
+      .map(o => `<option value="${esc(o.value)}" ${m.source === o.value ? 'selected' : ''}>${esc(o.label)}</option>`)
+      .join('');
+    const aggOptsHtml = DU_MATRIX_AGG_OPTIONS
+      .map(o => `<option value="${o.key}" ${m.aggregation === o.key ? 'selected' : ''}>${o.label}</option>`)
+      .join('');
+    return `<div class="du-template-col-row" data-matrix-idx="${idx}">
+      <input class="du-template-input" data-matrix-field="label" value="${esc(m.label || '')}" placeholder="Metric label" />
+      <select class="du-template-select" data-matrix-field="source">${sourceOptsHtml}</select>
+      <select class="du-template-select" data-matrix-field="aggregation">${aggOptsHtml}</select>
+      <input class="du-template-input" data-matrix-field="key" value="${esc(m.key || '')}" placeholder="output_key" />
+      <button class="btn" data-matrix-remove="${idx}" style="font-size:10px;padding:3px 7px;">×</button>
+    </div>`;
+  }).join('');
+
+  qsa('[data-matrix-field="label"]', wrap).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.matrixIdx;
+      if (duTemplateState.matrix[idx]) duTemplateState.matrix[idx].label = e.target.value;
+    });
+  });
+  qsa('[data-matrix-field="source"]', wrap).forEach(sel => {
+    sel.addEventListener('change', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.matrixIdx;
+      if (duTemplateState.matrix[idx]) duTemplateState.matrix[idx].source = e.target.value;
+    });
+  });
+  qsa('[data-matrix-field="aggregation"]', wrap).forEach(sel => {
+    sel.addEventListener('change', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.matrixIdx;
+      if (duTemplateState.matrix[idx]) duTemplateState.matrix[idx].aggregation = e.target.value;
+    });
+  });
+  qsa('[data-matrix-field="key"]', wrap).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const row = e.target.closest('.du-template-col-row');
+      if (!row) return;
+      const idx = +row.dataset.matrixIdx;
+      if (duTemplateState.matrix[idx]) duTemplateState.matrix[idx].key = e.target.value;
+    });
+  });
+  qsa('[data-matrix-remove]', wrap).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.matrixRemove;
+      if (duTemplateState.matrix.length <= 1) {
+        toast(IC.warning + ' Keep at least one matrix metric');
+        return;
+      }
+      duTemplateState.matrix.splice(idx, 1);
+      duRenderTemplateMatrixRows();
+    });
+  });
+}
+
+function duAddTemplateMatrixMetric() {
+  duTemplateState.matrix.push({ label: '', source: 'role:participants', aggregation: 'sum', key: '' });
+  duRenderTemplateMatrixRows();
+}
+
+function duTemplateTargetStakeholderNames(rows = null) {
+  const data = duGeoSortStakeholderRows((rows && rows.length) ? rows : duCollectStakeholderMappings());
+  const seen = new Set();
+  return data
+    .map(r => String(r.stakeholder || '').trim())
+    .filter(name => {
+      if (!name) return false;
+      const key = name.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function duTemplateStakeholderInputName(raw = '') {
+  return String(raw || '').replace(/\s*\(\s*[\d,]+\s*\)\s*$/, '').trim();
+}
+
+function duTemplateDemoCoverage(program = '') {
+  const empty = { state: [], district: [], block: [], cluster: [], school: [] };
+  const states = duGeoCatalog().states || [];
+  if (!states.length) return empty;
+
+  const pToken = duGeoCanon(program);
+  let chosenStates = states;
+  if (pToken) {
+    const matched = states.filter(s =>
+      duGeoCanon(s.name).includes(pToken) ||
+      duGeoCanon(s.code).includes(pToken) ||
+      duGeoCanon(s.label).includes(pToken)
+    );
+    if (matched.length) chosenStates = matched;
+  }
+
+  const districts = chosenStates.flatMap(s => s.districts || []);
+  const blocks = districts.flatMap(d => d.blocks || []);
+  const clusters = blocks.flatMap(b => b.clusters || []);
+  const schools = clusters.flatMap(c => c.schools || []);
+
+  return {
+    state: chosenStates,
+    district: districts,
+    block: blocks,
+    cluster: clusters,
+    school: schools,
+  };
+}
+
+function duTemplateCoverageAvailableByProgram(program) {
+  const empty = { state: [], district: [], block: [], cluster: [], school: [] };
+  if (!program) return empty;
+
+  const sourceRows = (duGeoMapState.program === program && Array.isArray(duGeoMapState.coverageRows) && duGeoMapState.coverageRows.length)
+    ? duGeoMapState.coverageRows
+    : (duGeoMapStore?.[program]?.coverageRows || []);
+  if (!sourceRows.length) return duTemplateDemoCoverage(program);
+
+  const cleanCoverageRows = sourceRows
+    .filter(r => r?.enabled)
+    .map(r => ({
+      ...r,
+      level: String(r.level || '').trim().toLowerCase(),
+      mode: String(r.mode || 'selected').toLowerCase() === 'full' ? 'full' : 'selected',
+      scope: String(r.scope || '').trim(),
+    }))
+    .filter(r => DU_GEO_LEVEL_OPTIONS.includes(r.level));
+  if (!cleanCoverageRows.length) return duTemplateDemoCoverage(program);
+
+  const cascade = duGeoCascadeFromCoverageRows(cleanCoverageRows);
+  duGeoApplyScopeTypeRules(cascade);
+  const available = duGeoCascadeAvailable(cascade);
+  const stateMap = new Map((duGeoCatalog().states || []).map(s => [s.id, s]));
+  const selectedStates = (cascade.states || []).map(id => stateMap.get(id)).filter(Boolean);
+
+  const resolved = {
+    state: selectedStates,
+    district: available.districts || [],
+    block: available.blocks || [],
+    cluster: available.clusters || [],
+    school: available.schools || [],
+  };
+  const hasAnyResolved = DU_TEMPLATE_GEO_LEVELS.some(level => (resolved[level] || []).length > 0);
+  if (!hasAnyResolved) return duTemplateDemoCoverage(program);
+  return resolved;
+}
+
+function duTemplateStakeholderCount(row, levelPools) {
+  if (!row) return 0;
+  const level = DU_GEO_LEVEL_OPTIONS.includes(String(row.level || '').trim().toLowerCase())
+    ? String(row.level || '').trim().toLowerCase()
+    : 'school';
+  const pool = Array.isArray(levelPools?.[level]) ? levelPools[level] : [];
+  const tokens = duSplitScopeValues(row.scope || '');
+  if (!tokens.length) return pool.length;
+  if (!pool.length) return tokens.length;
+  const matchedIds = duGeoUniqueIds(duGeoMatchIdsByTokens(pool, tokens));
+  return matchedIds.length || tokens.length;
+}
+
+function duTemplateStakeholderCountMap(rows = [], program = '') {
+  const pools = duTemplateCoverageAvailableByProgram(program);
+  const out = {};
+  duGeoSortStakeholderRows(rows || []).forEach(r => {
+    const name = String(r?.stakeholder || '').trim();
+    if (!name) return;
+    if (Object.prototype.hasOwnProperty.call(out, name)) return;
+    out[name] = duTemplateStakeholderCount(r, pools);
+  });
+  return out;
+}
+
+function duTemplateStakeholderDisplayName(name, countMap = {}) {
+  const n = String(name || '').trim();
+  if (!n) return '';
+  const count = Number(countMap?.[n]);
+  const safeCount = Number.isFinite(count) && count >= 0 ? count : 0;
+  return `${n} (${safeCount.toLocaleString()})`;
+}
+
+function duTemplateInterventionNormalizeRow(row = {}) {
+  const name = String(row.name || '').trim();
+  return {
+    id: String(row.id || duGeoCanon(name || row.code || 'intv')).trim() || `intv-${Date.now()}`,
+    name,
+    code: String(row.code || '').trim(),
+    types: duGeoUniqueIds((row.types || []).map(v => String(v || '').trim()).filter(Boolean)),
+    categories: duGeoUniqueIds((row.categories || []).map(v => String(v || '').trim()).filter(Boolean)),
+    stakeholders: duGeoUniqueIds((row.stakeholders || []).map(v => String(v || '').trim()).filter(Boolean)),
+  };
+}
+
+function duTemplateInterventionDemoRows(program = '') {
+  return DU_TEMPLATE_DEMO_INTERVENTIONS
+    .map(r => duTemplateInterventionNormalizeRow(r))
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+function duTemplateInterventionsFromPublished(program = '') {
+  const rows = (publishedFrameworkByProg?.[program]?.rows || []);
+  if (!rows.length) return [];
+  const map = new Map();
+  rows.forEach(r => {
+    const name = String(r?.intv || r?.intervention || '').trim();
+    if (!name) return;
+    if (!map.has(name)) {
+      map.set(name, {
+        id: `pub-${duGeoCanon(name)}`,
+        name,
+        code: String(r?.intvCode || r?.interventionCode || '').trim(),
+        types: [],
+        categories: [],
+        stakeholders: [],
+      });
+    }
+    const hit = map.get(name);
+    const type = String(r?.interventionType || r?.intvType || '').trim();
+    const cat = String(r?.interventionCategory || r?.intvCategory || r?.sourceCat || r?.outcomeCategory || '').trim();
+    const stk = String(r?.stk || r?.stakeholder || '').trim();
+    if (type) hit.types.push(type);
+    if (cat) hit.categories.push(cat);
+    if (stk) hit.stakeholders.push(stk);
+  });
+  return Array.from(map.values())
+    .map(duTemplateInterventionNormalizeRow)
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+}
+
+function duTemplateInterventionRows(program = '') {
+  const p = String(program || '').trim();
+  if (!p) return [];
+  const cached = duTemplateInterventionStore[p]?.rows || [];
+  if (cached.length) return cached;
+  const fromPublished = duTemplateInterventionsFromPublished(p);
+  return fromPublished.length ? fromPublished : duTemplateInterventionDemoRows(p);
+}
+
+function duTemplateInterventionByName(program = '', name = '') {
+  const token = duGeoCanon(name);
+  if (!token) return null;
+  return duTemplateInterventionRows(program).find(r => duGeoCanon(r.name) === token) || null;
+}
+
+function duRenderTemplateInterventionMeta(intervention = null) {
+  const box = $('du-tpl-intv-meta');
+  if (!box) return;
+  if (!intervention) {
+    box.innerHTML = `<span style="font-size:11px;color:var(--slate);">Select intervention to view type and categories.</span>`;
+    return;
+  }
+  const typeChips = (intervention.types || []).length
+    ? intervention.types.map(t => `<span class="du-template-chip">Type: ${esc(t)}</span>`).join('')
+    : `<span class="du-template-chip">Type: Not tagged</span>`;
+  const catChips = (intervention.categories || []).length
+    ? intervention.categories.map(c => `<span class="du-template-chip">Category: ${esc(c)}</span>`).join('')
+    : `<span class="du-template-chip">Category: Not tagged</span>`;
+  const stkChips = (intervention.stakeholders || []).length
+    ? intervention.stakeholders.map(s => `<span class="du-template-chip">${esc(s)}</span>`).join('')
+    : `<span class="du-template-chip">No stakeholder map</span>`;
+  box.innerHTML = `${typeChips}${catChips}${stkChips}`;
+}
+
+function duRenderTemplateInterventionSelector(selectedName = '') {
+  const sel = $('du-tpl-intv');
+  if (!sel) return;
+  const program = duTemplateState.program || '';
+  const rows = duTemplateInterventionRows(program);
+  const chosen = String(selectedName || sel.value || '').trim();
+  sel.innerHTML = `<option value="">- Select Intervention -</option>` +
+    rows.map(r => `<option value="${esc(r.name)}">${esc(r.code ? `${r.name} (${r.code})` : r.name)}</option>`).join('');
+  const hasChosen = !!chosen && rows.some(r => duGeoCanon(r.name) === duGeoCanon(chosen));
+  sel.value = hasChosen ? (rows.find(r => duGeoCanon(r.name) === duGeoCanon(chosen))?.name || '') : '';
+  sel.disabled = !program || !rows.length;
+  duRenderTemplateInterventionMeta(duTemplateInterventionByName(program, sel.value));
+}
+
+async function duTemplateFetchInterventionsFromDB(program = '') {
+  const p = String(program || '').trim();
+  if (!p) return [];
+  if (typeof GS_SB_URL === 'undefined' || !GS_SB_URL || typeof GS_SB_HDR === 'undefined') return [];
+  const progRes = await fetch(
+    `${GS_SB_URL}/rest/v1/program?program_name=eq.${encodeURIComponent(p)}&select=program_id&limit=1`,
+    { headers: GS_SB_HDR }
+  );
+  if (!progRes.ok) return [];
+  const progRows = await progRes.json();
+  const progId = progRows?.[0]?.program_id;
+  if (!progId) return [];
+
+  const intRes = await fetch(
+    `${GS_SB_URL}/rest/v1/intervention?program_id=eq.${progId}&is_active=eq.true&select=intervention_id,intervention_name,intervention_code,intervention_type_id,intervention_category_id`,
+    { headers: GS_SB_HDR }
+  );
+  if (!intRes.ok) return [];
+  const interventions = await intRes.json();
+  if (!interventions.length) return [];
+
+  const intIds = interventions.map(i => i.intervention_id).filter(Boolean);
+  const typeIds = duGeoUniqueIds(interventions.map(i => i.intervention_type_id).filter(Boolean));
+  const catIds = duGeoUniqueIds(interventions.map(i => i.intervention_category_id).filter(Boolean));
+  const mapTypeName = {};
+  const mapCatName = {};
+  if (typeIds.length) {
+    const tRes = await fetch(
+      `${GS_SB_URL}/rest/v1/intervention_type?intervention_type_id=in.(${typeIds.join(',')})&select=intervention_type_id,type_name`,
+      { headers: GS_SB_HDR }
+    );
+    const tRows = tRes.ok ? await tRes.json() : [];
+    tRows.forEach(t => { mapTypeName[t.intervention_type_id] = t.type_name; });
+  }
+  if (catIds.length) {
+    const cRes = await fetch(
+      `${GS_SB_URL}/rest/v1/intervention_category?intervention_category_id=in.(${catIds.join(',')})&select=intervention_category_id,category_name`,
+      { headers: GS_SB_HDR }
+    );
+    const cRows = cRes.ok ? await cRes.json() : [];
+    cRows.forEach(c => { mapCatName[c.intervention_category_id] = c.category_name; });
+  }
+
+  const stakeholdersByIntervention = {};
+  if (intIds.length) {
+    const istmRes = await fetch(
+      `${GS_SB_URL}/rest/v1/intervention_stakeholder_type_map?intervention_id=in.(${intIds.join(',')})&is_active=eq.true&select=intervention_id,stakeholder_type_id`,
+      { headers: GS_SB_HDR }
+    );
+    const istmRows = istmRes.ok ? await istmRes.json() : [];
+    const stkIds = duGeoUniqueIds(istmRows.map(r => r.stakeholder_type_id).filter(Boolean));
+    const stkNameMap = {};
+    if (stkIds.length) {
+      const stkRes = await fetch(
+        `${GS_SB_URL}/rest/v1/stakeholder_type?stakeholder_type_id=in.(${stkIds.join(',')})&select=stakeholder_type_id,type_name`,
+        { headers: GS_SB_HDR }
+      );
+      const stkRows = stkRes.ok ? await stkRes.json() : [];
+      stkRows.forEach(s => { stkNameMap[s.stakeholder_type_id] = s.type_name; });
+    }
+    istmRows.forEach(r => {
+      const key = String(r.intervention_id || '').trim();
+      if (!key) return;
+      if (!stakeholdersByIntervention[key]) stakeholdersByIntervention[key] = [];
+      const name = String(stkNameMap[r.stakeholder_type_id] || '').trim();
+      if (name) stakeholdersByIntervention[key].push(name);
+    });
+  }
+
+  return interventions.map(i => duTemplateInterventionNormalizeRow({
+    id: i.intervention_id,
+    name: i.intervention_name || '',
+    code: i.intervention_code || '',
+    types: [mapTypeName[i.intervention_type_id] || ''].filter(Boolean),
+    categories: [mapCatName[i.intervention_category_id] || ''].filter(Boolean),
+    stakeholders: stakeholdersByIntervention[String(i.intervention_id || '').trim()] || [],
+  }));
+}
+
+async function duTemplateEnsureInterventions(program = '', selectedName = '') {
+  const p = String(program || '').trim();
+  if (!p) {
+    duRenderTemplateInterventionSelector('');
+    return;
+  }
+  if (!duTemplateInterventionStore[p]) {
+    const base = duTemplateInterventionsFromPublished(p);
+    duTemplateInterventionStore[p] = {
+      rows: base.length ? base : duTemplateInterventionDemoRows(p),
+      loaded: false,
+      loading: false,
+    };
+  }
+  duRenderTemplateInterventionSelector(selectedName);
+  const slot = duTemplateInterventionStore[p];
+  if (slot.loaded || slot.loading) return;
+  slot.loading = true;
+  try {
+    const dbRows = await duTemplateFetchInterventionsFromDB(p);
+    if (dbRows.length) {
+      slot.rows = dbRows.map(duTemplateInterventionNormalizeRow);
+      slot.loaded = true;
+    } else if (!slot.rows.length) {
+      slot.rows = duTemplateInterventionDemoRows(p);
+    }
+  } catch (e) {
+    console.warn('[duTemplateEnsureInterventions] load failed', e);
+    if (!slot.rows.length) slot.rows = duTemplateInterventionDemoRows(p);
+  } finally {
+    slot.loading = false;
+    if (duTemplateState.program === p) duRenderTemplateInterventionSelector(selectedName || $('du-tpl-intv')?.value || '');
+  }
+}
+
+function duTemplateOnInterventionChange() {
+  const sel = $('du-tpl-intv');
+  const selected = String(sel?.value || '').trim();
+  const row = duTemplateInterventionByName(duTemplateState.program, selected);
+  duRenderTemplateInterventionMeta(row);
+}
+
+function duApplyTemplateTargetStakeholders(pickedSet = new Set()) {
+  const wrap = $('du-template-stk-map');
+  if (!wrap) return;
+  qsa('.du-template-stk-row', wrap).forEach(row => {
+    const name = row.querySelector('[data-stk-field="name"]')?.value || '';
+    const chk = row.querySelector('[data-stk-field="enabled"]');
+    if (chk) chk.checked = pickedSet.has(name);
+  });
+  duRenderTemplateTargetStakeholderPicker();
+}
+
+function duRenderTemplateTargetStakeholderPicker(rows = null) {
+  const sel = $('du-tpl-target-stk');
+  const list = $('du-tpl-target-stk-list');
+  const combo = $('du-tpl-target-stk-combo');
+  const addBtn = $('du-tpl-target-stk-add-btn');
+  const pillbox = $('du-tpl-target-stk-pillbox');
+  if (!sel || !list || !combo || !addBtn || !pillbox) return;
+  const data = duGeoSortStakeholderRows((rows && rows.length) ? rows : duCollectStakeholderMappings());
+  const names = duTemplateTargetStakeholderNames(data);
+  const countMap = duTemplateStakeholderCountMap(data, duTemplateState.program);
+  if (!data.length || !names.length) {
+    sel.innerHTML = '';
+    list.innerHTML = '';
+    pillbox.innerHTML = `<span style="font-size:10px;color:var(--slate);">No stakeholder types available yet.</span>`;
+    sel.disabled = true;
+    combo.disabled = true;
+    addBtn.disabled = true;
+    return;
+  }
+  const selectedSet = new Set(data.filter(r => r.enabled).map(r => String(r.stakeholder || '').trim()).filter(Boolean));
+  sel.innerHTML = names
+    .map(name => `<option value="${esc(name)}" ${selectedSet.has(name) ? 'selected' : ''}>${esc(duTemplateStakeholderDisplayName(name, countMap))}</option>`)
+    .join('');
+  list.innerHTML = names.map(name => `<option value="${esc(duTemplateStakeholderDisplayName(name, countMap))}"></option>`).join('');
+  sel.disabled = false;
+  combo.disabled = false;
+  addBtn.disabled = false;
+  combo.placeholder = 'Type stakeholder type (count shown)';
+
+  const selectedNames = names.filter(name => selectedSet.has(name));
+  if (!selectedNames.length) {
+    pillbox.innerHTML = `<span style="font-size:10px;color:var(--slate);">No target stakeholder selected.</span>`;
+  } else {
+    pillbox.innerHTML = selectedNames
+      .map(name => `<span class="du-geo-pill">${esc(duTemplateStakeholderDisplayName(name, countMap))} <button type="button" data-tpl-target-remove="${esc(name)}">&times;</button></span>`)
+      .join('');
+  }
+  qsa('[data-tpl-target-remove]', pillbox).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = new Set(Array.from(sel.selectedOptions).map(o => o.value));
+      next.delete(btn.dataset.tplTargetRemove || '');
+      duApplyTemplateTargetStakeholders(next);
+    });
+  });
+}
+
+function duApplyTemplateTargetStakeholdersFromPicker() {
+  const sel = $('du-tpl-target-stk');
+  if (!sel) return;
+  const picked = new Set(Array.from(sel.selectedOptions).map(o => o.value));
+  duApplyTemplateTargetStakeholders(picked);
+}
+
+function duAddTemplateTargetStakeholderFromComboInput() {
+  const combo = $('du-tpl-target-stk-combo');
+  const sel = $('du-tpl-target-stk');
+  if (!combo || !sel || combo.disabled) return;
+  const raw = String(combo.value || '').trim();
+  if (!raw) {
+    toast(IC.warning + ' Type stakeholder type to add');
+    return;
+  }
+  const names = duTemplateTargetStakeholderNames();
+  if (!names.length) {
+    toast(IC.warning + ' No stakeholder types available');
+    return;
+  }
+  const token = duGeoCanon(duTemplateStakeholderInputName(raw));
+  if (!token) {
+    toast(IC.warning + ' Stakeholder type not found in this program');
+    return;
+  }
+  const exact = names.find(n => duGeoCanon(n) === token);
+  const hit = exact || names.find(n => duGeoCanon(n).includes(token) || token.includes(duGeoCanon(n)));
+  if (!hit) {
+    toast(IC.warning + ' Stakeholder type not found in this program');
+    return;
+  }
+  const next = new Set(Array.from(sel.selectedOptions).map(o => o.value));
+  next.add(hit);
+  combo.value = '';
+  duApplyTemplateTargetStakeholders(next);
+}
+
+function duRenderTemplateStakeholderRows(rows = null) {
+  const wrap = $('du-template-stk-map');
+  if (!wrap) return;
+  const dataRaw = (rows && rows.length)
+    ? rows
+    : duTemplateStakeholderRowsFromProgram(duTemplateState.program);
+  const data = duGeoSortStakeholderRows(dataRaw);
+  wrap.innerHTML = data.map((r, idx) => {
+    const levelOpts = DU_GEO_LEVEL_OPTIONS
+      .map(l => `<option value="${l}" ${r.level === l ? 'selected' : ''}>${l}</option>`)
+      .join('');
+    return `<div class="du-template-stk-row" data-stk-row="${idx}">
+      <label class="du-template-stk-pill">
+        <input type="checkbox" data-stk-field="enabled" ${r.enabled ? 'checked' : ''} />
+        <span>${esc(r.stakeholder)}</span>
+      </label>
+      <select class="du-template-select" data-stk-field="level" disabled>${levelOpts}</select>
+      <input class="du-template-input" data-stk-field="scope" value="${esc(r.scope || '')}" placeholder="Inherited from geography mapping" readonly />
+      <input type="hidden" data-stk-field="name" value="${esc(r.stakeholder)}" />
+      <input type="hidden" data-stk-field="hierarchyTag" value="${esc(duGeoNormalizeHierarchyTag(r.hierarchyTag, r.stakeholder, r.level))}" />
+      <input type="hidden" data-stk-field="hierarchyLabel" value="${esc(duGeoNormalizeHierarchyLabel(r.hierarchyLabel, r.hierarchyTag, r.stakeholder, r.level))}" />
+      <input type="hidden" data-stk-field="hierarchyOrder" value="${esc(duGeoNormalizeHierarchyOrder(r.hierarchyOrder, r.hierarchyTag, r.level))}" />
+    </div>`;
+  }).join('');
+
+  qsa('[data-stk-field="enabled"]', wrap).forEach(chk => {
+    chk.addEventListener('change', () => duRenderTemplateTargetStakeholderPicker());
+  });
+  duRenderTemplateTargetStakeholderPicker(data);
+}
+
+function duCollectStakeholderMappings() {
+  return qsa('.du-template-stk-row', $('du-template-stk-map')).map(row => {
+    const get = f => row.querySelector(`[data-stk-field="${f}"]`);
+    const stakeholder = get('name')?.value || '';
+    const level = get('level')?.value || 'school';
+    return {
+      stakeholder,
+      enabled: !!get('enabled')?.checked,
+      level,
+      hierarchyTag: duGeoNormalizeHierarchyTag(get('hierarchyTag')?.value || '', stakeholder, level),
+      hierarchyLabel: duGeoNormalizeHierarchyLabel(get('hierarchyLabel')?.value || '', get('hierarchyTag')?.value || '', stakeholder, level),
+      hierarchyOrder: duGeoNormalizeHierarchyOrder(get('hierarchyOrder')?.value || '', get('hierarchyTag')?.value || '', level),
+      scope: (get('scope')?.value || '').trim(),
+    };
+  });
+}
+
+function duRenderTemplateProgramCards() {
+  const grid = $('du-template-prog-grid');
+  if (!grid) return;
+  const programs = duTemplatePrograms();
+  grid.innerHTML = programs.map(p => {
+    const list = duTemplateStore[p] || [];
+    const published = list.filter(t => t.status === 'published').length;
+    const active = duTemplateState.program === p ? ' active' : '';
+    return `<div class="du-template-prog-card${active}" data-tpl-prog="${esc(p)}">
+      <div class="du-template-prog-name">${esc(p)}</div>
+      <div class="du-template-prog-meta"><span>${list.length} templates</span><span>${published} published</span></div>
+    </div>`;
+  }).join('');
+  qsa('[data-tpl-prog]', grid).forEach(card => {
+    card.addEventListener('click', () => duSelectTemplateProgram(card.dataset.tplProg));
+  });
+}
+
+function duTemplateResetForm() {
+  duTemplateState.editId = null;
+  duTemplateState.columns = duCloneTemplateColumns();
+  duTemplateState.matrix = duCloneTemplateMatrix();
+  if ($('du-template-form-title')) {
+    $('du-template-form-title').textContent = `Create activity response template${duTemplateState.program ? ` · ${duTemplateState.program}` : ''}`;
+  }
+  if ($('du-tpl-name')) $('du-tpl-name').value = '';
+  if ($('du-tpl-frequency')) $('du-tpl-frequency').value = 'Monthly';
+  if ($('du-tpl-intv')) $('du-tpl-intv').value = '';
+  if ($('du-tpl-activity-type')) $('du-tpl-activity-type').value = 'Workshop';
+  if ($('du-tpl-activity-name')) $('du-tpl-activity-name').value = '';
+  if ($('du-tpl-activity-desc')) $('du-tpl-activity-desc').value = '';
+  if ($('du-tpl-fy')) $('du-tpl-fy').value = duCurrentFinancialYearLabel();
+  duRenderTemplateColumnRows();
+  duRenderTemplateMatrixRows();
+  duRenderTemplateStakeholderRows(duTemplateStakeholderRowsFromProgram(duTemplateState.program));
+  duApplyGeoScopeToTemplate(duTemplateState.program);
+  duRenderTemplateInterventionSelector('');
+  duTemplateEnsureInterventions(duTemplateState.program, '');
+}
+
+function duSelectTemplateProgram(program, opts = {}) {
+  const syncTopSelect = opts.syncTopSelect !== false;
+  const resetForm = opts.resetForm !== false;
+  duTemplateState.program = program || '';
+  const ws = $('du-template-workspace');
+  if (ws) ws.classList.toggle('hidden', !duTemplateState.program);
+  if (syncTopSelect && $('du-prog-sel') && program) $('du-prog-sel').value = program;
+  duEnsureTemplateProgramStore(duTemplateState.program);
+  duRenderTemplateProgramCards();
+  if (resetForm) {
+    duTemplateResetForm();
+  } else if (duTemplateState.program) {
+    const currentRows = duCollectStakeholderMappings();
+    const mergedRows = duTemplateStakeholderRowsFromProgram(duTemplateState.program, currentRows);
+    duRenderTemplateStakeholderRows(mergedRows);
+    duApplyGeoScopeToTemplate(duTemplateState.program);
+    duRenderTemplateInterventionSelector($('du-tpl-intv')?.value || '');
+  }
+  duTemplateEnsureInterventions(duTemplateState.program, $('du-tpl-intv')?.value || '');
+  duRenderTemplateList();
+}
+
+function duCollectTemplateDraft() {
+  if (!duTemplateState.program) { toast(IC.warning + ' Select a program card first'); return null; }
+  const name = ($('du-tpl-name')?.value || '').trim();
+  const frequency = ($('du-tpl-frequency')?.value || 'Monthly').trim();
+  const intervention = ($('du-tpl-intv')?.value || '').trim();
+  const financialYear = ($('du-tpl-fy')?.value || '').trim().replace(/^fy\s*/i, '');
+  const activityType = $('du-tpl-activity-type')?.value || 'Workshop';
+  const activityName = ($('du-tpl-activity-name')?.value || '').trim();
+  const activityDescription = ($('du-tpl-activity-desc')?.value || '').trim();
+  const stakeholders = duGeoSortStakeholderRows(duCollectStakeholderMappings().filter(s => s.enabled));
+  const columns = duTemplateState.columns.map(c => ({ ...c, name: (c.name || '').trim() })).filter(c => c.name);
+  const matrix = duTemplateState.matrix.map(m => ({
+    label: (m.label || '').trim(),
+    source: m.source || 'role:participants',
+    aggregation: m.aggregation || 'sum',
+    key: (m.key || '').trim(),
+  })).filter(m => m.label && m.key);
+  const intvRow = duTemplateInterventionByName(duTemplateState.program, intervention);
+  const interventionTypes = duGeoUniqueIds((intvRow?.types || []).filter(Boolean));
+  const interventionCategories = duGeoUniqueIds((intvRow?.categories || []).filter(Boolean));
+  const interventionStakeholders = duGeoUniqueIds((intvRow?.stakeholders || []).filter(Boolean));
+
+  if (!name) { toast(IC.warning + ' Template name is required'); return null; }
+  if (!intervention) { toast(IC.warning + ' Intervention is required'); return null; }
+  if (!activityName) { toast(IC.warning + ' Activity name is required'); return null; }
+  if (!DU_TEMPLATE_FREQUENCY_OPTIONS.includes(frequency)) { toast(IC.warning + ' Select Frequency'); return null; }
+  if (!financialYear) { toast(IC.warning + ' Financial Year is required'); return null; }
+  if (!columns.length) { toast(IC.warning + ' Define at least one response column'); return null; }
+  if (!stakeholders.length) { toast(IC.warning + ' Enable at least one stakeholder'); return null; }
+  if (!matrix.length) { toast(IC.warning + ' Define at least one matrix metric'); return null; }
+
+  return {
+    id: duTemplateState.editId || duTemplateNewId(),
+    program: duTemplateState.program,
+    name,
+    frequency,
+    intervention,
+    interventionCode: intvRow?.code || '',
+    interventionTypes,
+    interventionCategories,
+    interventionStakeholders,
+    financialYear,
+    activityType,
+    activityName,
+    activityDescription,
+    columns,
+    matrix,
+    stakeholders,
+    geography: {
+      state: ($('du-tpl-geo-state')?.value || '').trim(),
+      district: ($('du-tpl-geo-district')?.value || '').trim(),
+      block: ($('du-tpl-geo-block')?.value || '').trim(),
+      cluster: ($('du-tpl-geo-cluster')?.value || '').trim(),
+      school: ($('du-tpl-geo-school')?.value || '').trim(),
+    },
+    geographyIds: {
+      state: duGeoUniqueIds(duTemplateGeoScopeState.state || []),
+      district: duGeoUniqueIds(duTemplateGeoScopeState.district || []),
+      block: duGeoUniqueIds(duTemplateGeoScopeState.block || []),
+      cluster: duGeoUniqueIds(duTemplateGeoScopeState.cluster || []),
+      school: duGeoUniqueIds(duTemplateGeoScopeState.school || []),
+    },
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+function duSaveTemplate(status = 'draft') {
+  const draft = duCollectTemplateDraft();
+  if (!draft) return;
+  duEnsureTemplateProgramStore(draft.program);
+  const list = duTemplateStore[draft.program];
+  const idx = list.findIndex(t => t.id === draft.id);
+  const existing = idx >= 0 ? list[idx] : null;
+  const row = {
+    ...existing,
+    ...draft,
+    status,
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    publishedAt: status === 'published' ? new Date().toISOString() : existing?.publishedAt || null,
+  };
+  if (idx >= 0) list[idx] = row; else list.unshift(row);
+  duTemplateState.editId = row.id;
+  duRenderTemplateProgramCards();
+  duRenderTemplateList();
+  duUploadRenderFlowSelectors({ preserve: true });
+  toast(status === 'published'
+    ? `${IC['check-circle']} Template published for ${row.program}`
+    : `${IC['check-circle']} Template saved as draft`);
+}
+
+function duLoadTemplateForEdit(templateId) {
+  const list = duTemplateStore[duTemplateState.program] || [];
+  const tpl = list.find(t => t.id === templateId);
+  if (!tpl) return;
+  duTemplateState.editId = tpl.id;
+  if ($('du-template-form-title')) $('du-template-form-title').textContent = `Edit template · ${tpl.program}`;
+  if ($('du-tpl-name')) $('du-tpl-name').value = tpl.name || '';
+  if ($('du-tpl-frequency')) $('du-tpl-frequency').value = DU_TEMPLATE_FREQUENCY_OPTIONS.includes(tpl.frequency) ? tpl.frequency : 'Monthly';
+  duRenderTemplateInterventionSelector(tpl.intervention || '');
+  if ($('du-tpl-intv')) $('du-tpl-intv').value = tpl.intervention || '';
+  duRenderTemplateInterventionMeta(duTemplateInterventionByName(tpl.program, tpl.intervention || ''));
+  duTemplateEnsureInterventions(tpl.program, tpl.intervention || '');
+  if ($('du-tpl-activity-type')) $('du-tpl-activity-type').value = tpl.activityType || 'Workshop';
+  if ($('du-tpl-activity-name')) $('du-tpl-activity-name').value = tpl.activityName || '';
+  if ($('du-tpl-activity-desc')) $('du-tpl-activity-desc').value = tpl.activityDescription || '';
+  if ($('du-tpl-fy')) $('du-tpl-fy').value = tpl.financialYear || duCurrentFinancialYearLabel();
+  duTemplateState.columns = (tpl.columns || []).map(c => ({ ...c }));
+  duTemplateState.matrix = (tpl.matrix || []).map(m => ({ ...m }));
+  duRenderTemplateColumnRows();
+  duRenderTemplateMatrixRows();
+  const mergedStakeholders = duTemplateStakeholderRowsFromProgram(
+    tpl.program,
+    (tpl.stakeholders || []).map(s => ({ ...s }))
+  );
+  duRenderTemplateStakeholderRows(mergedStakeholders);
+  duApplyGeoScopeToTemplate(tpl.program);
+  duTemplateGeoLoadFromTemplate(tpl.program, tpl.geography || {}, tpl.geographyIds || null);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function duRenderTemplateList() {
+  const body = $('du-template-list-body');
+  const meta = $('du-template-list-meta');
+  if (!body || !meta) return;
+  if (!duTemplateState.program) {
+    meta.textContent = 'No program selected';
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to start creating templates</td></tr>`;
+    return;
+  }
+  const list = duTemplateStore[duTemplateState.program] || [];
+  meta.textContent = `${duTemplateState.program} · ${list.length} template${list.length !== 1 ? 's' : ''}`;
+  if (!list.length) {
+    body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--slate);">No templates yet for ${esc(duTemplateState.program)}</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = list.map(t => {
+    const stks = (t.stakeholders || []).filter(s => s.enabled).map(s => s.stakeholder);
+    const statusCls = t.status === 'published' ? 'ok' : 'warn';
+    const statusTxt = t.status === 'published' ? 'Published' : 'Draft';
+    const matrixSummary = (t.matrix || []).slice(0, 2).map(m => m.label).join(', ');
+    const freqTxt = DU_TEMPLATE_FREQUENCY_OPTIONS.includes(t.frequency) ? t.frequency : 'Monthly';
+    const fyTxt = t.financialYear || '-';
+    const descTxt = (t.activityDescription || '').trim();
+    const intvName = String(t.intervention || '').trim();
+    const intvTypeChips = duGeoUniqueIds(t.interventionTypes || []).map(v => `<span class="du-template-chip">${esc(v)}</span>`).join('');
+    const intvCatChips = duGeoUniqueIds(t.interventionCategories || []).map(v => `<span class="du-template-chip">${esc(v)}</span>`).join('');
+    return `<tr>
+      <td><strong>${esc(t.name || '-')}</strong><div style="font-size:10px;color:var(--slate);margin-top:2px;">${(t.columns || []).length} columns</div></td>
+      <td><strong>${esc(freqTxt)}</strong><div style="font-size:10px;color:var(--slate);margin-top:2px;">FY ${esc(fyTxt)}</div></td>
+      <td>${esc(t.activityType || '-')}<div style="font-size:10px;color:var(--slate);margin-top:2px;">${esc(t.activityName || '')}</div>${intvName ? `<div style="font-size:10px;color:var(--slate);margin-top:2px;">Intervention: ${esc(intvName)}</div>` : ''}${intvTypeChips || intvCatChips ? `<div style="margin-top:4px;">${intvTypeChips}${intvCatChips}</div>` : ''}${descTxt ? `<div style="font-size:10px;color:var(--ink);margin-top:2px;">${esc(descTxt)}</div>` : ''}</td>
+      <td>${stks.map(s => `<span class="du-template-chip">${esc(s)}</span>`).join('') || '-'}</td>
+      <td style="font-size:11px;">${esc(matrixSummary || '-')}<div style="font-size:10px;color:var(--slate);margin-top:2px;">${(t.matrix || []).length} metrics</div></td>
+      <td><span class="du-badge ${statusCls}">${statusTxt}</span></td>
+      <td><button class="btn" data-tpl-edit="${esc(t.id)}" style="font-size:11px;padding:3px 9px;">Edit</button></td>
+    </tr>`;
+  }).join('');
+
+  qsa('[data-tpl-edit]', body).forEach(btn => {
+    btn.addEventListener('click', () => duLoadTemplateForEdit(btn.dataset.tplEdit));
+  });
+}
+
+function duGenerateTemplatePreview() {
+  const draft = duCollectTemplateDraft();
+  if (!draft) return;
+  const cols = draft.columns.map(c => c.name).join(', ');
+  toast(`Template columns ready (${draft.columns.length}): ${cols}`);
+}
+
+function duGeoNewId() {
+  return `du-geo-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
+function duGeoDefaultCoverageRows(program) {
+  return [{
+    id: duGeoNewId(),
+    level: 'state',
+    mode: 'selected',
+    scope: '',
+    enabled: true,
+    builtIn: true,
+  }];
+}
+
+function duGeoDefaultRows() {
+  return DU_TEMPLATE_STAKEHOLDERS.map(stk => {
+    const level = DU_STAKEHOLDER_DEFAULT_LEVEL[stk] || 'school';
+    const hierarchyTag = duGeoDefaultHierarchyTag(stk, level);
+    return {
+      id: duGeoNewId(),
+      stakeholder: stk,
+      level,
+      hierarchyTag,
+      hierarchyLabel: '',
+      hierarchyOrder: duGeoNormalizeHierarchyOrder(null, hierarchyTag, level),
+      scope: '',
+      enabled: true,
+      builtIn: true,
+    };
+  });
+}
+
+function duEnsureGeoProgramStore(program) {
+  if (!program) return;
+  if (!duGeoMapStore[program]) {
+    duGeoMapStore[program] = {
+      scopeType: 'state_multi',
+      coverageRows: duGeoDefaultCoverageRows(program),
+      rows: duGeoDefaultRows(),
+      updatedAt: null,
+    };
+    return;
+  }
+  const row = duGeoMapStore[program];
+  if (!Array.isArray(row.coverageRows) || !row.coverageRows.length) {
+    row.coverageRows = duGeoDefaultCoverageRows(program);
+  }
+  if (!Array.isArray(row.rows) || !row.rows.length) {
+    row.rows = duGeoDefaultRows();
+  }
+  row.rows = duGeoSortStakeholderRows((row.rows || []).map(r => ({
+    ...r,
+    hierarchyTag: duGeoNormalizeHierarchyTag(r?.hierarchyTag, r?.stakeholder, r?.level),
+    hierarchyLabel: duGeoNormalizeHierarchyLabel(r?.hierarchyLabel, r?.hierarchyTag, r?.stakeholder, r?.level),
+    hierarchyOrder: duGeoNormalizeHierarchyOrder(r?.hierarchyOrder, r?.hierarchyTag, r?.level),
+  })));
+  row.scopeType = duGeoScopeTypeDef(row.scopeType || duGeoScopeTypeFromCoverageRows(row.coverageRows)).key;
+}
+
+function duRenderGeoProgramCards() {
+  const grid = $('du-geo-prog-grid');
+  if (!grid) return;
+  const programs = duTemplatePrograms();
+  grid.innerHTML = programs.map(p => {
+    duEnsureGeoProgramStore(p);
+    const coverageCount = (duGeoMapStore[p]?.coverageRows || []).filter(r => r.enabled).length;
+    const activeCount = (duGeoMapStore[p]?.rows || []).filter(r => r.enabled).length;
+    const active = duGeoMapState.program === p ? ' active' : '';
+    return `<div class="du-template-prog-card${active}" data-geo-prog="${esc(p)}">
+      <div class="du-template-prog-name">${esc(p)}</div>
+      <div class="du-template-prog-meta"><span>${coverageCount} coverage</span><span>${activeCount} stakeholder maps</span></div>
+    </div>`;
+  }).join('');
+
+  qsa('[data-geo-prog]', grid).forEach(card => {
+    card.addEventListener('click', () => duSelectGeoProgram(card.dataset.geoProg));
+  });
+}
+
+function duRenderGeoCascadeSelectors() {
+  if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+  const cascade = duGeoMapState.cascade;
+  const noProgram = !duGeoMapState.program;
+  const available0 = duGeoCascadeAvailable(cascade);
+  duGeoNormalizeCascade(cascade, available0);
+  duGeoApplyScopeTypeRules(cascade);
+  const available = duGeoCascadeAvailable(cascade);
+  duGeoNormalizeCascade(cascade, available);
+  const scopeFlags = duGeoScopeUiFlags(cascade.scopeType);
+  const isSingleState = scopeFlags.def.key === 'state_single';
+  const isSingleDistrict = scopeFlags.def.key === 'district_single';
+  const isSingleBlock = scopeFlags.def.key === 'block_single';
+  const isSingleCluster = scopeFlags.def.key === 'cluster_single';
+  const isSingleSchool = scopeFlags.def.key === 'school_single';
+  const districtComboDisabled = noProgram || scopeFlags.lockDistrict || !!cascade.districtAll || !available.districts.length;
+  const blockComboDisabled = noProgram || scopeFlags.lockBlock || !!cascade.blockAll || !available.blocks.length;
+  const clusterComboDisabled = noProgram || scopeFlags.lockCluster || !!cascade.skipCluster || !!cascade.clusterAll || !available.clusters.length;
+  const blockLocked = scopeFlags.lockBlock;
+  const clusterLocked = scopeFlags.lockCluster;
+  const schoolLocked = scopeFlags.lockSchool;
+
+  duGeoRenderMultiSelect('du-geo-state-sel', available.states, cascade.states, false);
+  duGeoRenderMultiSelect('du-geo-district-sel', available.districts, cascade.districts, districtComboDisabled);
+  duGeoRenderMultiSelect('du-geo-block-sel', available.blocks, cascade.blocks, blockLocked || cascade.blockAll);
+  duGeoRenderMultiSelect('du-geo-cluster-sel', available.clusters, cascade.clusters, clusterLocked || cascade.skipCluster || cascade.clusterAll);
+  duGeoRenderMultiSelect('du-geo-school-sel', available.schools, cascade.schools, schoolLocked || cascade.schoolAll);
+  duGeoRenderStateCombobox(available.states, cascade.states, isSingleState);
+  duGeoRenderDistrictCombobox(available.districts, cascade.districts, { disabled: districtComboDisabled, maxOne: isSingleDistrict });
+  duGeoRenderBlockCombobox(available.blocks, cascade.blocks, { disabled: blockComboDisabled, maxOne: isSingleBlock });
+  duGeoRenderClusterCombobox(available.clusters, cascade.clusters, { disabled: clusterComboDisabled, maxOne: isSingleCluster, skipped: !!cascade.skipCluster });
+
+  if ($('du-geo-scope-type')) $('du-geo-scope-type').value = cascade.scopeType;
+
+  if ($('du-geo-district-all')) $('du-geo-district-all').checked = !!cascade.districtAll;
+  if ($('du-geo-block-all')) $('du-geo-block-all').checked = !!cascade.blockAll;
+  if ($('du-geo-cluster-all')) $('du-geo-cluster-all').checked = !!cascade.clusterAll;
+  if ($('du-geo-school-all')) $('du-geo-school-all').checked = !!cascade.schoolAll;
+  if ($('du-geo-skip-cluster')) $('du-geo-skip-cluster').checked = !!cascade.skipCluster;
+
+  if ($('du-geo-scope-type')) $('du-geo-scope-type').disabled = noProgram;
+  if ($('du-geo-state-combo')) $('du-geo-state-combo').disabled = noProgram || !available.states.length;
+  if ($('du-geo-state-add-btn')) $('du-geo-state-add-btn').disabled = noProgram || !available.states.length;
+  if ($('du-geo-district-combo')) $('du-geo-district-combo').disabled = districtComboDisabled;
+  if ($('du-geo-district-add-btn')) $('du-geo-district-add-btn').disabled = districtComboDisabled;
+  if ($('du-geo-block-combo')) $('du-geo-block-combo').disabled = blockComboDisabled;
+  if ($('du-geo-block-add-btn')) $('du-geo-block-add-btn').disabled = blockComboDisabled;
+  if ($('du-geo-cluster-combo')) $('du-geo-cluster-combo').disabled = clusterComboDisabled;
+  if ($('du-geo-cluster-add-btn')) $('du-geo-cluster-add-btn').disabled = clusterComboDisabled;
+
+  if ($('du-geo-district-all')) $('du-geo-district-all').disabled = noProgram || scopeFlags.lockDistrict || isSingleDistrict || !available.districts.length;
+  if ($('du-geo-block-all')) $('du-geo-block-all').disabled = noProgram || blockLocked || isSingleBlock || !available.blocks.length;
+  if ($('du-geo-cluster-all')) $('du-geo-cluster-all').disabled = noProgram || clusterLocked || isSingleCluster || !!cascade.skipCluster || !available.clusters.length;
+  if ($('du-geo-school-all')) $('du-geo-school-all').disabled = noProgram || schoolLocked || isSingleSchool || !available.schools.length;
+  if ($('du-geo-skip-cluster')) $('du-geo-skip-cluster').disabled = noProgram || clusterLocked || scopeFlags.targetIndex >= 3;
+
+  if ($('du-geo-block-sel')) $('du-geo-block-sel').disabled = blockLocked || !!cascade.blockAll || !available.blocks.length;
+  if ($('du-geo-cluster-sel')) $('du-geo-cluster-sel').disabled = clusterLocked || !!cascade.skipCluster || !!cascade.clusterAll || !available.clusters.length;
+  if ($('du-geo-school-sel')) $('du-geo-school-sel').disabled = schoolLocked || !!cascade.schoolAll || !available.schools.length;
+
+  const synced = duGeoSyncCoverageRowsFromCascade();
+  duRenderGeoCoverageRows();
+  duRenderGeoRows();
+  return synced;
+}
+
+function duRenderGeoCoverageRows() {
+  const body = $('du-geo-coverage-body');
+  if (!body) return;
+  if (!duGeoMapState.program) {
+    body.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to define coverage</td></tr>`;
+    return;
+  }
+  if (!duGeoMapState.coverageRows.length) {
+    body.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--slate);">Select state/district/block scope to generate coverage.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = duGeoMapState.coverageRows.map(row => {
+    const modeTxt = row.mode === 'full' ? 'Full Level' : 'Selected List';
+    const scopeTxt = row.mode === 'full'
+      ? `All ${row.level}`
+      : (row.scope || '—');
+    return `<tr>
+      <td style="text-transform:capitalize;">${esc(row.level || '—')}</td>
+      <td>${esc(modeTxt)}</td>
+      <td style="font-size:11px;color:var(--ink-2);">${esc(scopeTxt)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function duRenderGeoRows() {
+  const body = $('du-geo-rows-body');
+  if (!body) return;
+  if (!duGeoMapState.program) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to start geography mapping</td></tr>`;
+    return;
+  }
+
+  if (!duGeoMapState.rows.length) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--slate);">No stakeholder mappings yet. Add one to continue.</td></tr>`;
+    return;
+  }
+
+  const coverage = duGeoCoverageConstraint(duGeoMapState.coverageRows);
+  const coveredLevels = duGeoCoverageLevels(duGeoMapState.coverageRows);
+  const levelChoices = coveredLevels.length ? coveredLevels : DU_GEO_LEVEL_OPTIONS;
+  duGeoMapState.rows = duGeoSortStakeholderRows(duGeoMapState.rows || []);
+
+  body.innerHTML = duGeoMapState.rows.map((row, idx) => {
+    if (!levelChoices.includes(row.level)) row.level = levelChoices[0];
+    row.hierarchyTag = duGeoNormalizeHierarchyTag(row.hierarchyTag, row.stakeholder, row.level);
+    row.hierarchyLabel = duGeoNormalizeHierarchyLabel(row.hierarchyLabel, row.hierarchyTag, row.stakeholder, row.level);
+    row.hierarchyOrder = duGeoNormalizeHierarchyOrder(row.hierarchyOrder, row.hierarchyTag, row.level);
+    const levelOpts = levelChoices
+      .map(l => `<option value="${l}" ${row.level === l ? 'selected' : ''}>${l}</option>`)
+      .join('');
+    const hierarchyOpts = DU_GEO_HIERARCHY_OPTIONS
+      .map(o => `<option value="${o.key}" ${row.hierarchyTag === o.key ? 'selected' : ''}>${esc(o.label)}</option>`)
+      .join('');
+    const customHierarchyVisible = row.hierarchyTag === 'custom';
+    const trCls = row.builtIn ? '' : ' class="du-geo-row-custom"';
+    const allowedVals = Array.from(coverage.valuesByLevel[row.level] || []);
+    const scopeHint = coverage.fullLevels.has(row.level)
+      ? `Any ${row.level} within program coverage`
+      : allowedVals.length
+        ? `Allowed: ${duScopePreview(allowedVals, 8)}`
+        : `Define ${row.level} coverage first`;
+    return `<tr data-geo-row="${idx}"${trCls}>
+      <td><input class="du-template-input du-geo-stk-input" data-geo-field="stakeholder" value="${esc(row.stakeholder || '')}" placeholder="Stakeholder type" /></td>
+      <td>
+        <select class="du-template-select" data-geo-field="hierarchyTag">${hierarchyOpts}</select>
+        <div style="${customHierarchyVisible ? 'display:grid;' : 'display:none;'}margin-top:6px;grid-template-columns:1fr 84px;gap:6px;">
+          <input class="du-template-input" data-geo-field="hierarchyLabel" value="${esc(row.hierarchyLabel || '')}" placeholder="Custom hierarchy (e.g. ADC)" />
+          <input class="du-template-input" data-geo-field="hierarchyOrder" type="number" min="1" step="1" value="${esc(row.hierarchyOrder ?? '')}" placeholder="Order" />
+        </div>
+      </td>
+      <td><select class="du-template-select" data-geo-field="level">${levelOpts}</select></td>
+      <td><input class="du-template-input du-geo-scope-input" data-geo-field="scope" value="${esc(row.scope || '')}" placeholder="${esc(scopeHint)}" /></td>
+      <td><div class="du-geo-check"><input type="checkbox" data-geo-field="enabled" ${row.enabled ? 'checked' : ''} /></div></td>
+      <td style="text-align:center;"><button class="btn" data-geo-remove="${idx}" style="font-size:10px;padding:3px 8px;">Remove</button></td>
+    </tr>`;
+  }).join('');
+
+  qsa('[data-geo-field="stakeholder"]', body).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (duGeoMapState.rows[idx]) {
+        duGeoMapState.rows[idx].stakeholder = e.target.value;
+        duGeoMapState.rows[idx].hierarchyTag = duGeoNormalizeHierarchyTag(
+          duGeoMapState.rows[idx].hierarchyTag,
+          duGeoMapState.rows[idx].stakeholder,
+          duGeoMapState.rows[idx].level
+        );
+        if (duGeoMapState.rows[idx].hierarchyTag === 'custom' && !String(duGeoMapState.rows[idx].hierarchyLabel || '').trim()) {
+          duGeoMapState.rows[idx].hierarchyLabel = String(duGeoMapState.rows[idx].stakeholder || '').trim();
+        }
+      }
+    });
+  });
+  qsa('[data-geo-field="hierarchyTag"]', body).forEach(sel => {
+    sel.addEventListener('change', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (duGeoMapState.rows[idx]) {
+        duGeoMapState.rows[idx].hierarchyTag = duGeoNormalizeHierarchyTag(
+          e.target.value,
+          duGeoMapState.rows[idx].stakeholder,
+          duGeoMapState.rows[idx].level
+        );
+        if (duGeoMapState.rows[idx].hierarchyTag === 'custom') {
+          duGeoMapState.rows[idx].hierarchyLabel = duGeoNormalizeHierarchyLabel(
+            duGeoMapState.rows[idx].hierarchyLabel,
+            duGeoMapState.rows[idx].hierarchyTag,
+            duGeoMapState.rows[idx].stakeholder,
+            duGeoMapState.rows[idx].level
+          );
+        } else {
+          duGeoMapState.rows[idx].hierarchyLabel = '';
+        }
+        duGeoMapState.rows[idx].hierarchyOrder = duGeoNormalizeHierarchyOrder(
+          duGeoMapState.rows[idx].hierarchyOrder,
+          duGeoMapState.rows[idx].hierarchyTag,
+          duGeoMapState.rows[idx].level
+        );
+        duRenderGeoRows();
+      }
+    });
+  });
+  qsa('[data-geo-field="hierarchyLabel"]', body).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (!duGeoMapState.rows[idx]) return;
+      duGeoMapState.rows[idx].hierarchyLabel = duGeoNormalizeHierarchyLabel(
+        e.target.value,
+        duGeoMapState.rows[idx].hierarchyTag,
+        duGeoMapState.rows[idx].stakeholder,
+        duGeoMapState.rows[idx].level
+      );
+    });
+  });
+  qsa('[data-geo-field="hierarchyOrder"]', body).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (!duGeoMapState.rows[idx]) return;
+      duGeoMapState.rows[idx].hierarchyOrder = duGeoNormalizeHierarchyOrder(
+        e.target.value,
+        duGeoMapState.rows[idx].hierarchyTag,
+        duGeoMapState.rows[idx].level
+      );
+    });
+  });
+  qsa('[data-geo-field="level"]', body).forEach(sel => {
+    sel.addEventListener('change', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (duGeoMapState.rows[idx]) {
+        duGeoMapState.rows[idx].level = e.target.value;
+        duGeoMapState.rows[idx].hierarchyTag = duGeoNormalizeHierarchyTag(
+          duGeoMapState.rows[idx].hierarchyTag,
+          duGeoMapState.rows[idx].stakeholder,
+          duGeoMapState.rows[idx].level
+        );
+        duGeoMapState.rows[idx].hierarchyOrder = duGeoNormalizeHierarchyOrder(
+          duGeoMapState.rows[idx].hierarchyOrder,
+          duGeoMapState.rows[idx].hierarchyTag,
+          duGeoMapState.rows[idx].level
+        );
+      }
+    });
+  });
+  qsa('[data-geo-field="scope"]', body).forEach(inp => {
+    inp.addEventListener('input', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (duGeoMapState.rows[idx]) duGeoMapState.rows[idx].scope = e.target.value;
+    });
+  });
+  qsa('[data-geo-field="enabled"]', body).forEach(chk => {
+    chk.addEventListener('change', e => {
+      const tr = e.target.closest('[data-geo-row]');
+      if (!tr) return;
+      const idx = +tr.dataset.geoRow;
+      if (duGeoMapState.rows[idx]) duGeoMapState.rows[idx].enabled = !!e.target.checked;
+    });
+  });
+  qsa('[data-geo-remove]', body).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = +btn.dataset.geoRemove;
+      const row = duGeoMapState.rows[idx];
+      if (!row) return;
+      if (duGeoMapState.rows.length <= 1) {
+        toast(IC.warning + ' Keep at least one stakeholder mapping');
+        return;
+      }
+      duGeoMapState.rows.splice(idx, 1);
+      duRenderGeoRows();
+    });
+  });
+}
+
+function duRenderGeoList() {
+  const body = $('du-geo-list-body');
+  const meta = $('du-geo-list-meta');
+  if (!body || !meta) return;
+
+  if (!duGeoMapState.program) {
+    meta.textContent = 'No program selected';
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--slate);">Select a program card to view saved mappings</td></tr>`;
+    return;
+  }
+
+  duEnsureGeoProgramStore(duGeoMapState.program);
+  const storeRow = duGeoMapStore[duGeoMapState.program] || { rows: [], updatedAt: null };
+  const rows = storeRow.rows || [];
+  const covRows = (storeRow.coverageRows || []).filter(r => r.enabled);
+  const updated = storeRow.updatedAt ? new Date(storeRow.updatedAt).toLocaleString() : 'Not saved yet';
+  meta.textContent = `${duGeoMapState.program} · ${covRows.length} coverage row${covRows.length !== 1 ? 's' : ''} · ${rows.length} mapping${rows.length !== 1 ? 's' : ''} · ${updated}`;
+
+  if (!rows.length) {
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--slate);">No saved mappings for ${esc(duGeoMapState.program)}</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = duGeoSortStakeholderRows(rows).map(r => {
+    const statusCls = r.enabled ? 'ok' : 'warn';
+    const statusTxt = r.enabled ? 'Active' : 'Inactive';
+    return `<tr>
+      <td>${esc(r.stakeholder || '—')}${r.builtIn ? '' : ' <span class="du-template-chip">custom</span>'}</td>
+      <td>${esc(duGeoHierarchyTagLabel(r.hierarchyTag, r.stakeholder, r.level, r.hierarchyLabel))}</td>
+      <td>${esc(r.level || '—')}</td>
+      <td style="font-size:11px;color:var(--ink-2);">${esc(r.scope || 'All under selected geography')}</td>
+      <td><span class="du-badge ${statusCls}">${statusTxt}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function duSelectGeoProgram(program, opts = {}) {
+  const syncTopSelect = opts.syncTopSelect !== false;
+  const loadRows = opts.loadRows !== false;
+  duGeoMapState.program = program || '';
+  const ws = $('du-geo-workspace');
+  if (ws) ws.classList.toggle('hidden', !duGeoMapState.program);
+  if (syncTopSelect && $('du-prog-sel') && program) $('du-prog-sel').value = program;
+  if (duGeoMapState.program) duEnsureGeoProgramStore(duGeoMapState.program);
+  if (loadRows && duGeoMapState.program) {
+    const saved = duGeoMapStore[duGeoMapState.program] || {};
+    duGeoMapState.coverageRows = (saved.coverageRows || duGeoDefaultCoverageRows(duGeoMapState.program)).map(r => ({ ...r }));
+    duGeoMapState.rows = duGeoSortStakeholderRows((saved.rows || duGeoDefaultRows()).map(r => ({
+      ...r,
+      hierarchyTag: duGeoNormalizeHierarchyTag(r.hierarchyTag, r.stakeholder, r.level || 'school'),
+      hierarchyLabel: duGeoNormalizeHierarchyLabel(r.hierarchyLabel, r.hierarchyTag, r.stakeholder, r.level || 'school'),
+      hierarchyOrder: duGeoNormalizeHierarchyOrder(r.hierarchyOrder, r.hierarchyTag, r.level || 'school'),
+    })));
+    duGeoMapState.cascade = duGeoCascadeFromCoverageRows(duGeoMapState.coverageRows);
+    duGeoMapState.cascade.scopeType = duGeoScopeTypeDef(saved.scopeType || duGeoMapState.cascade.scopeType).key;
+    duGeoApplyScopeTypeRules(duGeoMapState.cascade);
+  }
+  if (!duGeoMapState.program) {
+    duGeoMapState.coverageRows = [];
+    duGeoMapState.rows = [];
+    duGeoMapState.cascade = duGeoDefaultCascadeState();
+  } else if (!duGeoMapState.cascade) {
+    duGeoMapState.cascade = duGeoCascadeFromCoverageRows(duGeoMapState.coverageRows);
+  }
+  if ($('du-geo-form-title')) {
+    $('du-geo-form-title').textContent = `Stakeholder geography mapping${duGeoMapState.program ? ` · ${duGeoMapState.program}` : ''}`;
+  }
+  duRenderGeoProgramCards();
+  duRenderGeoCascadeSelectors();
+  duRenderGeoList();
+}
+
+function duAddGeoMappingRow() {
+  if (!duGeoMapState.program) {
+    toast(IC.warning + ' Select a program card first');
+    return;
+  }
+  duGeoSyncCoverageRowsFromCascade();
+  const coveredLevels = duGeoCoverageLevels(duGeoMapState.coverageRows);
+  const level = coveredLevels[0] || 'school';
+  const hierarchyTag = duGeoDefaultHierarchyTag('', level);
+  duGeoMapState.rows.push({
+    id: duGeoNewId(),
+    stakeholder: '',
+    level,
+    hierarchyTag,
+    hierarchyLabel: '',
+    hierarchyOrder: duGeoNormalizeHierarchyOrder(null, hierarchyTag, level),
+    scope: '',
+    enabled: true,
+    builtIn: false,
+  });
+  duRenderGeoRows();
+}
+
+function duResetGeoMappingForm() {
+  if (!duGeoMapState.program) return;
+  duEnsureGeoProgramStore(duGeoMapState.program);
+  const saved = duGeoMapStore[duGeoMapState.program] || {};
+  duGeoMapState.coverageRows = (saved.coverageRows || duGeoDefaultCoverageRows(duGeoMapState.program)).map(r => ({ ...r }));
+  duGeoMapState.rows = duGeoSortStakeholderRows((saved.rows || duGeoDefaultRows()).map(r => ({
+    ...r,
+    hierarchyTag: duGeoNormalizeHierarchyTag(r.hierarchyTag, r.stakeholder, r.level || 'school'),
+    hierarchyLabel: duGeoNormalizeHierarchyLabel(r.hierarchyLabel, r.hierarchyTag, r.stakeholder, r.level || 'school'),
+    hierarchyOrder: duGeoNormalizeHierarchyOrder(r.hierarchyOrder, r.hierarchyTag, r.level || 'school'),
+  })));
+  duGeoMapState.cascade = duGeoCascadeFromCoverageRows(duGeoMapState.coverageRows);
+  duGeoMapState.cascade.scopeType = duGeoScopeTypeDef(saved.scopeType || duGeoMapState.cascade.scopeType).key;
+  duGeoApplyScopeTypeRules(duGeoMapState.cascade);
+  duRenderGeoCascadeSelectors();
+}
+
+function duSaveGeoMappings() {
+  if (!duGeoMapState.program) {
+    toast(IC.warning + ' Select a program card first');
+    return;
+  }
+  duGeoSyncCoverageRowsFromCascade();
+  const cleanCoverageRows = duGeoMapState.coverageRows
+    .map(r => ({
+      ...r,
+      level: String(r.level || '').trim().toLowerCase(),
+      mode: String(r.mode || 'selected').toLowerCase() === 'full' ? 'full' : 'selected',
+      scope: (r.scope || '').trim(),
+      enabled: !!r.enabled,
+    }))
+    .filter(r => DU_GEO_LEVEL_OPTIONS.includes(r.level));
+
+  if (!cleanCoverageRows.length || !cleanCoverageRows.some(r => r.enabled)) {
+    toast(IC.warning + ' Add at least one active program coverage row');
+    return;
+  }
+  const missingCoverageScope = cleanCoverageRows.find(r => r.enabled && r.mode === 'selected' && !duSplitScopeValues(r.scope).length);
+  if (missingCoverageScope) {
+    toast(IC.warning + `Coverage row for ${missingCoverageScope.level} needs scope values`);
+    return;
+  }
+
+  const coverage = duGeoCoverageConstraint(cleanCoverageRows);
+  const coveredLevels = new Set(duGeoCoverageLevels(cleanCoverageRows));
+  const cleanRows = duGeoMapState.rows
+    .map(r => ({
+      ...r,
+      stakeholder: (r.stakeholder || '').trim(),
+      level: String(r.level || 'school').trim().toLowerCase(),
+      hierarchyTag: duGeoNormalizeHierarchyTag(r.hierarchyTag, r.stakeholder, r.level || 'school'),
+      hierarchyLabel: duGeoNormalizeHierarchyLabel(r.hierarchyLabel, r.hierarchyTag, r.stakeholder, r.level || 'school'),
+      hierarchyOrder: duGeoNormalizeHierarchyOrder(r.hierarchyOrder, r.hierarchyTag, r.level || 'school'),
+      scope: (r.scope || '').trim(),
+      enabled: !!r.enabled,
+    }))
+    .filter(r => r.stakeholder && DU_GEO_LEVEL_OPTIONS.includes(r.level));
+
+  if (!cleanRows.length) {
+    toast(IC.warning + ' Add at least one stakeholder mapping');
+    return;
+  }
+  if (!cleanRows.some(r => r.enabled)) {
+    toast(IC.warning + ' Keep at least one active stakeholder mapping');
+    return;
+  }
+
+  const invalidLevelRow = cleanRows.find(r => r.enabled && !coveredLevels.has(r.level));
+  if (invalidLevelRow) {
+    toast(IC.warning + `Stakeholder "${invalidLevelRow.stakeholder}" uses level "${invalidLevelRow.level}" outside Program Coverage`);
+    return;
+  }
+  const invalidScopeRow = cleanRows.find(r => {
+    if (!r.enabled || !r.scope) return false;
+    if (coverage.fullLevels.has(r.level)) return false;
+    const allowed = coverage.valuesByLevel[r.level] || new Set();
+    if (!allowed.size) return true;
+    const allowedNorm = new Set(Array.from(allowed).map(duNormalizeGeoToken));
+    return duSplitScopeValues(r.scope).some(v => !allowedNorm.has(duNormalizeGeoToken(v)));
+  });
+  if (invalidScopeRow) {
+    toast(IC.warning + `Stakeholder "${invalidScopeRow.stakeholder}" scope is outside Program Coverage`);
+    return;
+  }
+  const sortedRows = duGeoSortStakeholderRows(cleanRows);
+
+  duGeoMapStore[duGeoMapState.program] = {
+    scopeType: duGeoScopeTypeDef(duGeoMapState.cascade?.scopeType || 'state_multi').key,
+    coverageRows: cleanCoverageRows.map(r => ({ ...r })),
+    rows: sortedRows.map(r => ({ ...r })),
+    updatedAt: new Date().toISOString(),
+  };
+  duGeoMapState.coverageRows = cleanCoverageRows.map(r => ({ ...r }));
+  duGeoMapState.rows = sortedRows.map(r => ({ ...r }));
+  duRenderGeoProgramCards();
+  duRenderGeoCoverageRows();
+  duRenderGeoRows();
+  duRenderGeoList();
+
+  // Keep Activity Template in sync with one-time geography source of truth.
+  if (duTemplateState.program === duGeoMapState.program) {
+    const currentTemplateRows = duCollectStakeholderMappings();
+    const mergedTemplateRows = duTemplateStakeholderRowsFromProgram(duTemplateState.program, currentTemplateRows);
+    duRenderTemplateStakeholderRows(mergedTemplateRows);
+    duApplyGeoScopeToTemplate(duTemplateState.program);
+  }
+
+  toast(`${IC['check-circle']} Geography mapping saved for ${duGeoMapState.program}`);
+}
+
 function duParseCSV(text) {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
   if (!lines.length) return { headers:[], rows:[] };
@@ -14890,11 +18694,39 @@ function duParseCSV(text) {
 function duHandleFile(file) {
   duState.file = file;
   duState.filename = file.name;
-  duState.program = $('du-prog-sel').value;
-  duState.month   = $('du-month-sel').value;
+  const top = duUploadTopFilterState();
+  duState.program = top.program;
+  duState.frequency = top.frequency;
+  duState.period = top.period;
+  duState.intervention = $('du-up-intv-sel')?.value || duUploadCurrentActivity()?.intervention || '';
+  duState.activityType = $('du-up-activity-type-sel')?.value || duUploadCurrentActivity()?.type || '';
+  duState.activityId = $('du-up-activity-sel')?.value || '';
+  duState.activity = duUploadCurrentActivity()?.name || '';
+  duState.stakeholder = $('du-up-stk-sel')?.value || '';
+  duState.month = duState.period || $('du-month-sel')?.value || $('month-select')?.value || '';
 
   if (!duState.program) {
     toast(IC.warning + ' Please select a program before uploading');
+    return;
+  }
+  if (!duState.frequency) {
+    toast(IC.warning + ' Please select frequency before uploading');
+    return;
+  }
+  if (!duState.period) {
+    toast(IC.warning + ' Please select period before uploading');
+    return;
+  }
+  if (!duState.activityId) {
+    toast(IC.warning + ' Please select activity before uploading');
+    return;
+  }
+  if (!duState.stakeholder) {
+    toast(IC.warning + ' Please select stakeholder type before uploading');
+    return;
+  }
+  if (!/\.(csv|xlsx|xls)$/i.test(file.name)) {
+    toast(IC.warning + ' Upload only .csv, .xlsx or .xls files');
     return;
   }
 
@@ -14942,6 +18774,8 @@ function duGenerateDemoRows(headers, program, n) {
   const udiseUniverse = uploadStore.udise[program]?.schools || [];
   const stks = ['Teacher','Student','Leader','Community','Block Education Officer','Cluster Resource Coordinator'];
   const acts = ['Capacity Building','Workshop','Observation Visit','Mentoring Session','Assessment'];
+  const fixedStk = String(duState.stakeholder || '').trim();
+  const fixedAct = String(duState.activity || '').trim();
   const rows = [];
   for (let i = 0; i < n; i++) {
     const school = udiseUniverse.length
@@ -14955,9 +18789,9 @@ function duGenerateDemoRows(headers, program, n) {
       const key = duAutoDetect(h);
       if (key === 'udise_code')       obj[h] = udise;
       else if (key === 'school_name') obj[h] = school?.name || 'Sample School';
-      else if (key === 'stakeholder_type') obj[h] = stks[Math.floor(Math.random()*stks.length)];
+      else if (key === 'stakeholder_type') obj[h] = fixedStk || stks[Math.floor(Math.random()*stks.length)];
       else if (key === 'participants')     obj[h] = String(1 + Math.floor(Math.random()*40));
-      else if (key === 'activity')         obj[h] = acts[Math.floor(Math.random()*acts.length)];
+      else if (key === 'activity')         obj[h] = fixedAct || acts[Math.floor(Math.random()*acts.length)];
       else if (key === 'date')             obj[h] = '2026-02-' + String(1+Math.floor(Math.random()*28)).padStart(2,'0');
       else obj[h] = '';
     });
@@ -14975,7 +18809,17 @@ function duBuildMapper() {
   if (!mapper || !body) return;
 
   filename.textContent = duState.filename;
-  meta.textContent = `${duState.rows.length} rows · ${duState.headers.length} columns`;
+  const ctxBits = [
+    `${duState.rows.length} rows`,
+    `${duState.headers.length} columns`,
+    duState.frequency || '',
+    duState.period || '',
+    duState.intervention ? `Intervention: ${duState.intervention}` : '',
+    duState.activityType || '',
+    duState.activity || '',
+    duState.stakeholder ? `Stakeholder: ${duState.stakeholder}` : '',
+  ].filter(Boolean);
+  meta.textContent = ctxBits.join(' · ');
 
   const matchedCount   = Object.values(duState.mapping).filter(v => v && v !== 'ignore').length;
   const unmatchedCount = Object.values(duState.mapping).filter(v => v === 'ignore').length;
@@ -15149,6 +18993,11 @@ function duProcessUpload() {
       id:           Date.now(),
       filename:     duState.filename,
       program:      duState.program,
+      frequency:    duState.frequency,
+      period:       duState.period,
+      intervention: duState.intervention,
+      activity:     duState.activity,
+      stakeholder:  duState.stakeholder,
       month:        duState.month,
       uploadedAt:   new Date().toLocaleString(),
       totalRows:    duState.rows.length,
@@ -15172,7 +19021,7 @@ function duProcessUpload() {
     duRenderHistory();
     $('du-mapper').classList.add('hidden');
 
-    toast(`✓ Processed ${matched} rows · ${Object.keys(matchedUdise).length} schools · ${totalParticipants} participants`);
+    toast(`✓ Processed ${matched} rows · ${matchedUdise.size} schools · ${totalParticipants} participants`);
   }, 1800);
 }
 
@@ -15185,7 +19034,7 @@ function duShowResult(batch) {
 
   resultEl.classList.remove('hidden');
   $('du-result-ok-msg').textContent =
-    `${batch.matched} rows processed · ${batch.matched} schools matched · ${batch.participants} participants recorded`;
+    `${batch.matched} rows processed · ${batch.matched} schools matched · ${batch.participants} participants recorded${batch.intervention ? ` · ${batch.intervention}` : ''}${batch.activity ? ` · ${batch.activity}` : ''}`;
 
   if (batch.unmatched > 0) {
     warnEl.classList.remove('hidden');
@@ -15298,7 +19147,11 @@ function duRenderHistory() {
 function duRenderUdiseGrid() {
   const grid = $('du-udise-prog-grid');
   if (!grid) return;
-  const progs = ['Bihar','Karnataka','Uttar Pradesh','Odisha','Punjab','Rajasthan','Madhya Pradesh','Jharkhand','Assam','Maharashtra'];
+  const progs = duTemplatePrograms();
+  if (!progs.length) {
+    grid.innerHTML = `<div style="font-size:12px;color:var(--slate);padding:8px;">No programs configured yet.</div>`;
+    return;
+  }
   grid.innerHTML = progs.map(p => {
     const u = uploadStore.udise[p];
     const hasData = u && u.schools.length > 0;
@@ -15389,14 +19242,42 @@ function duGenerateUdiseSchools(prog, n) {
 
 // ── Tab switcher ─────────────────────────────────────────────────
 function duSwitchTab(tabKey) {
-  ['upload','history','setup'].forEach(k => {
+  ['upload','history','templates','setup','geo-map'].forEach(k => {
     $(`du-panel-${k}`)?.classList.toggle('hidden', k !== tabKey);
   });
   qsa('.du-tab').forEach(t => t.classList.toggle('active', t.dataset.duTab === tabKey));
+  if (tabKey === 'upload') {
+    duUploadRenderFlowSelectors({ preserve: true });
+  } else if (tabKey === 'templates') {
+    const selectedProgram = $('du-prog-sel')?.value || duTemplateState.program || '';
+    if (selectedProgram) {
+      const shouldReset = duTemplateState.program !== selectedProgram || !duTemplateState.columns.length;
+      duSelectTemplateProgram(selectedProgram, { syncTopSelect: false, resetForm: shouldReset });
+    } else {
+      duRenderTemplateProgramCards();
+      duRenderTemplateList();
+      $('du-template-workspace')?.classList.add('hidden');
+    }
+  } else if (tabKey === 'geo-map') {
+    const selectedProgram = $('du-prog-sel')?.value || duGeoMapState.program || '';
+    if (selectedProgram) {
+      const shouldLoadGeo = duGeoMapState.program !== selectedProgram || !duGeoMapState.rows.length;
+      duSelectGeoProgram(selectedProgram, { syncTopSelect: false, loadRows: shouldLoadGeo });
+    } else {
+      duRenderGeoProgramCards();
+      duRenderGeoCoverageRows();
+      duRenderGeoList();
+      $('du-geo-workspace')?.classList.add('hidden');
+    }
+  }
 }
 
 // ── Data Upload — INIT event wiring ─────────────────────────────
 (function() {
+  duEnsureProgramMasterLoaded();
+  duRenderProgramSelectors($('du-prog-sel')?.value || '');
+  duUploadRenderFlowSelectors({ preserve: false });
+
   // Tab switcher
   qsa('.du-tab').forEach(t => {
     t.addEventListener('click', () => duSwitchTab(t.dataset.duTab));
@@ -15427,7 +19308,7 @@ function duSwitchTab(tabKey) {
   $('du-cancel-btn')?.addEventListener('click', () => {
     $('du-mapper')?.classList.add('hidden');
     $('du-result')?.classList.add('hidden');
-    duState = { file:null, filename:'', headers:[], rows:[], mapping:{}, program:'', month:'' };
+    duState = { file:null, filename:'', headers:[], rows:[], mapping:{}, program:'', month:'', frequency:'', period:'', intervention:'', activityType:'', activityId:'', activity:'', stakeholder:'' };
   });
 
   // Show / hide unmatched error detail
@@ -15439,8 +19320,141 @@ function duSwitchTab(tabKey) {
   });
 
   // Program / month selectors refresh KPIs + history
-  $('du-prog-sel')?.addEventListener('change',  () => { duRefreshKPIs(); duRenderHistory(); });
-  $('du-month-sel')?.addEventListener('change', () => { duRenderHistory(); });
+  $('du-prog-sel')?.addEventListener('change',  () => {
+    duRefreshKPIs();
+    duRenderHistory();
+    const selectedProgram = $('du-prog-sel')?.value || '';
+    const shouldReset = !!selectedProgram && (duTemplateState.program !== selectedProgram || !duTemplateState.columns.length);
+    duSelectTemplateProgram(selectedProgram, { syncTopSelect: false, resetForm: shouldReset });
+    const shouldLoadGeo = !!selectedProgram && (duGeoMapState.program !== selectedProgram || !duGeoMapState.rows.length);
+    duSelectGeoProgram(selectedProgram, { syncTopSelect: false, loadRows: shouldLoadGeo });
+    duUploadRenderFlowSelectors({ preserve: false });
+  });
+  $('du-month-sel')?.addEventListener('change', () => {
+    duRenderHistory();
+    duUploadRenderFlowSelectors({ preserve: true });
+  });
+  $('fy-select')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: false }));
+  $('freq-select')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: false }));
+  $('month-select')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: true }));
+
+  // Activity templates — form actions
+  $('du-tpl-add-col-btn')?.addEventListener('click', duAddTemplateColumn);
+  $('du-tpl-add-matrix-btn')?.addEventListener('click', duAddTemplateMatrixMetric);
+  $('du-tpl-reset-btn')?.addEventListener('click', duTemplateResetForm);
+  $('du-tpl-save-btn')?.addEventListener('click', () => duSaveTemplate('draft'));
+  $('du-tpl-publish-btn')?.addEventListener('click', () => duSaveTemplate('published'));
+  $('du-tpl-generate-btn')?.addEventListener('click', duGenerateTemplatePreview);
+  $('du-tpl-intv')?.addEventListener('change', duTemplateOnInterventionChange);
+  $('du-tpl-target-stk')?.addEventListener('change', duApplyTemplateTargetStakeholdersFromPicker);
+  $('du-tpl-target-stk-add-btn')?.addEventListener('click', duAddTemplateTargetStakeholderFromComboInput);
+  $('du-tpl-target-stk-combo')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      duAddTemplateTargetStakeholderFromComboInput();
+    }
+  });
+  $('du-up-intv-sel')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: true }));
+  $('du-up-activity-type-sel')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: true }));
+  $('du-up-activity-sel')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: true }));
+  $('du-up-stk-sel')?.addEventListener('change', () => duUploadRenderFlowSelectors({ preserve: true }));
+  DU_TEMPLATE_GEO_LEVELS.forEach(level => {
+    $(`du-tpl-geo-${level}-sel`)?.addEventListener('change', () => duTemplateGeoHandleLevelChange(level));
+  });
+
+  // Geography mapping — form actions
+  $('du-geo-add-prog-btn')?.addEventListener('click', () => {
+    const input = $('du-geo-new-prog-name');
+    const added = duAddProgram(input?.value || '');
+    if (!added) return;
+    if (input) input.value = '';
+    duSelectTemplateProgram(added, { syncTopSelect: true, resetForm: true });
+    duSelectGeoProgram(added, { syncTopSelect: true, loadRows: true });
+    duSwitchTab('geo-map');
+    toast(`${IC['check-circle']} Program added: ${added}`);
+  });
+  $('du-geo-new-prog-name')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      $('du-geo-add-prog-btn')?.click();
+    }
+  });
+  const duCascadeRefresh = () => {
+    if (!duGeoMapState.program) return;
+    if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+    duGeoMapState.cascade.scopeType = $('du-geo-scope-type')?.value || duGeoMapState.cascade.scopeType || 'state_multi';
+    duGeoMapState.cascade.states = duGeoMultiValues('du-geo-state-sel');
+    duGeoMapState.cascade.districtAll = !!$('du-geo-district-all')?.checked;
+    duGeoMapState.cascade.districts = duGeoMapState.cascade.districtAll ? [] : duGeoMultiValues('du-geo-district-sel');
+    duGeoMapState.cascade.blockAll = !!$('du-geo-block-all')?.checked;
+    duGeoMapState.cascade.blocks = duGeoMapState.cascade.blockAll ? [] : duGeoMultiValues('du-geo-block-sel');
+    duGeoMapState.cascade.skipCluster = !!$('du-geo-skip-cluster')?.checked;
+    duGeoMapState.cascade.clusterAll = duGeoMapState.cascade.skipCluster ? true : !!$('du-geo-cluster-all')?.checked;
+    duGeoMapState.cascade.clusters = (duGeoMapState.cascade.skipCluster || duGeoMapState.cascade.clusterAll) ? [] : duGeoMultiValues('du-geo-cluster-sel');
+    duGeoMapState.cascade.schoolAll = !!$('du-geo-school-all')?.checked;
+    duGeoMapState.cascade.schools = duGeoMapState.cascade.schoolAll ? [] : duGeoMultiValues('du-geo-school-sel');
+    duGeoApplyScopeTypeRules(duGeoMapState.cascade);
+    duRenderGeoCascadeSelectors();
+  };
+  $('du-geo-scope-type')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-state-add-btn')?.addEventListener('click', duGeoAddStateFromComboInput);
+  $('du-geo-state-combo')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      duGeoAddStateFromComboInput();
+    }
+  });
+  $('du-geo-district-add-btn')?.addEventListener('click', duGeoAddDistrictFromComboInput);
+  $('du-geo-district-combo')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      duGeoAddDistrictFromComboInput();
+    }
+  });
+  $('du-geo-block-add-btn')?.addEventListener('click', duGeoAddBlockFromComboInput);
+  $('du-geo-block-combo')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      duGeoAddBlockFromComboInput();
+    }
+  });
+  $('du-geo-cluster-add-btn')?.addEventListener('click', duGeoAddClusterFromComboInput);
+  $('du-geo-cluster-combo')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      duGeoAddClusterFromComboInput();
+    }
+  });
+  $('du-geo-state-sel')?.addEventListener('change', () => {
+    if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+    duGeoMapState.cascade.states = duGeoMultiValues('du-geo-state-sel');
+    duGeoResetCascadeBelowState(duGeoMapState.cascade);
+    duCascadeRefresh();
+  });
+  $('du-geo-district-all')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-district-sel')?.addEventListener('change', () => {
+    if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+    duGeoResetCascadeBelowDistrict(duGeoMapState.cascade);
+    duCascadeRefresh();
+  });
+  $('du-geo-block-all')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-block-sel')?.addEventListener('change', () => {
+    if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+    duGeoResetCascadeBelowBlock(duGeoMapState.cascade);
+    duCascadeRefresh();
+  });
+  $('du-geo-skip-cluster')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-cluster-all')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-cluster-sel')?.addEventListener('change', () => {
+    if (!duGeoMapState.cascade) duGeoMapState.cascade = duGeoDefaultCascadeState();
+    duGeoResetCascadeBelowCluster(duGeoMapState.cascade);
+    duCascadeRefresh();
+  });
+  $('du-geo-school-all')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-school-sel')?.addEventListener('change', duCascadeRefresh);
+  $('du-geo-add-row-btn')?.addEventListener('click', duAddGeoMappingRow);
+  $('du-geo-reset-btn')?.addEventListener('click', duResetGeoMappingForm);
+  $('du-geo-save-btn')?.addEventListener('click', duSaveGeoMappings);
 
   // UDISE setup — browse + upload
   $('du-udise-browse-btn')?.addEventListener('click', () => $('du-udise-file-input')?.click());
