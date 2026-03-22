@@ -8732,12 +8732,23 @@ select:focus:not(:focus-visible) { outline: none; }
       <!-- GRANT MANAGEMENT - UPLOAD MONTHLY BURN (route: grant-burn-upload) -->
       <section id="page-grant-burn-upload" class="hidden">
       <style>
-      .gmb-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;}
-      @media(max-width:1100px){.gmb-wrap{grid-template-columns:1fr;}}
-      .gmb-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-xl);padding:18px;box-shadow:var(--shadow-xs);}
-      .gmb-card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--mist-3);}
+      /* ── GMB Tab system ── */
+      .gmb-tabs{display:flex;gap:0;background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-xs);margin-bottom:18px;}
+      .gmb-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 16px;font-size:13px;font-weight:500;color:var(--slate);cursor:pointer;border:none;background:none;font-family:var(--sans);border-bottom:2px solid transparent;transition:all .15s;}
+      .gmb-tab:not(:last-child){border-right:1px solid var(--mist-2);}
+      .gmb-tab:hover{background:var(--mist-3);color:var(--ink);}
+      .gmb-tab.active{background:var(--blue-dim);color:var(--blue);font-weight:700;border-bottom:2px solid var(--blue);}
+      .gmb-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;font-size:10px;font-weight:700;background:var(--blue);color:#fff;}
+      .gmb-tab.active .gmb-tab-badge{background:var(--blue);}
+      /* ── Tab panels ── */
+      .gmb-panel{display:none;}
+      .gmb-panel.active{display:block;animation:gmbIn .18s ease;}
+      @keyframes gmbIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+      /* ── Card inside panel ── */
+      .gmb-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow-xs);}
+      .gmb-card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--mist-3);}
       .gmb-title{font-size:14px;font-weight:800;color:var(--ink);}
-      .gmb-sub{font-size:12px;color:var(--slate);}
+      .gmb-sub{font-size:12px;color:var(--slate);margin-top:2px;}
       .gmb-grid{display:grid;gap:10px;}
       .gmb-g2{grid-template-columns:1fr 1fr;}
       @media(max-width:760px){.gmb-g2{grid-template-columns:1fr;}}
@@ -8745,43 +8756,73 @@ select:focus:not(:focus-visible) { outline: none; }
       .gmb-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
       .gmb-field select,.gmb-field input{padding:9px 11px;border-radius:var(--r);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);font-size:13px;font-family:var(--sans);outline:none;box-shadow:var(--shadow-xs);}
       .gmb-field select:focus,.gmb-field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-      .gmb-drop{border:2px dashed var(--blue-border);background:var(--blue-dim);border-radius:var(--r-lg);padding:20px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;}
+      .gmb-drop{border:2px dashed var(--blue-border);background:var(--blue-dim);border-radius:var(--r-lg);padding:28px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;margin-top:14px;}
       .gmb-drop:hover{border-color:var(--blue);background:#eff6ff;}
+      .gmb-drop svg{margin-bottom:8px;color:var(--blue);}
       .gmb-drop h4{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;}
       .gmb-drop p{font-size:12px;color:var(--slate);}
       .gmb-file-row{margin-top:10px;display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r);padding:8px 10px;}
       .gmb-file-name{font-size:12px;font-weight:600;color:var(--ink);}
       .gmb-file-meta{font-size:11px;color:var(--slate);}
-      .gmb-hint{margin-top:10px;font-size:11px;color:var(--slate);}
+      .gmb-hint{margin-top:12px;padding:10px 12px;background:var(--canvas);border-radius:var(--r);font-size:11.5px;color:var(--slate);border:1px solid var(--mist-2);}
       .gmb-hint strong{color:var(--blue);}
-      .gmb-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+      .gmb-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
       .gmb-chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+      /* ── History tab ── */
+      .gmb-history-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+      .gmb-history-filters select,.gmb-history-filters input{padding:7px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);font-size:12px;font-family:var(--sans);outline:none;background:var(--white);color:var(--ink);}
+      .gmb-history-filters select:focus,.gmb-history-filters input:focus{border-color:var(--blue);}
       .gmb-table{width:100%;border-collapse:collapse;font-size:12px;}
-      .gmb-table th{padding:7px 9px;text-align:left;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;background:var(--canvas);border-bottom:1px solid var(--mist-2);}
-      .gmb-table td{padding:8px 9px;border-bottom:1px solid var(--mist-3);vertical-align:top;}
+      .gmb-table th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;background:var(--canvas);border-bottom:1px solid var(--mist-2);white-space:nowrap;}
+      .gmb-table td{padding:9px 10px;border-bottom:1px solid var(--mist-3);vertical-align:middle;}
       .gmb-table tr:last-child td{border-bottom:none;}
-      .gmb-empty{text-align:center;padding:24px 12px;color:var(--slate);font-size:12px;}
-      .gmb-status{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);}
+      .gmb-table tbody tr:hover td{background:var(--blue-dim);}
+      .gmb-empty{text-align:center;padding:40px 12px;color:var(--slate);font-size:12px;}
+      .gmb-status{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;}
+      .gmb-status.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+      .gmb-status.warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
+      .gmb-status.err{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+      .gmb-status.info{border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);}
+      .gmb-history-summary{display:flex;gap:12px;padding:10px 14px;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r-lg);margin-bottom:14px;flex-wrap:wrap;}
+      .gmb-history-stat{font-size:12px;color:var(--slate);}
+      .gmb-history-stat strong{color:var(--ink);font-size:14px;font-weight:800;font-family:var(--mono);margin-right:4px;}
       </style>
 
       <div class="section-hd">
         <div>
           <h2>Upload Monthly Burn</h2>
-          <div class="sub">Upload monthly fund utilization file (CSV/XLSX). Upload will auto-update Grant Portfolio for the selected program and donor.</div>
+          <div class="sub">Upload monthly fund utilization files and track upload history.</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn" style="font-size:12px;" onclick="showPage('grant-mgmt')">Back To Portfolio</button>
+          <button class="btn" style="font-size:12px;" onclick="showPage('grant-mgmt')">← Back To Portfolio</button>
         </div>
       </div>
 
-      <div class="gmb-wrap">
+      <!-- ── Tab Bar ── -->
+      <div class="gmb-tabs">
+        <button class="gmb-tab active" id="gmb-tab-upload" onclick="gmbSwitchTab('upload')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Monthly Burn Upload
+        </button>
+        <button class="gmb-tab" id="gmb-tab-history" onclick="gmbSwitchTab('history')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Upload History
+          <span class="gmb-tab-badge" id="gmb-history-badge">0</span>
+        </button>
+      </div>
+
+      <!-- ── Tab 1: Upload ── -->
+      <div class="gmb-panel active" id="gmb-panel-upload">
         <div class="gmb-card">
           <div class="gmb-card-hd">
             <div>
               <div class="gmb-title">Monthly Burn Upload</div>
-              <div class="gmb-sub">Program -> Donor -> Month -> Upload file</div>
+              <div class="gmb-sub">Select Program → Donor → Month → Upload file → Sync Portfolio</div>
             </div>
-            <span class="gmb-chip">Portfolio Sync Enabled</span>
+            <span class="gmb-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Portfolio Sync Enabled
+            </span>
           </div>
 
           <div class="gmb-grid gmb-g2">
@@ -8804,7 +8845,7 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="gmb-field">
               <label>Month</label>
               <select id="gmb-month-sel">
-                <option value="">Select month...</option>
+                <option value="">Select month…</option>
                 <option value="Apr">Apr</option><option value="May">May</option><option value="Jun">Jun</option>
                 <option value="Jul">Jul</option><option value="Aug">Aug</option><option value="Sep">Sep</option>
                 <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
@@ -8815,47 +8856,91 @@ select:focus:not(:focus-visible) { outline: none; }
 
           <input type="file" id="gmb-file-input" accept=".csv,.xlsx" style="display:none;" />
           <div class="gmb-drop" id="gmb-dropzone" tabindex="0" role="button" aria-label="Select monthly burn file">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <h4>Drop CSV or XLSX here</h4>
             <p>or click to browse from your computer</p>
           </div>
 
           <div class="gmb-file-row" id="gmb-file-row">
-            <div>
-              <div class="gmb-file-name" id="gmb-file-name">No file selected</div>
-              <div class="gmb-file-meta" id="gmb-file-meta"></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div>
+                <div class="gmb-file-name" id="gmb-file-name">No file selected</div>
+                <div class="gmb-file-meta" id="gmb-file-meta"></div>
+              </div>
             </div>
-            <button class="btn" style="font-size:11px;padding:6px 10px;" id="gmb-file-clear-btn">Clear</button>
+            <button class="btn" style="font-size:11px;padding:6px 10px;" id="gmb-file-clear-btn">✕ Clear</button>
           </div>
 
           <div class="gmb-actions">
-            <button class="btn btn-primary" id="gmb-upload-btn" style="font-size:12px;" disabled>Upload And Sync Portfolio</button>
+            <button class="btn btn-primary" id="gmb-upload-btn" style="font-size:13px;padding:9px 20px;" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload & Sync Portfolio
+            </button>
+            <button class="btn" style="font-size:12px;" onclick="gmbDownloadTemplate()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Template
+            </button>
           </div>
+
           <div class="gmb-hint">
-            Upload format should include <strong>Budget Code</strong> and <strong>Allocated Amount</strong> (or Amount). If a Month column exists, selected month is auto-filtered before syncing.
+            <strong>Required columns:</strong> Budget Code · Allocated Amount (or Amount)<br>
+            If a <strong>Month</strong> column exists, selected month is auto-filtered before syncing. Supported formats: <strong>.csv</strong> and <strong>.xlsx</strong>
           </div>
         </div>
+      </div>
 
+      <!-- ── Tab 2: Upload History ── -->
+      <div class="gmb-panel" id="gmb-panel-history">
         <div class="gmb-card">
           <div class="gmb-card-hd">
             <div>
               <div class="gmb-title">Upload History</div>
-              <div class="gmb-sub">Tracks each monthly burn file upload event</div>
+              <div class="gmb-sub">All monthly burn uploads for this portfolio — sorted by most recent</div>
             </div>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="gmbClearHistory()">Clear All</button>
           </div>
+
+          <!-- Summary bar -->
+          <div class="gmb-history-summary" id="gmb-history-summary">
+            <div class="gmb-history-stat"><strong id="gmb-hist-total">0</strong>Total Uploads</div>
+            <div class="gmb-history-stat"><strong id="gmb-hist-ok" style="color:var(--ok);">0</strong>Successful</div>
+            <div class="gmb-history-stat"><strong id="gmb-hist-err" style="color:var(--danger);">0</strong>Failed</div>
+            <div class="gmb-history-stat"><strong id="gmb-hist-last">—</strong>Last Upload</div>
+          </div>
+
+          <!-- Filters -->
+          <div class="gmb-history-filters">
+            <select id="gmb-hist-prog-filter" onchange="gmbRenderHistory()">
+              <option value="">All Programs</option>
+            </select>
+            <select id="gmb-hist-status-filter" onchange="gmbRenderHistory()">
+              <option value="">All Statuses</option>
+              <option value="success">Success</option>
+              <option value="error">Failed</option>
+            </select>
+            <input type="text" id="gmb-hist-search" placeholder="Search donor, file…" oninput="gmbRenderHistory()" style="min-width:180px;"/>
+          </div>
+
           <div style="overflow-x:auto;">
             <table class="gmb-table">
               <thead>
                 <tr>
-                  <th>Date Time</th>
+                  <th>#</th>
+                  <th>Date &amp; Time</th>
                   <th>Program</th>
                   <th>Donor</th>
                   <th>FY / Month</th>
                   <th>File</th>
+                  <th>Rows</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody id="gmb-history-body">
-                <tr><td colspan="6" class="gmb-empty">No uploads yet.</td></tr>
+                <tr><td colspan="8" class="gmb-empty">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;opacity:.3;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  No uploads yet. Use the <strong>Monthly Burn Upload</strong> tab to upload your first file.
+                </td></tr>
               </tbody>
             </table>
           </div>
@@ -21536,26 +21621,126 @@ function gmbApplyUploadToPortfolio(rec) {
   };
 }
 
+// ── Tab switching ────────────────────────────────────────────────────
+function gmbSwitchTab(tab) {
+  ['upload','history'].forEach(t => {
+    $(`gmb-tab-${t}`)?.classList.toggle('active', t === tab);
+    $(`gmb-panel-${t}`)?.classList.toggle('active', t === tab);
+  });
+  if (tab === 'history') gmbRenderHistory();
+}
+
+// ── Template download ────────────────────────────────────────────────
+function gmbDownloadTemplate() {
+  const csv = [
+    'Budget Code,Budget Head,Allocated Amount,Utilised Amount,Month',
+    'B.1,Content & Materials,960000,958821,Apr',
+    'B.2,Capacity Building Workshop,800000,799908,Apr',
+    'B.3,CRP Capacity Building,500000,442727,Apr',
+  ].join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'monthly_burn_template.csv';
+  a.click();
+  toast('📋 Template downloaded — fill and upload');
+}
+
+// ── Clear history ────────────────────────────────────────────────────
+function gmbClearHistory() {
+  if (!gmbState.history.length) { toast('No history to clear'); return; }
+  if (!confirm(`Clear all ${gmbState.history.length} upload record(s)?`)) return;
+  gmbState.history = [];
+  gmbRenderHistory();
+  toast('Upload history cleared');
+}
+
+// ── Render history with filters + summary ────────────────────────────
 function gmbRenderHistory() {
   const body = $('gmb-history-body');
   if (!body) return;
+
+  // Update badge
+  const badge = $('gmb-history-badge');
+  if (badge) badge.textContent = gmbState.history.length;
+
   if (!gmbState.history.length) {
-    body.innerHTML = '<tr><td colspan="6" class="gmb-empty">No uploads yet.</td></tr>';
+    body.innerHTML = `<tr><td colspan="8" class="gmb-empty">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;opacity:.3;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      No uploads yet. Use the <strong>Monthly Burn Upload</strong> tab to upload your first file.
+    </td></tr>`;
+    gmbUpdateHistorySummary([]);
     return;
   }
-  body.innerHTML = gmbState.history.slice().reverse().map(rec => {
-    const when = new Date(rec.uploadedAt).toLocaleString('en-IN');
-    const monthBlock = `${esc(rec.fy)} / ${esc(rec.month)}`;
-    const fileMeta = `${esc(rec.fileName)}<br><span style="font-size:10px;color:var(--slate);">${gmbFormatBytes(rec.fileSize)} · ${rec.rows} rows · ${rec.cols} cols · ${rec.codeCount || 0} codes</span>`;
+
+  // Apply filters
+  const progFilter   = $('gmb-hist-prog-filter')?.value  || '';
+  const statusFilter = $('gmb-hist-status-filter')?.value || '';
+  const search       = ($('gmb-hist-search')?.value || '').toLowerCase();
+
+  let filtered = gmbState.history.slice().reverse();
+  if (progFilter)   filtered = filtered.filter(r => r.programId === progFilter);
+  if (statusFilter) filtered = filtered.filter(r => (statusFilter === 'success' ? r.status !== 'Error' : r.status === 'Error'));
+  if (search)       filtered = filtered.filter(r =>
+    r.donorName?.toLowerCase().includes(search) ||
+    r.fileName?.toLowerCase().includes(search)  ||
+    r.programName?.toLowerCase().includes(search)
+  );
+
+  // Populate program filter options
+  const progSel = $('gmb-hist-prog-filter');
+  if (progSel && progSel.options.length <= 1) {
+    const progs = [...new Set(gmbState.history.map(r => r.programId))];
+    progs.forEach(pid => {
+      const name = gmbState.history.find(r => r.programId === pid)?.programName || pid;
+      const opt = document.createElement('option');
+      opt.value = pid; opt.textContent = name;
+      progSel.appendChild(opt);
+    });
+  }
+
+  gmbUpdateHistorySummary(gmbState.history);
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="8" class="gmb-empty">No records match the current filter.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map((rec, i) => {
+    const when = new Date(rec.uploadedAt).toLocaleString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const isErr = rec.status === 'Error';
+    const statusCls = isErr ? 'err' : 'ok';
+    const statusTxt = isErr ? '✕ Failed' : `✓ ${rec.matchedCount||0} matched`;
+    const unmatched = rec.unmatchedCodes?.length ? `<br><span style="font-size:10px;color:var(--warn);">⚠ ${rec.unmatchedCodes.length} unmatched code(s)</span>` : '';
     return `<tr>
-      <td>${when}</td>
-      <td>${esc(rec.programName)}</td>
+      <td style="font-size:10px;color:var(--slate);font-family:var(--mono);">${gmbState.history.length - (gmbState.history.indexOf(gmbState.history.slice().reverse()[i]) )}</td>
+      <td style="font-size:11px;color:var(--slate);white-space:nowrap;">${when}</td>
+      <td style="font-weight:600;">${esc(rec.programName)}</td>
       <td>${esc(rec.donorName)}</td>
-      <td>${monthBlock}</td>
-      <td>${fileMeta}</td>
-      <td><span class="gmb-status">${esc(rec.status)} · ${rec.matchedCount || 0} matched · ${FMT(rec.amount)}</span></td>
+      <td style="font-size:12px;">${esc(rec.fy)} <span style="color:var(--slate);">/</span> <strong>${esc(rec.month)}</strong></td>
+      <td>
+        <div style="font-weight:600;font-size:12px;">${esc(rec.fileName)}</div>
+        <div style="font-size:10px;color:var(--slate);">${gmbFormatBytes(rec.fileSize)} · ${rec.rows||0} rows · ${rec.codeCount||0} codes</div>
+      </td>
+      <td style="font-family:var(--mono);font-size:12px;text-align:right;">${rec.rows||0}</td>
+      <td>
+        <span class="gmb-status ${statusCls}">${statusTxt}</span>
+        ${rec.amount ? `<div style="font-size:10px;color:var(--slate);margin-top:2px;">${FMT(rec.amount)}</div>` : ''}
+        ${unmatched}
+      </td>
     </tr>`;
   }).join('');
+}
+
+function gmbUpdateHistorySummary(history) {
+  const total   = history.length;
+  const ok      = history.filter(r => r.status !== 'Error').length;
+  const err     = history.filter(r => r.status === 'Error').length;
+  const last    = history.length ? new Date(history[history.length-1].uploadedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) : '—';
+  if ($('gmb-hist-total')) $('gmb-hist-total').textContent = total;
+  if ($('gmb-hist-ok'))    $('gmb-hist-ok').textContent    = ok;
+  if ($('gmb-hist-err'))   $('gmb-hist-err').textContent   = err;
+  if ($('gmb-hist-last'))  $('gmb-hist-last').textContent  = last;
 }
 
 async function gmbUploadNow() {
@@ -21614,12 +21799,29 @@ async function gmbUploadNow() {
     gmbState.history.push(rec);
     gmbRenderHistory();
     gmbClearFile();
+    // Update badge count
+    const badge = $('gmb-history-badge');
+    if (badge) badge.textContent = gmbState.history.length;
     const miss = rec.unmatchedCodes.length ? ` · ${rec.unmatchedCodes.length} code(s) not mapped` : '';
     toast(`${IC['check-circle']} Synced ${rec.matchedCount} budget code(s) for ${program.name} · ${grant.donor} · ${month}${miss}`);
   } catch (err) {
+    // Log failed upload to history
+    gmbState.history.push({
+      uploadedAt: new Date().toISOString(),
+      programId, programName: program?.name || programId,
+      grantId, donorName: grant?.donor || grantId,
+      fy, month,
+      fileName: gmbState.file?.name || '—',
+      fileSize: gmbState.file?.size || 0,
+      rows: 0, cols: 0, codeCount: 0,
+      status: 'Error', matchedCount: 0, amount: 0,
+    });
+    gmbRenderHistory();
+    const badge = $('gmb-history-badge');
+    if (badge) badge.textContent = gmbState.history.length;
     toast(IC.warning + ' Upload failed: ' + (err?.message || 'Unknown error'));
   } finally {
-    if (btn) { btn.textContent = 'Upload And Sync Portfolio'; gmbUpdateUploadBtn(); }
+    if (btn) { btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload & Sync Portfolio`; gmbUpdateUploadBtn(); }
   }
 }
 
