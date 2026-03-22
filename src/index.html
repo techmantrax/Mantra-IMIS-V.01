@@ -7690,6 +7690,32 @@ select:focus:not(:focus-visible) { outline: none; }
             </h2>
             <div class="sub">Global master registry — declare budget heads, donors &amp; grants once, reuse across all Grant Setups</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
+            <!-- Export dropdown -->
+            <div class="mebk-io-wrap">
+              <button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','bb')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export ▾
+              </button>
+              <div class="mebk-io-menu" id="mebk-export-menu-bb">
+                <button class="mebk-io-menu-item" onclick="bbExportCSV()">↓ Export All (CSV)</button>
+                <button class="mebk-io-menu-item" onclick="bbDownloadTemplate()">↓ Download Template</button>
+              </div>
+            </div>
+            <!-- Import dropdown -->
+            <div class="mebk-io-wrap">
+              <button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','bb')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import ▾
+              </button>
+              <div class="mebk-io-menu" id="mebk-import-menu-bb">
+                <button class="mebk-io-menu-item" onclick="bbDownloadTemplate()">↓ Download Template first</button>
+                <div class="mebk-io-menu-sep"></div>
+                <button class="mebk-io-menu-item" onclick="bbTriggerImport()">↑ Bulk Upload CSV</button>
+              </div>
+            </div>
+            <input type="file" id="bb-import-file" accept=".csv" style="display:none;" onchange="bbImportFile(this.files[0])"/>
+          </div>
         </div>
 
         <!-- Stats -->
@@ -21697,20 +21723,44 @@ function gmbSwitchTab(tab) {
   if (tab === 'history') gmbRenderHistory();
 }
 
-// ── Template download ────────────────────────────────────────────────
+// ── Template download — dynamic, uses selected grant's actual lines ──
 function gmbDownloadTemplate() {
-  const csv = [
-    'Budget Code,Budget Head,Allocated Amount,Utilised Amount,Month',
-    'B.1,Content & Materials,960000,958821,Apr',
-    'B.2,Capacity Building Workshop,800000,799908,Apr',
-    'B.3,CRP Capacity Building,500000,442727,Apr',
-  ].join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
+  const programId = $('gmb-program-sel')?.value || '';
+  const grantId   = $('gmb-donor-sel')?.value   || '';
+
+  // Try to get the grant's upload profile for column names
+  const grant = gmbDonorsForProgram(programId).find(g => g.id === grantId);
+  const lines = grantId ? btGetLines(grantId) : [];
+
+  // Column headers — respect upload profile if set on grant
+  // profile lives on grant_program (Budget Book), but we stored it in memory when loaded
+  const profile = grant?.upload_profile || {};
+  const codeCol   = profile.code_col   || 'Budget Code';
+  const amtCol    = profile.amount_col || 'Amount';
+  const dateCol   = profile.date_col   || 'Month';
+
+  const csvRows = [`"${codeCol}","Budget Line","${amtCol}","${dateCol}"`];
+
+  if (lines.length) {
+    lines.forEach(l => {
+      const aliases = (l.aliases || []).join(' / ');
+      const note = aliases ? `${l.head} [aliases: ${aliases}]` : l.head;
+      csvRows.push(`"${l.code || ''}","${note.replace(/"/g,'""')}","",""`);
+    });
+  } else {
+    // Blank example rows when no grant selected
+    csvRows.push('"A-01","Salaries & Benefits","","Apr"');
+    csvRows.push('"A-02","Consultant Fees","","Apr"');
+    csvRows.push('"B-01","Workshop Costs","","Apr"');
+  }
+
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'monthly_burn_template.csv';
+  const grantCode = grant?.code || grantId || 'template';
+  a.download = `burn-template-${grantCode}-${new Date().toISOString().slice(0,7)}.csv`;
   a.click();
-  toast('📋 Template downloaded — fill and upload');
+  toast('📋 Burn template downloaded — fill amounts and upload');
 }
 
 // ── Clear history ────────────────────────────────────────────────────
@@ -22559,6 +22609,178 @@ async function bbSaveProfile(id) {
     await bbLoadGrants();
     bbToast('Upload profile saved ✓');
   } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ══════════════════════════════════════════════════════
+//  BUDGET BOOK — EXPORT / IMPORT
+// ══════════════════════════════════════════════════════
+
+function bbCsvRow(cols) {
+  return cols.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',');
+}
+
+function bbTriggerImport() {
+  document.getElementById('bb-import-file')?.click();
+}
+
+// ── Export all Budget Heads + Budget Lines as CSV ───────────────
+async function bbExportCSV() {
+  try {
+    const [hRes, lRes] = await Promise.all([
+      fetch(`${MEBK_URL}/rest/v1/budget_head?select=cat_code,cat_label,cat_color,sort_order,is_active&order=sort_order.asc`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/budget_line?select=head_code,head_name,description,sort_order,is_active,budget_head(cat_code)&order=budget_head_id.asc,sort_order.asc&limit=500`, { headers: MEBK_HDR })
+    ]);
+    if (!hRes.ok || !lRes.ok) throw new Error('Fetch failed');
+    const heads = await hRes.json();
+    const lines = await lRes.json();
+
+    const header = bbCsvRow(['Type','Head Code','Head Label','Head Color','Line Code','Line Name','Description','Sort Order','Is Active']);
+    const rows = [header];
+
+    // Group lines by parent head cat_code
+    const linesByHead = {};
+    lines.forEach(l => {
+      const hc = l.budget_head?.cat_code || '';
+      (linesByHead[hc] = linesByHead[hc] || []).push(l);
+    });
+
+    heads.forEach(h => {
+      rows.push(bbCsvRow(['HEAD', h.cat_code, h.cat_label, h.cat_color || '', '', '', '', h.sort_order ?? '', h.is_active ? 'TRUE' : 'FALSE']));
+      (linesByHead[h.cat_code] || []).forEach(l => {
+        rows.push(bbCsvRow(['LINE', h.cat_code, '', '', l.head_code || '', l.head_name, l.description || '', l.sort_order ?? '', l.is_active ? 'TRUE' : 'FALSE']));
+      });
+    });
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `budget-book-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    bbToast('Budget Book exported ↓');
+  } catch(e) { alert('Export error: ' + e.message); }
+}
+
+// ── Download blank import template ──────────────────────────────
+function bbDownloadTemplate() {
+  const rows = [
+    bbCsvRow(['Type','Head Code','Head Label','Head Color','Line Code','Line Name','Description','Sort Order','Is Active']),
+    bbCsvRow(['HEAD','A','Personnel & HR','#3b82f6','','','',10,'TRUE']),
+    bbCsvRow(['LINE','A','','','A-01','Salaries & Benefits (Senior Staff)','Full-time staff salaries PF gratuity',10,'TRUE']),
+    bbCsvRow(['LINE','A','','','A-02','Consultant / Expert Fees','Short-term consultants subject matter experts',20,'TRUE']),
+    bbCsvRow(['HEAD','B','Training & Capacity Building','#8b5cf6','','','',20,'TRUE']),
+    bbCsvRow(['LINE','B','','','B-01','Workshop & Training Costs','Venue facilitation and logistics for training events',10,'TRUE']),
+  ];
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'budget-book-template.csv';
+  a.click();
+  bbToast('Template downloaded — fill and upload ↓');
+}
+
+// ── Import CSV file ──────────────────────────────────────────────
+async function bbImportFile(file) {
+  // Reset input so same file can be re-selected
+  const inp = document.getElementById('bb-import-file');
+  if (inp) inp.value = '';
+  if (!file) return;
+
+  let text;
+  try { text = await file.text(); } catch(e) { alert('Cannot read file: ' + e.message); return; }
+
+  const allLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (allLines.length < 2) { alert('File is empty or has only headers.'); return; }
+
+  // CSV parser (handles quoted fields)
+  const parseRow = line => {
+    const cols = []; let cur = ''; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur);
+    return cols.map(v => v.trim());
+  };
+
+  const header = parseRow(allLines[0]).map(h => h.toLowerCase().replace(/[\s/]+/g,'_'));
+  const ci = name => header.indexOf(name); // column index helper
+
+  const dataRows = allLines.slice(1).map(parseRow);
+  const headRows = dataRows.filter(r => r[ci('type')]?.toUpperCase() === 'HEAD');
+  const lineRows = dataRows.filter(r => r[ci('type')]?.toUpperCase() === 'LINE');
+
+  if (!headRows.length && !lineRows.length) {
+    alert('No HEAD or LINE rows found. Check the Type column.');
+    return;
+  }
+
+  const summary = `Found:\n  ${headRows.length} Budget Head row(s)\n  ${lineRows.length} Budget Line row(s)\n\nProceed with import? Existing records with the same code will be skipped (use Export to edit, then re-import).`;
+  if (!confirm(summary)) return;
+
+  bbToast('Importing…');
+  let headOk = 0, lineOk = 0, errors = 0;
+
+  // 1. Upsert Budget Heads
+  for (const r of headRows) {
+    const code  = r[ci('head_code')]?.trim().toUpperCase();
+    const label = r[ci('head_label')]?.trim();
+    if (!code || !label) { errors++; continue; }
+    const payload = {
+      cat_code:   code,
+      cat_label:  label,
+      cat_color:  r[ci('head_color')]?.trim() || null,
+      sort_order: parseInt(r[ci('sort_order')]) || null,
+      is_active:  r[ci('is_active')]?.toUpperCase() !== 'FALSE',
+    };
+    try {
+      const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
+        method: 'POST',
+        headers: { ...MEBK_HDR, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) headOk++; else errors++;
+    } catch { errors++; }
+  }
+
+  // 2. Fetch all budget_heads to resolve cat_code → budget_head_id
+  let headMap = {};
+  try {
+    const r = await fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,cat_code`, { headers: MEBK_HDR });
+    const data = await r.json();
+    data.forEach(h => { headMap[h.cat_code] = h.budget_head_id; });
+  } catch(e) { alert('Could not resolve Budget Head IDs: ' + e.message); return; }
+
+  // 3. Upsert Budget Lines
+  for (const r of lineRows) {
+    const parentCode = r[ci('head_code')]?.trim().toUpperCase();
+    const name       = r[ci('line_name')]?.trim();
+    if (!parentCode || !name) { errors++; continue; }
+    const parentId = headMap[parentCode];
+    if (!parentId) { errors++; continue; } // parent head not found
+    const payload = {
+      head_name:       name,
+      budget_head_id:  parentId,
+      head_code:       r[ci('line_code')]?.trim().toUpperCase() || null,
+      description:     r[ci('description')]?.trim() || null,
+      sort_order:      parseInt(r[ci('sort_order')]) || null,
+      is_active:       r[ci('is_active')]?.toUpperCase() !== 'FALSE',
+      category:        'General',
+    };
+    try {
+      const res = await fetch(`${MEBK_URL}/rest/v1/budget_line`, {
+        method: 'POST',
+        headers: { ...MEBK_HDR, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) lineOk++; else errors++;
+    } catch { errors++; }
+  }
+
+  // Reload
+  await Promise.all([bbLoadStats(), bbLoadCats(), bbLoadHeads()]);
+  bbToast(`Import done — ${headOk} heads, ${lineOk} lines added${errors ? `, ${errors} skipped/errors` : ''} ✓`);
 }
 
 // ── Budget Heads (CRUD) — formerly "Budget Categories" ───────────
