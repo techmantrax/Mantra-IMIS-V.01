@@ -7684,20 +7684,19 @@ select:focus:not(:focus-visible) { outline: none; }
 
         <!-- Stats -->
         <div class="bb-stats">
-          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bc">—</div><div class="bb-stat-l">Categories</div></div>
-          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bh">—</div><div class="bb-stat-l">Budget Heads</div></div>
+          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bc">—</div><div class="bb-stat-l">Budget Heads</div></div>
+          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bh">—</div><div class="bb-stat-l">Budget Lines</div></div>
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-dn">—</div><div class="bb-stat-l">Donors</div></div>
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-gr">—</div><div class="bb-stat-l">Grants</div></div>
-          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bl">—</div><div class="bb-stat-l">Budget Lines</div></div>
         </div>
 
         <!-- Tabs -->
         <div class="bb-tabs">
           <button class="bb-tab bc active" id="bb-tab-bc" onclick="bbSwitchTab('bc')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Categories
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Budget Heads
           </button>
           <button class="bb-tab bh" id="bb-tab-bh" onclick="bbSwitchTab('bh')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>Budget Heads
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>Budget Lines
           </button>
           <button class="bb-tab dn" id="bb-tab-dn" onclick="bbSwitchTab('dn')">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Donors
@@ -7705,21 +7704,18 @@ select:focus:not(:focus-visible) { outline: none; }
           <button class="bb-tab gr" id="bb-tab-gr" onclick="bbSwitchTab('gr')">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Grants
           </button>
-          <button class="bb-tab bl" id="bb-tab-bl" onclick="bbSwitchTab('bl')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Budget Lines
-          </button>
         </div>
 
         <!-- ── BUDGET CATEGORIES PANEL ── -->
         <div id="bb-panel-bc">
           <div class="bb-toolbar">
-            <input class="bb-search" id="bb-search-bc" placeholder="Search categories…" oninput="bbSearch('bc',this.value)"/>
+            <input class="bb-search" id="bb-search-bc" placeholder="Search budget heads…" oninput="bbSearch('bc',this.value)"/>
             <div class="bb-filter-pills" id="bb-filter-bc">
               <button class="bb-filter-pill sel" id="bb-fpill-bc-active"   onclick="bbSetFilter('bc','active')">Active</button>
               <button class="bb-filter-pill"     id="bb-fpill-bc-all"      onclick="bbSetFilter('bc','all')">All</button>
               <button class="bb-filter-pill"     id="bb-fpill-bc-inactive" onclick="bbSetFilter('bc','inactive')">Inactive</button>
             </div>
-            <button class="bb-add-btn" onclick="bbShowForm('bc')">+ Add Category</button>
+            <button class="bb-add-btn" onclick="bbShowForm('bc')">+ Add Budget Head</button>
           </div>
           <!-- Add form -->
           <div class="bb-add-form" id="bb-form-bc" style="display:none;">
@@ -7729,8 +7725,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <input class="bb-inp" id="bb-bc-code" placeholder="A, B, C… or BL-01" style="width:80px;text-transform:uppercase;" maxlength="10"/>
               </div>
               <div class="bb-form-field">
-                <label class="bb-form-label">Label <span style="color:var(--danger)">*</span></label>
-                <input class="bb-inp bb-inp-lg" id="bb-bc-label" placeholder="e.g. Activity-based, Program-level…"/>
+                <label class="bb-form-label">Name <span style="color:var(--danger)">*</span></label>
+                <input class="bb-inp bb-inp-lg" id="bb-bc-label" placeholder="e.g. Personnel & HR, Travel & Transport…"/>
               </div>
               <div class="bb-form-field">
                 <label class="bb-form-label">Badge Color</label>
@@ -7742,33 +7738,28 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-top:10px;">
-              <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;" onclick="bbSaveCat()">Save Category</button>
+              <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;" onclick="bbSaveCat()">Save Budget Head</button>
               <button class="btn" style="font-size:12px;" onclick="document.getElementById('bb-form-bc').style.display='none'">Cancel</button>
             </div>
           </div>
           <div id="bb-cats-list" style="margin-top:12px;"></div>
         </div>
 
-        <!-- ── BUDGET HEADS PANEL ── -->
+        <!-- ── BUDGET LINES PANEL ── -->
         <div id="bb-panel-bh">
           <div class="bb-toolbar">
-            <input class="bb-search" id="bb-search-bh" placeholder="Search budget heads…" oninput="bbSearch('bh',this.value)"/>
+            <input class="bb-search" id="bb-search-bh" placeholder="Search budget lines…" oninput="bbSearch('bh',this.value)"/>
             <div class="bb-filter-pills" id="bb-filter-bh">
               <button class="bb-filter-pill sel" id="bb-fpill-bh-active"   onclick="bbSetFilter('bh','active')">Active</button>
               <button class="bb-filter-pill"     id="bb-fpill-bh-all"      onclick="bbSetFilter('bh','all')">All</button>
               <button class="bb-filter-pill"     id="bb-fpill-bh-inactive" onclick="bbSetFilter('bh','inactive')">Inactive</button>
             </div>
-            <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--warn);color:#fff;border-color:var(--warn);" onclick="bbShowForm('bh')">+ Add Budget Head</button>
+            <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--warn);color:#fff;border-color:var(--warn);" onclick="bbShowForm('bh')">+ Add Budget Line</button>
           </div>
           <div class="bb-add-form bh-form" id="bb-form-bh">
-            <input class="bb-inp bb-inp-lg" id="bb-bh-name" placeholder="Budget head name…" onkeydown="if(event.key==='Enter')bbSaveHead()"/>
+            <input class="bb-inp bb-inp-lg" id="bb-bh-name" placeholder="Budget line name… e.g. Salaries & Benefits" onkeydown="if(event.key==='Enter')bbSaveHead()"/>
             <select class="bb-sel" id="bb-bh-cat">
-              <option value="">Category…</option>
-              <option value="Personnel">Personnel</option>
-              <option value="Programs">Programs</option>
-              <option value="Operations">Operations</option>
-              <option value="Overheads">Overheads</option>
-              <option value="Infrastructure">Infrastructure</option>
+              <option value="">Select Budget Head…</option>
             </select>
             <input class="bb-inp bb-inp-lg" id="bb-bh-desc" placeholder="Description (optional)…"/>
             <button class="btn" style="font-size:12px;padding:7px 14px;background:var(--warn);color:#fff;border-color:var(--warn);" id="bb-bh-save-btn" onclick="bbSaveHead()">Save</button>
@@ -7843,60 +7834,6 @@ select:focus:not(:focus-visible) { outline: none; }
             <button class="btn" style="font-size:12px;padding:7px 12px;" onclick="document.getElementById('bb-form-gr').style.display='none'">Cancel</button>
           </div>
           <div id="bb-list-gr"><div class="bb-loading">Loading…</div></div>
-        </div>
-
-        <!-- ── BUDGET LINES PANEL ── -->
-        <div id="bb-panel-bl" style="display:none;">
-          <div class="bb-toolbar">
-            <input class="bb-search" id="bb-search-bl" placeholder="Search budget lines…" oninput="bbSearchLines(this.value)"/>
-            <div class="bb-filter-pills" id="bb-filter-bl">
-              <select class="bb-sel" id="bb-bl-filter-grant" style="font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--mist-2);background:var(--white);cursor:pointer;" onchange="bbLoadLines()">
-                <option value="">All Grants</option>
-              </select>
-            </div>
-            <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#0d9488;color:#fff;border-color:#0d9488;" onclick="bbShowLineForm()">+ Add Budget Line</button>
-          </div>
-
-          <!-- Add / Edit Form -->
-          <div class="bb-bl-form" id="bb-form-bl">
-            <div class="bb-bl-form-grid">
-              <div class="bb-bl-form-field">
-                <label>Grant <span style="color:var(--danger)">*</span></label>
-                <select id="bb-bl-grant" class="bb-sel"></select>
-              </div>
-              <div class="bb-bl-form-field">
-                <label>Budget Code <span style="color:var(--danger)">*</span></label>
-                <input id="bb-bl-code" class="bb-inp" placeholder="e.g. A.1" style="font-family:var(--mono);"/>
-              </div>
-              <div class="bb-bl-form-field">
-                <label>Description <span style="color:var(--danger)">*</span></label>
-                <input id="bb-bl-desc" class="bb-inp" placeholder="e.g. Salaries & Benefits"/>
-              </div>
-              <div class="bb-bl-form-field">
-                <label>Budget Head</label>
-                <select id="bb-bl-head" class="bb-sel"></select>
-              </div>
-              <div class="bb-bl-form-field">
-                <label>Sanctioned Amount</label>
-                <input id="bb-bl-amount" class="bb-inp" type="number" min="0" placeholder="0"/>
-              </div>
-              <div class="bb-bl-form-field">
-                <label>Allocation Factor <span style="font-size:10px;color:var(--slate);">(0.1–1.0)</span></label>
-                <input id="bb-bl-factor" class="bb-inp" type="number" min="0.01" max="1" step="0.01" placeholder="1.0"/>
-              </div>
-              <div class="bb-bl-form-field" style="grid-column:1/-1;">
-                <label>Code Aliases <span style="font-size:10px;color:var(--slate);">comma-separated alternate codes</span></label>
-                <input id="bb-bl-aliases" class="bb-inp" placeholder="e.g. HR-01, SALARY-SR, 1A"/>
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:10px;">
-              <button class="btn" style="font-size:12px;padding:7px 14px;background:#0d9488;color:#fff;border-color:#0d9488;" id="bb-bl-save-btn" onclick="bbSaveLine()">Save Line</button>
-              <button class="btn" style="font-size:12px;padding:7px 12px;" onclick="bbHideLineForm()">Cancel</button>
-            </div>
-          </div>
-
-          <!-- Lines Grid -->
-          <div class="bb-bl-grid" id="bb-list-bl"><div class="bb-loading">Loading…</div></div>
         </div>
 
       </div><!-- /bb-wrap -->
@@ -22038,17 +21975,15 @@ window.bbFilter = { bc: 'active', bh: 'active', dn: 'active', gr: 'active' };
 async function bbInit() {
   await Promise.all([bbLoadStats(), bbLoadCats(), bbLoadHeads(), bbLoadDonors(), bbLoadGrants()]);
   bbSwitchTab('bc');
-  bbPopulateGrantSelects();
 }
 
 // ── Tab switching ────────────────────────────────────────────────
 function bbSwitchTab(tab) {
-  ['bc','bh','dn','gr','bl'].forEach(t => {
+  ['bc','bh','dn','gr'].forEach(t => {
     document.getElementById(`bb-tab-${t}`)?.classList.toggle('active', t === tab);
     const p = document.getElementById(`bb-panel-${t}`);
     if (p) p.style.display = t === tab ? '' : 'none';
   });
-  if (tab === 'bl') bbLoadLines();
 }
 
 // ── Filter pills ─────────────────────────────────────────────────
@@ -22073,36 +22008,23 @@ function bbSearch(tab, q) {
   });
 }
 
-// ── Show add form ────────────────────────────────────────────────
-function bbShowForm(tab) {
-  if (tab === 'bc') { document.getElementById('bb-form-bc').style.display = ''; return; }
-  const f = document.getElementById(`bb-form-${tab}`);
-  if (f) {
-    f.style.display = 'flex';
-    // populate donor dropdown when showing grant form
-    if (tab === 'gr') bbPopulateDonorSelect('bb-gr-donor');
-    f.querySelector('input')?.focus();
-  }
-}
 
 // ── Stats ─────────────────────────────────────────────────────────
 async function bbLoadStats() {
   try {
     const hdr = { ...MEBK_HDR, 'Prefer': 'count=exact' };
-    const [bcR, bhR, dnR, grR, blR] = await Promise.all([
+    const [bcR, bhR, dnR, grR] = await Promise.all([
       fetch(`${MEBK_URL}/rest/v1/budget_category?is_active=eq.true&select=budget_category_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/budget_head?is_active=eq.true&select=budget_head_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/donor?is_active=eq.true&select=donor_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/grant_program?is_active=eq.true&select=grant_program_id&limit=1`, { headers: hdr }),
-      fetch(`${MEBK_URL}/rest/v1/budget_line?is_active=eq.true&select=budget_line_id&limit=1`, { headers: hdr }),
     ]);
     const n = r => r.headers.get('Content-Range')?.split('/')[1] ?? '?';
     const s = id => document.getElementById(id);
-    if (s('bb-stat-bc')) s('bb-stat-bc').textContent = n(bcR);
-    if (s('bb-stat-bh')) s('bb-stat-bh').textContent = n(bhR);
+    if (s('bb-stat-bc')) s('bb-stat-bc').textContent = n(bcR); // Budget Heads count
+    if (s('bb-stat-bh')) s('bb-stat-bh').textContent = n(bhR); // Budget Lines count
     if (s('bb-stat-dn')) s('bb-stat-dn').textContent = n(dnR);
     if (s('bb-stat-gr')) s('bb-stat-gr').textContent = n(grR);
-    if (s('bb-stat-bl')) s('bb-stat-bl').textContent = n(blR);
   } catch(e) { /* decorative */ }
 }
 
@@ -22123,44 +22045,72 @@ async function bbLoadHeads() {
   const fv = window.bbFilter.bh;
   const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
   try {
-    const res  = await fetch(
-      `${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,head_code,head_name,category,description,is_active&order=sort_order.asc,head_name.asc${af}&limit=300`,
-      { headers: MEBK_HDR }
-    );
+    // Fetch budget lines joined with parent budget head (budget_category)
+    const [res, catRes] = await Promise.all([
+      fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,head_code,head_name,description,is_active,budget_category_id,budget_category(cat_code,cat_label,color_hex)&order=budget_category_id.asc.nullsfirst,sort_order.asc,head_name.asc${af}&limit=300`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/budget_category?select=budget_category_id,cat_code,cat_label,color_hex&is_active=eq.true&order=sort_order.asc`, { headers: MEBK_HDR })
+    ]);
     const data = await res.json();
+    const cats = await catRes.json();
     if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+    window.bbCatsCache = Array.isArray(cats) ? cats : [];
+
     if (!el) return;
     if (!data.length) {
-      const msg = fv === 'inactive' ? 'No inactive budget heads' : 'No budget heads yet — click "+ Add Budget Head"';
+      const msg = fv === 'inactive' ? 'No inactive budget lines.' : 'No budget lines yet — click "+ Add Budget Line"';
       el.innerHTML = `<div class="bb-empty"><div class="bb-empty-icon">${IC.chart}</div>${msg}</div>`; return;
     }
-    el.innerHTML = data.map(h => {
-      const isActive = h.is_active !== false;
-      const sw = bbSwitch(isActive, `bbSetActiveHead('${h.budget_head_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
+
+    // Group lines by parent Budget Head (budget_category)
+    const groups = {};
+    data.forEach(h => {
+      const key = h.budget_category_id || '__none__';
+      if (!groups[key]) groups[key] = { cat: h.budget_category, lines: [] };
+      groups[key].lines.push(h);
+    });
+
+    const catOptsFn = (selId) => window.bbCatsCache.map(c =>
+      `<option value="${c.budget_category_id}" ${selId===c.budget_category_id?'selected':''}>${c.cat_code} — ${esc(c.cat_label)}</option>`
+    ).join('');
+
+    el.innerHTML = Object.entries(groups).map(([key, grp]) => {
+      const cat = grp.cat;
+      const clr = cat?.color_hex || '#6b7280';
+      const lbl = cat ? `${cat.cat_code} — ${esc(cat.cat_label)}` : 'Uncategorised';
+      const lineCards = grp.lines.map(h => {
+        const isActive = h.is_active !== false;
+        const sw = bbSwitch(isActive, `bbSetActiveHead('${h.budget_head_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
+        return `
+        <div class="bb-card${isActive ? '' : ' inactive'}" id="bb-bh-${h.budget_head_id}">
+          <div class="bb-card-hd">
+            <span class="bb-code-chip bh">${h.head_code || '—'}</span>
+            <span class="bb-name">${esc(h.head_name)}</span>
+            ${h.description ? `<span class="bb-desc">${esc(h.description)}</span>` : ''}
+            ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
+            <span class="bb-card-actions" onclick="event.stopPropagation()">
+              ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_head_id}')">${IC.edit}</button>` : ''}
+              ${sw}
+            </span>
+          </div>
+          <div class="bb-edit-panel" id="bb-bh-ep-${h.budget_head_id}">
+            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-name-${h.budget_head_id}" value="${(h.head_name||'').replace(/"/g,'&quot;')}" placeholder="Budget line name…"/>
+            <select class="bb-sel" id="bb-bh-ei-cat-${h.budget_head_id}">
+              <option value="">Select Budget Head…</option>
+              ${catOptsFn(h.budget_category_id)}
+            </select>
+            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-desc-${h.budget_head_id}" value="${(h.description||'').replace(/"/g,'&quot;')}" placeholder="Description…"/>
+            <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditHead('${h.budget_head_id}')">Save</button>
+            <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bh-ep-${h.budget_head_id}').style.display='none'">Cancel</button>
+          </div>
+        </div>`;
+      }).join('');
       return `
-      <div class="bb-card${isActive ? '' : ' inactive'}" id="bb-bh-${h.budget_head_id}">
-        <div class="bb-card-hd">
-          <span class="bb-code-chip bh">${h.head_code || '—'}</span>
-          <span class="bb-name">${esc(h.head_name)}</span>
-          ${h.category ? `<span class="bb-pill cat">${esc(h.category)}</span>` : ''}
-          ${h.description ? `<span class="bb-desc">${esc(h.description)}</span>` : ''}
-          ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
-          <span class="bb-card-actions" onclick="event.stopPropagation()">
-            ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_head_id}')">
-              ${IC.edit}</button>` : ''}
-            ${sw}
-          </span>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:${clr}18;border-left:3px solid ${clr};border-radius:0 6px 6px 0;">
+          <span style="font-weight:700;font-size:12px;color:${clr};">${lbl}</span>
+          <span style="font-size:11px;color:var(--slate);">${grp.lines.length} line${grp.lines.length!==1?'s':''}</span>
         </div>
-        <div class="bb-edit-panel" id="bb-bh-ep-${h.budget_head_id}">
-          <input class="bb-inp bb-inp-lg" id="bb-bh-ei-name-${h.budget_head_id}" value="${(h.head_name||'').replace(/"/g,'&quot;')}" placeholder="Budget head name…"/>
-          <select class="bb-sel" id="bb-bh-ei-cat-${h.budget_head_id}">
-            <option value="">Category…</option>
-            ${['Personnel','Programs','Operations','Overheads','Infrastructure'].map(c => `<option value="${c}" ${h.category===c?'selected':''}>${c}</option>`).join('')}
-          </select>
-          <input class="bb-inp bb-inp-lg" id="bb-bh-ei-desc-${h.budget_head_id}" value="${(h.description||'').replace(/"/g,'&quot;')}" placeholder="Description…"/>
-          <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditHead('${h.budget_head_id}')">Save</button>
-          <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bh-ep-${h.budget_head_id}').style.display='none'">Cancel</button>
-        </div>
+        ${lineCards}
       </div>`;
     }).join('');
   } catch(e) { if (el) el.innerHTML = `<div class="bb-err">${IC.warning} ${e.message}</div>`; }
@@ -22172,21 +22122,21 @@ function bbEditHead(id) {
   if (ep) { ep.style.display = 'flex'; document.getElementById(`bb-bh-ei-name-${id}`)?.focus(); }
 }
 async function bbSaveEditHead(id) {
-  const name = document.getElementById(`bb-bh-ei-name-${id}`)?.value.trim();
-  const cat  = document.getElementById(`bb-bh-ei-cat-${id}`)?.value;
-  const desc = document.getElementById(`bb-bh-ei-desc-${id}`)?.value.trim();
-  if (!name) { alert('Budget head name is required.'); return; }
+  const name  = document.getElementById(`bb-bh-ei-name-${id}`)?.value.trim();
+  const catId = document.getElementById(`bb-bh-ei-cat-${id}`)?.value;
+  const desc  = document.getElementById(`bb-bh-ei-desc-${id}`)?.value.trim();
+  if (!name) { alert('Budget line name is required.'); return; }
   try {
     const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
       method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ head_name: name, category: cat || null, description: desc || null })
+      body: JSON.stringify({ head_name: name, budget_category_id: catId || null, description: desc || null })
     });
     if (!res.ok) throw new Error(await res.text());
-    await bbLoadHeads(); bbToast('Budget head updated ✓');
+    await bbLoadHeads(); bbToast('Budget line updated ✓');
   } catch(e) { alert('Error: ' + e.message); }
 }
 async function bbSetActiveHead(id, newActive) {
-  if (!confirm(`${newActive ? 'Reactivate' : 'Deactivate'} this budget head?`)) return;
+  if (!confirm(`${newActive ? 'Reactivate' : 'Deactivate'} this budget line?`)) return;
   try {
     const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
       method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
@@ -22194,20 +22144,41 @@ async function bbSetActiveHead(id, newActive) {
     });
     if (!res.ok) throw new Error(await res.text());
     await Promise.all([bbLoadHeads(), bbLoadStats()]);
-    bbToast(newActive ? 'Budget head reactivated ✓' : 'Budget head deactivated ✓');
+    bbToast(newActive ? 'Budget line reactivated ✓' : 'Budget line deactivated ✓');
   } catch(e) { alert('Error: ' + e.message); }
+}
+async function bbShowForm(tab) {
+  if (tab === 'bh') {
+    // Populate Budget Head dropdown dynamically from budget_category cache
+    const sel = document.getElementById('bb-bh-cat');
+    if (sel) {
+      const cats = window.bbCatsCache || [];
+      sel.innerHTML = `<option value="">Select Budget Head…</option>` +
+        cats.map(c => `<option value="${c.budget_category_id}">${c.cat_code} — ${esc(c.cat_label)}</option>`).join('');
+    }
+    document.getElementById('bb-form-bh').style.display = 'flex';
+    document.getElementById('bb-bh-name')?.focus();
+    return;
+  }
+  if (tab === 'bc') { document.getElementById('bb-form-bc').style.display = ''; return; }
+  const f = document.getElementById(`bb-form-${tab}`);
+  if (f) {
+    f.style.display = 'flex';
+    if (tab === 'gr') bbPopulateDonorSelect('bb-gr-donor');
+    f.querySelector('input')?.focus();
+  }
 }
 async function bbSaveHead() {
   const name  = document.getElementById('bb-bh-name')?.value.trim();
-  const cat   = document.getElementById('bb-bh-cat')?.value;
+  const catId = document.getElementById('bb-bh-cat')?.value;
   const desc  = document.getElementById('bb-bh-desc')?.value.trim();
-  if (!name) { alert('Please enter a budget head name.'); return; }
+  if (!name) { alert('Please enter a budget line name.'); return; }
   const btn = document.getElementById('bb-bh-save-btn');
   if (btn) btn.disabled = true;
   try {
     const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
       method: 'POST', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ head_name: name, category: cat || null, description: desc || null, is_active: true })
+      body: JSON.stringify({ head_name: name, budget_category_id: catId || null, description: desc || null, is_active: true })
     });
     if (!res.ok) throw new Error(await res.text());
     document.getElementById('bb-bh-name').value = '';
@@ -22215,7 +22186,7 @@ async function bbSaveHead() {
     document.getElementById('bb-bh-desc').value = '';
     document.getElementById('bb-form-bh').style.display = 'none';
     await Promise.all([bbLoadHeads(), bbLoadStats()]);
-    bbToast('Budget head added ✓');
+    bbToast('Budget line added ✓');
   } catch(e) { alert('Error: ' + e.message); }
   if (btn) btn.disabled = false;
 }
@@ -22663,7 +22634,7 @@ async function bbLoadCats() {
     if (!res.ok) throw new Error(data?.message || 'Failed to load categories');
     if (q) data = data.filter(c => c.cat_code?.toLowerCase().includes(q) || c.cat_label?.toLowerCase().includes(q));
     if (!data.length) {
-      const msg = fv === 'inactive' ? 'No inactive categories' : 'No categories yet — click "+ Add Category"';
+      const msg = fv === 'inactive' ? 'No inactive budget heads.' : 'No budget heads yet — click "+ Add Budget Head"';
       el.innerHTML = `<div class="bb-empty"><div class="bb-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></div>${msg}</div>`; return;
     }
     // Store for Grant Setup to use
@@ -22713,7 +22684,7 @@ async function bbSaveEditCat(id) {
     body: JSON.stringify({ cat_code: code, cat_label: label, cat_color: color, sort_order: sort })
   });
   if (!res.ok) { bbToast('Save failed'); return; }
-  bbToast('Category updated'); bbLoadCats();
+  bbToast('Budget head updated ✓'); bbLoadCats();
 }
 
 async function bbSetActiveCat(id, newActive) {
@@ -22722,7 +22693,7 @@ async function bbSetActiveCat(id, newActive) {
     body: JSON.stringify({ is_active: newActive })
   });
   if (!res.ok) { bbToast('Update failed'); return; }
-  bbToast(newActive ? 'Category activated' : 'Category deactivated'); bbLoadCats();
+  bbToast(newActive ? 'Budget head activated ✓' : 'Budget head deactivated ✓'); bbLoadCats();
 }
 
 async function bbSaveCat() {
@@ -22730,15 +22701,15 @@ async function bbSaveCat() {
   const label = document.getElementById('bb-bc-label')?.value?.trim();
   const color = document.getElementById('bb-bc-color')?.value || '#3b82f6';
   const sort  = parseInt(document.getElementById('bb-bc-sort')?.value) || 0;
-  if (!code) { bbToast('Category code is required'); return; }
-  if (!label) { bbToast('Category label is required'); return; }
+  if (!code) { bbToast('Budget head code is required'); return; }
+  if (!label) { bbToast('Budget head name is required'); return; }
   const res = await fetch(`${MEBK_URL}/rest/v1/budget_category`, {
     method: 'POST', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ cat_code: code, cat_label: label, cat_color: color, sort_order: sort, is_active: true })
   });
   const data = await res.json();
   if (!res.ok) { bbToast('Save failed: ' + (data?.message||'unknown error')); return; }
-  bbToast('Category ' + code + ' added');
+  bbToast('Budget head ' + code + ' added ✓');
   document.getElementById('bb-form-bc').style.display = 'none';
   ['bb-bc-code','bb-bc-label'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   bbLoadCats();
