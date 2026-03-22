@@ -7662,6 +7662,16 @@ select:focus:not(:focus-visible) { outline: none; }
         /* Inline edit panel */
         .bb-edit-panel{display:none;flex-wrap:wrap;gap:8px;padding:10px 14px;align-items:center;border-top:1px solid var(--mist-2);background:var(--canvas);}
 
+        /* Upload Profile section on Grant cards */
+        .bb-up-profile{border-top:1px solid var(--mist-2);padding:8px 14px;background:var(--canvas);}
+        .bb-up-toggle{font-size:11px;color:var(--slate);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0;font-family:inherit;}
+        .bb-up-toggle:hover{color:var(--blue);}
+        .bb-up-set{font-size:11px;color:#0d9488;font-weight:600;}
+        .bb-up-form{margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:end;}
+        .bb-up-field label{display:block;font-size:10px;font-weight:600;color:var(--slate);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px;}
+        .bb-up-field input,.bb-up-field select{width:100%;font-size:11px;padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r-sm);background:var(--white);font-family:var(--mono);}
+        .bb-up-field input:focus,.bb-up-field select:focus{border-color:#0d9488;outline:none;}
+
         /* Misc */
         .bb-empty{text-align:center;padding:44px 20px;color:var(--slate);font-size:13px;}
         .bb-empty-icon{margin-bottom:10px;opacity:.35;}
@@ -21461,14 +21471,17 @@ function gmbMonthToken(v) {
   return s.slice(0, 3).replace(/[^A-Za-z]/g, '').replace(/^./, c => c.toUpperCase()).toLowerCase().replace(/^./, c => c.toUpperCase());
 }
 
-function gmbExtractBurnByCode(headers, rows, selectedMonth) {
-  const codeHeader = gmbFindHeader(headers, [
+function gmbExtractBurnByCode(headers, rows, selectedMonth, profile = {}) {
+  // If profile specifies exact column names, use them; otherwise fuzzy-match
+  const exactFind = col => col ? headers.find(h => h === col) || null : null;
+
+  const codeHeader = exactFind(profile.code_col) || gmbFindHeader(headers, [
     /^budget code$/,
     /budget.*code/,
     /line.*code/,
     /^code$/,
   ]);
-  const amountHeader = gmbFindHeader(headers, [
+  const amountHeader = exactFind(profile.amount_col) || gmbFindHeader(headers, [
     /^allocated amount$/,
     /allocated.*amount/,
     /^amount$/,
@@ -21476,20 +21489,31 @@ function gmbExtractBurnByCode(headers, rows, selectedMonth) {
     /actual.*amount/,
     /expense.*amount/,
   ]);
-  const monthHeader = gmbFindHeader(headers, [
+  const dateHeader = exactFind(profile.date_col) || gmbFindHeader(headers, [
     /^month$/,
     /reporting.*month/,
     /burn.*month/,
     /^period$/,
   ]);
+  const dateType = profile.date_type || 'month_text'; // 'date' or 'month_text'
 
-  if (!codeHeader) throw new Error('Budget Code column not found in file');
-  if (!amountHeader) throw new Error('Amount column not found in file');
+  if (!codeHeader) throw new Error('Budget Code column not found in file. Set an Upload Profile on this grant in Budget Book.');
+  if (!amountHeader) throw new Error('Amount column not found in file. Set an Upload Profile on this grant in Budget Book.');
+
+  // For 'date' type, parse month from a date value instead of text
+  const extractMonth = (val) => {
+    if (dateType === 'date') {
+      const d = val ? new Date(val) : null;
+      if (!d || isNaN(d)) return '';
+      return d.toLocaleString('en-IN', { month: 'short' }).slice(0, 3);
+    }
+    return gmbMonthToken(val);
+  };
 
   const monthsFound = new Set();
-  if (monthHeader) {
+  if (dateHeader) {
     rows.forEach(r => {
-      const token = gmbMonthToken(r?.[monthHeader]);
+      const token = extractMonth(r?.[dateHeader]);
       if (token && MONTHS_FY.includes(token)) monthsFound.add(token);
     });
   }
@@ -21502,7 +21526,7 @@ function gmbExtractBurnByCode(headers, rows, selectedMonth) {
     const amount = gmbToNumber(r?.[amountHeader]);
     if (!code || amount == null) return;
 
-    const rowMonth = monthHeader ? gmbMonthToken(r?.[monthHeader]) : '';
+    const rowMonth = dateHeader ? extractMonth(r?.[dateHeader]) : '';
     if (useMonthFilter && rowMonth !== selectedMonth) return;
 
     byCode[code] = (byCode[code] || 0) + amount;
@@ -21517,7 +21541,7 @@ function gmbExtractBurnByCode(headers, rows, selectedMonth) {
     codeCount: Object.keys(byCode).length,
     codeHeader: String(codeHeader),
     amountHeader: String(amountHeader),
-    monthHeader: monthHeader ? String(monthHeader) : '',
+    monthHeader: dateHeader ? String(dateHeader) : '',
     monthsFound: Array.from(monthsFound),
     monthFiltered: !!(selectedMonth && monthsFound.size > 0),
   };
@@ -21550,7 +21574,7 @@ function gmbParseCSV(text) {
   return { headers, rows };
 }
 
-function gmbReadUploadStats(file, selectedMonth) {
+function gmbReadUploadStats(file, selectedMonth, profile = {}) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Failed to read file'));
@@ -21572,7 +21596,7 @@ function gmbReadUploadStats(file, selectedMonth) {
           rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
           if (!headers.length && rows.length) headers = Object.keys(rows[0]);
         }
-        const burn = gmbExtractBurnByCode(headers, rows, selectedMonth);
+        const burn = gmbExtractBurnByCode(headers, rows, selectedMonth, profile);
         resolve({
           rows: rows.length,
           cols: headers.length,
@@ -21789,7 +21813,14 @@ async function gmbUploadNow() {
 
   try {
     if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
-    const stats = await gmbReadUploadStats(gmbState.file, month);
+    // Fetch upload profile for this grant (if configured)
+    let uploadProfile = {};
+    try {
+      const pRes = await fetch(`${GS_SB_URL}/rest/v1/grant_program?grant_program_id=eq.${grantId}&select=upload_profile&limit=1`, { headers: GS_SB_HDR });
+      const [pData] = await pRes.json();
+      uploadProfile = pData?.upload_profile || {};
+    } catch(e) { /* silent — fall back to auto-detect */ }
+    const stats = await gmbReadUploadStats(gmbState.file, month, uploadProfile);
     const rec = {
       uploadedAt: new Date().toISOString(),
       programId,
@@ -22321,7 +22352,7 @@ async function bbLoadGrants() {
   const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/grant_program?select=grant_program_id,grant_code,grant_name,grant_type,currency,total_amount,start_date,end_date,is_active,donor(donor_id,donor_name)&order=grant_name.asc${af}&limit=300`,
+      `${MEBK_URL}/rest/v1/grant_program?select=grant_program_id,grant_code,grant_name,grant_type,currency,total_amount,start_date,end_date,is_active,upload_profile,donor(donor_id,donor_name)&order=grant_name.asc${af}&limit=300`,
       { headers: MEBK_HDR }
     );
     const data = await res.json();
@@ -22372,6 +22403,8 @@ async function bbLoadGrants() {
           <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditGrant('${g.grant_program_id}')">Save</button>
           <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-gr-ep-${g.grant_program_id}').style.display='none'">Cancel</button>
         </div>
+        <!-- Upload Profile -->
+        ${bbRenderUploadProfile(g)}
       </div>`;
     }).join('');
   } catch(e) { if (el) el.innerHTML = `<div class="bb-err">${IC.warning} ${e.message}</div>`; }
@@ -22440,6 +22473,75 @@ async function bbSaveGrant() {
     bbToast('Grant added ✓');
   } catch(e) { alert('Error: ' + e.message); }
   if (btn) btn.disabled = false;
+}
+
+// ══════════════════════════════════════════════════════
+//  UPLOAD PROFILE (per grant)
+// ══════════════════════════════════════════════════════
+function bbRenderUploadProfile(g) {
+  const p = g.upload_profile || {};
+  const isSet = p.code_col || p.amount_col || p.date_col;
+  const badge = isSet
+    ? `<span class="bb-up-set">✓ Profile set</span>`
+    : `<span style="font-size:11px;color:var(--slate);font-style:italic;">Not configured — uses auto-detection</span>`;
+  return `
+  <div class="bb-up-profile">
+    <button class="bb-up-toggle" onclick="bbToggleProfile('${g.grant_program_id}')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Upload Profile
+    </button>
+    ${badge}
+    <div class="bb-up-form" id="bb-up-form-${g.grant_program_id}" style="display:none;">
+      <div class="bb-up-field">
+        <label>Budget Code Column</label>
+        <input id="bb-up-code-${g.grant_program_id}" value="${esc(p.code_col||'')}" placeholder="e.g. Budget Code"/>
+      </div>
+      <div class="bb-up-field">
+        <label>Amount Column</label>
+        <input id="bb-up-amt-${g.grant_program_id}" value="${esc(p.amount_col||'')}" placeholder="e.g. Allocated Amount"/>
+      </div>
+      <div class="bb-up-field">
+        <label>Date / Month Column</label>
+        <input id="bb-up-date-${g.grant_program_id}" value="${esc(p.date_col||'')}" placeholder="e.g. Ref Date or Month"/>
+      </div>
+      <div class="bb-up-field">
+        <label>Date Type</label>
+        <select id="bb-up-dtype-${g.grant_program_id}">
+          <option value="month_text" ${(p.date_type||'month_text')==='month_text'?'selected':''}>Month Name (Apr, May…)</option>
+          <option value="date"       ${p.date_type==='date'?'selected':''}>Full Date (parse month)</option>
+        </select>
+      </div>
+      <button class="btn btn-ok" style="font-size:11px;padding:5px 12px;white-space:nowrap;" onclick="bbSaveProfile('${g.grant_program_id}')">Save Profile</button>
+      <button class="btn"        style="font-size:11px;padding:5px 10px;" onclick="document.getElementById('bb-up-form-${g.grant_program_id}').style.display='none'">✕</button>
+    </div>
+  </div>`;
+}
+
+function bbToggleProfile(id) {
+  const form = document.getElementById(`bb-up-form-${id}`);
+  if (form) form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+}
+
+async function bbSaveProfile(id) {
+  const code  = document.getElementById(`bb-up-code-${id}`)?.value.trim();
+  const amt   = document.getElementById(`bb-up-amt-${id}`)?.value.trim();
+  const date  = document.getElementById(`bb-up-date-${id}`)?.value.trim();
+  const dtype = document.getElementById(`bb-up-dtype-${id}`)?.value || 'month_text';
+  const profile = {};
+  if (code)  profile.code_col   = code;
+  if (amt)   profile.amount_col = amt;
+  if (date)  profile.date_col   = date;
+  if (dtype) profile.date_type  = dtype;
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/grant_program?grant_program_id=eq.${id}`, {
+      method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ upload_profile: Object.keys(profile).length ? profile : null })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    document.getElementById(`bb-up-form-${id}`).style.display = 'none';
+    await bbLoadGrants();
+    bbToast('Upload profile saved ✓');
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── Budget Heads (CRUD) — formerly "Budget Categories" ───────────
