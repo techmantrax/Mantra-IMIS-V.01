@@ -7563,6 +7563,37 @@ select:focus:not(:focus-visible) { outline: none; }
         .bb-tab.bh.active{color:var(--warn);border-bottom-color:var(--warn);}
         .bb-tab.dn.active{color:var(--purple);border-bottom-color:var(--purple);}
         .bb-tab.gr.active{color:var(--accent2);border-bottom-color:var(--accent2);}
+        .bb-tab.bl.active{color:#0d9488;border-bottom-color:#0d9488;}
+        /* ── Budget Lines panel ── */
+        .bb-bl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:14px;}
+        .bb-bl-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-xs);position:relative;}
+        .bb-bl-card:hover{border-color:#99f6e4;box-shadow:var(--shadow-sm);}
+        .bb-bl-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+        .bb-bl-code{font-family:var(--mono);font-size:13px;font-weight:800;color:#0d9488;background:#f0fdfa;border:1px solid #99f6e4;padding:2px 8px;border-radius:var(--r-sm);}
+        .bb-bl-grant{font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.3px;}
+        .bb-bl-head{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+        .bb-bl-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+        .bb-bl-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--mist-3);color:var(--slate);}
+        .bb-bl-tag.cat{background:#ede9fe;color:#7c3aed;}
+        .bb-bl-tag.alloc{background:#fef9c3;color:#ca8a04;}
+        .bb-bl-tag.alias{background:#ecfeff;color:#0e7490;}
+        .bb-bl-amount{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink);margin-top:4px;}
+        .bb-bl-actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity .12s;}
+        .bb-bl-card:hover .bb-bl-actions{opacity:1;}
+        .bb-bl-btn{font-size:10px;padding:3px 8px;border-radius:var(--r-sm);border:1px solid var(--mist-2);background:var(--white);color:var(--slate);cursor:pointer;font-family:var(--sans);}
+        .bb-bl-btn:hover{background:var(--mist-3);}
+        /* ── Budget Lines add form ── */
+        .bb-bl-form{display:none;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
+        .bb-bl-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+        @media(max-width:900px){.bb-bl-form-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:600px){.bb-bl-form-grid{grid-template-columns:1fr;}}
+        .bb-bl-form-field{display:flex;flex-direction:column;gap:5px;}
+        .bb-bl-form-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
+        .bb-bl-form-field input,.bb-bl-form-field select,.bb-bl-form-field textarea{padding:8px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);font-size:13px;font-family:var(--sans);outline:none;color:var(--ink);background:var(--white);}
+        .bb-bl-form-field input:focus,.bb-bl-form-field select:focus{border-color:#0d9488;box-shadow:0 0 0 2px rgba(13,148,136,.1);}
+        .bb-bl-span2{grid-column:span 2;}
+        .bb-bl-span3{grid-column:1/-1;}
+        .bb-bl-empty{text-align:center;padding:40px 20px;color:var(--slate);font-size:13px;}
 
         /* Toolbar */
         .bb-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
@@ -7657,6 +7688,7 @@ select:focus:not(:focus-visible) { outline: none; }
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bh">—</div><div class="bb-stat-l">Budget Heads</div></div>
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-dn">—</div><div class="bb-stat-l">Donors</div></div>
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-gr">—</div><div class="bb-stat-l">Grants</div></div>
+          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bl">—</div><div class="bb-stat-l">Budget Lines</div></div>
         </div>
 
         <!-- Tabs -->
@@ -7672,6 +7704,9 @@ select:focus:not(:focus-visible) { outline: none; }
           </button>
           <button class="bb-tab gr" id="bb-tab-gr" onclick="bbSwitchTab('gr')">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>Grants
+          </button>
+          <button class="bb-tab bl" id="bb-tab-bl" onclick="bbSwitchTab('bl')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>Budget Lines
           </button>
         </div>
 
@@ -7808,6 +7843,60 @@ select:focus:not(:focus-visible) { outline: none; }
             <button class="btn" style="font-size:12px;padding:7px 12px;" onclick="document.getElementById('bb-form-gr').style.display='none'">Cancel</button>
           </div>
           <div id="bb-list-gr"><div class="bb-loading">Loading…</div></div>
+        </div>
+
+        <!-- ── BUDGET LINES PANEL ── -->
+        <div id="bb-panel-bl" style="display:none;">
+          <div class="bb-toolbar">
+            <input class="bb-search" id="bb-search-bl" placeholder="Search budget lines…" oninput="bbSearchLines(this.value)"/>
+            <div class="bb-filter-pills" id="bb-filter-bl">
+              <select class="bb-sel" id="bb-bl-filter-grant" style="font-size:12px;padding:5px 10px;border-radius:999px;border:1px solid var(--mist-2);background:var(--white);cursor:pointer;" onchange="bbLoadLines()">
+                <option value="">All Grants</option>
+              </select>
+            </div>
+            <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:#0d9488;color:#fff;border-color:#0d9488;" onclick="bbShowLineForm()">+ Add Budget Line</button>
+          </div>
+
+          <!-- Add / Edit Form -->
+          <div class="bb-bl-form" id="bb-form-bl">
+            <div class="bb-bl-form-grid">
+              <div class="bb-bl-form-field">
+                <label>Grant <span style="color:var(--danger)">*</span></label>
+                <select id="bb-bl-grant" class="bb-sel"></select>
+              </div>
+              <div class="bb-bl-form-field">
+                <label>Budget Code <span style="color:var(--danger)">*</span></label>
+                <input id="bb-bl-code" class="bb-inp" placeholder="e.g. A.1" style="font-family:var(--mono);"/>
+              </div>
+              <div class="bb-bl-form-field">
+                <label>Description <span style="color:var(--danger)">*</span></label>
+                <input id="bb-bl-desc" class="bb-inp" placeholder="e.g. Salaries & Benefits"/>
+              </div>
+              <div class="bb-bl-form-field">
+                <label>Budget Head</label>
+                <select id="bb-bl-head" class="bb-sel"></select>
+              </div>
+              <div class="bb-bl-form-field">
+                <label>Sanctioned Amount</label>
+                <input id="bb-bl-amount" class="bb-inp" type="number" min="0" placeholder="0"/>
+              </div>
+              <div class="bb-bl-form-field">
+                <label>Allocation Factor <span style="font-size:10px;color:var(--slate);">(0.1–1.0)</span></label>
+                <input id="bb-bl-factor" class="bb-inp" type="number" min="0.01" max="1" step="0.01" placeholder="1.0"/>
+              </div>
+              <div class="bb-bl-form-field" style="grid-column:1/-1;">
+                <label>Code Aliases <span style="font-size:10px;color:var(--slate);">comma-separated alternate codes</span></label>
+                <input id="bb-bl-aliases" class="bb-inp" placeholder="e.g. HR-01, SALARY-SR, 1A"/>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <button class="btn" style="font-size:12px;padding:7px 14px;background:#0d9488;color:#fff;border-color:#0d9488;" id="bb-bl-save-btn" onclick="bbSaveLine()">Save Line</button>
+              <button class="btn" style="font-size:12px;padding:7px 12px;" onclick="bbHideLineForm()">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Lines Grid -->
+          <div class="bb-bl-grid" id="bb-list-bl"><div class="bb-loading">Loading…</div></div>
         </div>
 
       </div><!-- /bb-wrap -->
@@ -21949,15 +22038,17 @@ window.bbFilter = { bc: 'active', bh: 'active', dn: 'active', gr: 'active' };
 async function bbInit() {
   await Promise.all([bbLoadStats(), bbLoadCats(), bbLoadHeads(), bbLoadDonors(), bbLoadGrants()]);
   bbSwitchTab('bc');
+  bbPopulateGrantSelects();
 }
 
 // ── Tab switching ────────────────────────────────────────────────
 function bbSwitchTab(tab) {
-  ['bc','bh','dn','gr'].forEach(t => {
+  ['bc','bh','dn','gr','bl'].forEach(t => {
     document.getElementById(`bb-tab-${t}`)?.classList.toggle('active', t === tab);
     const p = document.getElementById(`bb-panel-${t}`);
     if (p) p.style.display = t === tab ? '' : 'none';
   });
+  if (tab === 'bl') bbLoadLines();
 }
 
 // ── Filter pills ─────────────────────────────────────────────────
@@ -21998,11 +22089,12 @@ function bbShowForm(tab) {
 async function bbLoadStats() {
   try {
     const hdr = { ...MEBK_HDR, 'Prefer': 'count=exact' };
-    const [bcR, bhR, dnR, grR] = await Promise.all([
+    const [bcR, bhR, dnR, grR, blR] = await Promise.all([
       fetch(`${MEBK_URL}/rest/v1/budget_category?is_active=eq.true&select=budget_category_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/budget_head?is_active=eq.true&select=budget_head_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/donor?is_active=eq.true&select=donor_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/grant_program?is_active=eq.true&select=grant_program_id&limit=1`, { headers: hdr }),
+      fetch(`${MEBK_URL}/rest/v1/budget_line?is_active=eq.true&select=budget_line_id&limit=1`, { headers: hdr }),
     ]);
     const n = r => r.headers.get('Content-Range')?.split('/')[1] ?? '?';
     const s = id => document.getElementById(id);
@@ -22010,6 +22102,7 @@ async function bbLoadStats() {
     if (s('bb-stat-bh')) s('bb-stat-bh').textContent = n(bhR);
     if (s('bb-stat-dn')) s('bb-stat-dn').textContent = n(dnR);
     if (s('bb-stat-gr')) s('bb-stat-gr').textContent = n(grR);
+    if (s('bb-stat-bl')) s('bb-stat-bl').textContent = n(blR);
   } catch(e) { /* decorative */ }
 }
 
@@ -22376,6 +22469,183 @@ async function bbSaveGrant() {
     bbToast('Grant added ✓');
   } catch(e) { alert('Error: ' + e.message); }
   if (btn) btn.disabled = false;
+}
+
+// ── Budget Lines (CRUD) ──────────────────────────────────────────
+let bbLineEditId = null;
+
+async function bbPopulateGrantSelects() {
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/grant_program?is_active=eq.true&select=grant_program_id,grant_name,donor_id,donor(donor_name)&order=grant_name.asc&limit=200`, { headers: MEBK_HDR });
+    const data = await res.json();
+    const opts = data.map(g => `<option value="${g.grant_program_id}">${g.grant_name}${g.donor?.donor_name ? ' — ' + g.donor.donor_name : ''}</option>`).join('');
+    const form = document.getElementById('bb-bl-grant');
+    if (form) form.innerHTML = '<option value="">Select grant…</option>' + opts;
+    const filter = document.getElementById('bb-bl-filter-grant');
+    if (filter) filter.innerHTML = '<option value="">All Grants</option>' + opts;
+  } catch(e) { /* silent */ }
+}
+
+async function bbPopulateHeadSelect() {
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?is_active=eq.true&select=budget_head_id,head_name,budget_category(cat_code)&order=head_name.asc&limit=200`, { headers: MEBK_HDR });
+    const data = await res.json();
+    const el = document.getElementById('bb-bl-head');
+    if (el) el.innerHTML = '<option value="">No budget head…</option>' + data.map(h => `<option value="${h.budget_head_id}">[${h.budget_category?.cat_code||'?'}] ${h.head_name}</option>`).join('');
+  } catch(e) { /* silent */ }
+}
+
+async function bbLoadLines() {
+  const el = document.getElementById('bb-list-bl');
+  if (!el) return;
+  el.innerHTML = '<div class="bb-loading">Loading…</div>';
+  try {
+    const grantFilter = document.getElementById('bb-bl-filter-grant')?.value;
+    let url = `${MEBK_URL}/rest/v1/budget_line?select=budget_line_id,line_code,line_desc,sanctioned_amount,allocation_factor,code_aliases,is_active,grant_program(grant_name),budget_head(head_name)&order=line_code.asc&limit=200`;
+    if (grantFilter) url += `&grant_program_id=eq.${grantFilter}`;
+    const res = await fetch(url, { headers: MEBK_HDR });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Failed');
+    bbRenderLines(data);
+  } catch(e) {
+    el.innerHTML = `<div class="bb-loading" style="color:var(--danger)">Error: ${e.message}</div>`;
+  }
+}
+
+function bbRenderLines(data) {
+  const el = document.getElementById('bb-list-bl');
+  if (!el) return;
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="bb-empty">No budget lines yet. Add one above.</div>';
+    return;
+  }
+  el.innerHTML = data.map(l => {
+    const aliases = (l.code_aliases||[]).map(a => `<span class="bb-bl-tag alias">${a}</span>`).join('');
+    const factor  = l.allocation_factor != null && l.allocation_factor !== 1 ? `<span class="bb-bl-tag" style="background:#fef9c3;color:#a16207;border:1px solid #fde68a;">${(l.allocation_factor*100).toFixed(0)}% shared</span>` : '';
+    const amount  = l.sanctioned_amount != null ? `<div style="font-size:11px;color:var(--slate);margin-top:4px;">₹${Number(l.sanctioned_amount).toLocaleString('en-IN')}</div>` : '';
+    const inactive = !l.is_active ? 'opacity:.5;' : '';
+    return `<div class="bb-bl-card" style="${inactive}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <div>
+          <span class="bb-bl-code">${l.line_code}</span>
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin:6px 0 2px;">${l.line_desc||'—'}</div>
+          <div style="font-size:11px;color:var(--slate);">${l.grant_program?.grant_name||'—'} ${l.budget_head?.head_name ? '· '+l.budget_head.head_name : ''}</div>
+          ${amount}
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${factor}${aliases}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0;">
+          <button class="bb-card-action" title="Edit" onclick="bbEditLine(${l.budget_line_id})">✏️</button>
+          <button class="bb-card-action" title="${l.is_active?'Deactivate':'Activate'}" onclick="bbToggleLine(${l.budget_line_id},${!l.is_active})">${l.is_active?'🔕':'✅'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function bbShowLineForm() {
+  bbLineEditId = null;
+  ['bb-bl-code','bb-bl-desc','bb-bl-amount','bb-bl-aliases'].forEach(id => { const e = document.getElementById(id); if(e) e.value=''; });
+  const f = document.getElementById('bb-bl-factor'); if(f) f.value='1';
+  const g = document.getElementById('bb-bl-grant'); if(g) g.value='';
+  const h = document.getElementById('bb-bl-head'); if(h) h.value='';
+  document.getElementById('bb-bl-save-btn').textContent = 'Save Line';
+  bbPopulateGrantSelects();
+  bbPopulateHeadSelect();
+  const form = document.getElementById('bb-form-bl');
+  form.style.display = 'block';
+  document.getElementById('bb-bl-code')?.focus();
+}
+
+function bbHideLineForm() {
+  document.getElementById('bb-form-bl').style.display = 'none';
+  bbLineEditId = null;
+}
+
+async function bbEditLine(id) {
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}&select=*&limit=1`, { headers: MEBK_HDR });
+    const [l] = await res.json();
+    if (!l) return;
+    bbLineEditId = id;
+    await bbPopulateGrantSelects();
+    await bbPopulateHeadSelect();
+    const s = (eid, val) => { const e = document.getElementById(eid); if(e && val != null) e.value = val; };
+    s('bb-bl-grant',  l.grant_program_id);
+    s('bb-bl-code',   l.line_code);
+    s('bb-bl-desc',   l.line_desc);
+    s('bb-bl-head',   l.budget_head_id);
+    s('bb-bl-amount', l.sanctioned_amount);
+    s('bb-bl-factor', l.allocation_factor ?? 1);
+    s('bb-bl-aliases', (l.code_aliases||[]).join(', '));
+    document.getElementById('bb-bl-save-btn').textContent = 'Update Line';
+    const form = document.getElementById('bb-form-bl');
+    form.style.display = 'block';
+    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch(e) { alert('Error loading line: ' + e.message); }
+}
+
+async function bbSaveLine() {
+  const grant  = document.getElementById('bb-bl-grant')?.value;
+  const code   = document.getElementById('bb-bl-code')?.value.trim().toUpperCase();
+  const desc   = document.getElementById('bb-bl-desc')?.value.trim();
+  const head   = document.getElementById('bb-bl-head')?.value;
+  const amt    = document.getElementById('bb-bl-amount')?.value;
+  const factor = document.getElementById('bb-bl-factor')?.value;
+  const aliasRaw = document.getElementById('bb-bl-aliases')?.value.trim();
+  const aliases  = aliasRaw ? aliasRaw.split(',').map(a=>a.trim().toUpperCase()).filter(Boolean) : [];
+  if (!grant) { alert('Please select a grant.'); return; }
+  if (!code)  { alert('Please enter a budget code (e.g. A.1).'); return; }
+  if (!desc)  { alert('Please enter a description.'); return; }
+  const btn = document.getElementById('bb-bl-save-btn');
+  if (btn) btn.disabled = true;
+  const body = {
+    grant_program_id: grant,
+    line_code: code,
+    line_desc: desc,
+    budget_head_id: head || null,
+    sanctioned_amount: amt !== '' && amt != null ? parseFloat(amt) : null,
+    allocation_factor: factor !== '' && factor != null ? parseFloat(factor) : 1.0,
+    code_aliases: aliases,
+    is_active: true
+  };
+  try {
+    let res;
+    if (bbLineEditId) {
+      delete body.is_active;
+      res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${bbLineEditId}`, {
+        method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' }, body: JSON.stringify(body)
+      });
+    } else {
+      res = await fetch(`${MEBK_URL}/rest/v1/budget_line`, {
+        method: 'POST', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' }, body: JSON.stringify(body)
+      });
+    }
+    if (!res.ok) throw new Error(await res.text());
+    bbHideLineForm();
+    await Promise.all([bbLoadLines(), bbLoadStats()]);
+    bbToast(bbLineEditId ? 'Budget line updated ✓' : 'Budget line added ✓');
+    bbLineEditId = null;
+  } catch(e) { alert('Error: ' + e.message); }
+  if (btn) btn.disabled = false;
+}
+
+async function bbToggleLine(id, newActive) {
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}`, {
+      method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
+      body: JSON.stringify({ is_active: newActive })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    await Promise.all([bbLoadLines(), bbLoadStats()]);
+    bbToast(newActive ? 'Budget line activated ✓' : 'Budget line deactivated ✓');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function bbSearchLines(q) {
+  const lq = (q||'').toLowerCase();
+  document.querySelectorAll('#bb-list-bl .bb-bl-card').forEach(card => {
+    card.style.display = (!lq || card.textContent.toLowerCase().includes(lq)) ? '' : 'none';
+  });
 }
 
 // ── Budget Categories (CRUD) ──────────────────────────────────────
