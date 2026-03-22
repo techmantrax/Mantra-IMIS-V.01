@@ -2,22 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "dev (live-server — hot reload)",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["live-server", "src", "--port=3000", "--open=false"],
-      "port": 3000
-    },
-    {
-      "name": "serve (static — no reload)",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "src", "-p", "3000", "--no-clipboard"],
-      "port": 3000
-    },
-    {
-      "name": "serve:py (Python HTTP server)",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "3000", "--directory", "src"],
-      "port": 3000
+      "name": "Mantra IMIS Portal",
+      "command": "npx http-server src -p $PORT -o false",
+      "autoPort": true
     }
   ]
 }

@@ -7563,6 +7563,37 @@ select:focus:not(:focus-visible) { outline: none; }
         .bb-tab.bh.active{color:var(--warn);border-bottom-color:var(--warn);}
         .bb-tab.dn.active{color:var(--purple);border-bottom-color:var(--purple);}
         .bb-tab.gr.active{color:var(--accent2);border-bottom-color:var(--accent2);}
+        .bb-tab.bl.active{color:#0d9488;border-bottom-color:#0d9488;}
+        /* ── Budget Lines panel ── */
+        .bb-bl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:14px;}
+        .bb-bl-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-xs);position:relative;}
+        .bb-bl-card:hover{border-color:#99f6e4;box-shadow:var(--shadow-sm);}
+        .bb-bl-card-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+        .bb-bl-code{font-family:var(--mono);font-size:13px;font-weight:800;color:#0d9488;background:#f0fdfa;border:1px solid #99f6e4;padding:2px 8px;border-radius:var(--r-sm);}
+        .bb-bl-grant{font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.3px;}
+        .bb-bl-head{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+        .bb-bl-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+        .bb-bl-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--mist-3);color:var(--slate);}
+        .bb-bl-tag.cat{background:#ede9fe;color:#7c3aed;}
+        .bb-bl-tag.alloc{background:#fef9c3;color:#ca8a04;}
+        .bb-bl-tag.alias{background:#ecfeff;color:#0e7490;}
+        .bb-bl-amount{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink);margin-top:4px;}
+        .bb-bl-actions{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transition:opacity .12s;}
+        .bb-bl-card:hover .bb-bl-actions{opacity:1;}
+        .bb-bl-btn{font-size:10px;padding:3px 8px;border-radius:var(--r-sm);border:1px solid var(--mist-2);background:var(--white);color:var(--slate);cursor:pointer;font-family:var(--sans);}
+        .bb-bl-btn:hover{background:var(--mist-3);}
+        /* ── Budget Lines add form ── */
+        .bb-bl-form{display:none;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
+        .bb-bl-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+        @media(max-width:900px){.bb-bl-form-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:600px){.bb-bl-form-grid{grid-template-columns:1fr;}}
+        .bb-bl-form-field{display:flex;flex-direction:column;gap:5px;}
+        .bb-bl-form-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
+        .bb-bl-form-field input,.bb-bl-form-field select,.bb-bl-form-field textarea{padding:8px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);font-size:13px;font-family:var(--sans);outline:none;color:var(--ink);background:var(--white);}
+        .bb-bl-form-field input:focus,.bb-bl-form-field select:focus{border-color:#0d9488;box-shadow:0 0 0 2px rgba(13,148,136,.1);}
+        .bb-bl-span2{grid-column:span 2;}
+        .bb-bl-span3{grid-column:1/-1;}
+        .bb-bl-empty{text-align:center;padding:40px 20px;color:var(--slate);font-size:13px;}
 
         /* Toolbar */
         .bb-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
@@ -7631,6 +7662,16 @@ select:focus:not(:focus-visible) { outline: none; }
         /* Inline edit panel */
         .bb-edit-panel{display:none;flex-wrap:wrap;gap:8px;padding:10px 14px;align-items:center;border-top:1px solid var(--mist-2);background:var(--canvas);}
 
+        /* Upload Profile section on Grant cards */
+        .bb-up-profile{border-top:1px solid var(--mist-2);padding:8px 14px;background:var(--canvas);}
+        .bb-up-toggle{font-size:11px;color:var(--slate);background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0;font-family:inherit;}
+        .bb-up-toggle:hover{color:var(--blue);}
+        .bb-up-set{font-size:11px;color:#0d9488;font-weight:600;}
+        .bb-up-form{margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:end;}
+        .bb-up-field label{display:block;font-size:10px;font-weight:600;color:var(--slate);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px;}
+        .bb-up-field input,.bb-up-field select{width:100%;font-size:11px;padding:5px 8px;border:1px solid var(--mist-2);border-radius:var(--r-sm);background:var(--white);font-family:var(--mono);}
+        .bb-up-field input:focus,.bb-up-field select:focus{border-color:#0d9488;outline:none;}
+
         /* Misc */
         .bb-empty{text-align:center;padding:44px 20px;color:var(--slate);font-size:13px;}
         .bb-empty-icon{margin-bottom:10px;opacity:.35;}
@@ -7649,12 +7690,38 @@ select:focus:not(:focus-visible) { outline: none; }
             </h2>
             <div class="sub">Global master registry — declare budget heads, donors &amp; grants once, reuse across all Grant Setups</div>
           </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
+            <!-- Export dropdown -->
+            <div class="mebk-io-wrap">
+              <button class="mebk-io-btn export-btn" onclick="mebkToggleMenu('export','bb')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export ▾
+              </button>
+              <div class="mebk-io-menu" id="mebk-export-menu-bb">
+                <button class="mebk-io-menu-item" onclick="bbExportCSV()">↓ Export All (CSV)</button>
+                <button class="mebk-io-menu-item" onclick="bbDownloadTemplate()">↓ Download Template</button>
+              </div>
+            </div>
+            <!-- Import dropdown -->
+            <div class="mebk-io-wrap">
+              <button class="mebk-io-btn import-btn" onclick="mebkToggleMenu('import','bb')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Import ▾
+              </button>
+              <div class="mebk-io-menu" id="mebk-import-menu-bb">
+                <button class="mebk-io-menu-item" onclick="bbDownloadTemplate()">↓ Download Template first</button>
+                <div class="mebk-io-menu-sep"></div>
+                <button class="mebk-io-menu-item" onclick="bbTriggerImport()">↑ Bulk Upload CSV</button>
+              </div>
+            </div>
+            <input type="file" id="bb-import-file" accept=".csv" style="display:none;" onchange="bbImportFile(this.files[0])"/>
+          </div>
         </div>
 
         <!-- Stats -->
         <div class="bb-stats">
-          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bc">—</div><div class="bb-stat-l">Categories</div></div>
-          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bh">—</div><div class="bb-stat-l">Budget Heads</div></div>
+          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bc">—</div><div class="bb-stat-l">Budget Heads</div></div>
+          <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-bh">—</div><div class="bb-stat-l">Budget Lines</div></div>
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-dn">—</div><div class="bb-stat-l">Donors</div></div>
           <div class="bb-stat"><div class="bb-stat-n" id="bb-stat-gr">—</div><div class="bb-stat-l">Grants</div></div>
         </div>
@@ -7662,10 +7729,10 @@ select:focus:not(:focus-visible) { outline: none; }
         <!-- Tabs -->
         <div class="bb-tabs">
           <button class="bb-tab bc active" id="bb-tab-bc" onclick="bbSwitchTab('bc')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Categories
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Budget Heads
           </button>
           <button class="bb-tab bh" id="bb-tab-bh" onclick="bbSwitchTab('bh')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>Budget Heads
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>Budget Lines
           </button>
           <button class="bb-tab dn" id="bb-tab-dn" onclick="bbSwitchTab('dn')">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;margin-right:5px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Donors
@@ -7678,13 +7745,13 @@ select:focus:not(:focus-visible) { outline: none; }
         <!-- ── BUDGET CATEGORIES PANEL ── -->
         <div id="bb-panel-bc">
           <div class="bb-toolbar">
-            <input class="bb-search" id="bb-search-bc" placeholder="Search categories…" oninput="bbSearch('bc',this.value)"/>
+            <input class="bb-search" id="bb-search-bc" placeholder="Search budget heads…" oninput="bbSearch('bc',this.value)"/>
             <div class="bb-filter-pills" id="bb-filter-bc">
               <button class="bb-filter-pill sel" id="bb-fpill-bc-active"   onclick="bbSetFilter('bc','active')">Active</button>
               <button class="bb-filter-pill"     id="bb-fpill-bc-all"      onclick="bbSetFilter('bc','all')">All</button>
               <button class="bb-filter-pill"     id="bb-fpill-bc-inactive" onclick="bbSetFilter('bc','inactive')">Inactive</button>
             </div>
-            <button class="bb-add-btn" onclick="bbShowForm('bc')">+ Add Category</button>
+            <button class="bb-add-btn" onclick="bbShowForm('bc')">+ Add Budget Head</button>
           </div>
           <!-- Add form -->
           <div class="bb-add-form" id="bb-form-bc" style="display:none;">
@@ -7694,8 +7761,8 @@ select:focus:not(:focus-visible) { outline: none; }
                 <input class="bb-inp" id="bb-bc-code" placeholder="A, B, C… or BL-01" style="width:80px;text-transform:uppercase;" maxlength="10"/>
               </div>
               <div class="bb-form-field">
-                <label class="bb-form-label">Label <span style="color:var(--danger)">*</span></label>
-                <input class="bb-inp bb-inp-lg" id="bb-bc-label" placeholder="e.g. Activity-based, Program-level…"/>
+                <label class="bb-form-label">Name <span style="color:var(--danger)">*</span></label>
+                <input class="bb-inp bb-inp-lg" id="bb-bc-label" placeholder="e.g. Personnel & HR, Travel & Transport…"/>
               </div>
               <div class="bb-form-field">
                 <label class="bb-form-label">Badge Color</label>
@@ -7707,33 +7774,28 @@ select:focus:not(:focus-visible) { outline: none; }
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-top:10px;">
-              <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;" onclick="bbSaveCat()">Save Category</button>
+              <button class="btn btn-ok" style="font-size:12px;padding:7px 16px;" onclick="bbSaveCat()">Save Budget Head</button>
               <button class="btn" style="font-size:12px;" onclick="document.getElementById('bb-form-bc').style.display='none'">Cancel</button>
             </div>
           </div>
           <div id="bb-cats-list" style="margin-top:12px;"></div>
         </div>
 
-        <!-- ── BUDGET HEADS PANEL ── -->
+        <!-- ── BUDGET LINES PANEL ── -->
         <div id="bb-panel-bh">
           <div class="bb-toolbar">
-            <input class="bb-search" id="bb-search-bh" placeholder="Search budget heads…" oninput="bbSearch('bh',this.value)"/>
+            <input class="bb-search" id="bb-search-bh" placeholder="Search budget lines…" oninput="bbSearch('bh',this.value)"/>
             <div class="bb-filter-pills" id="bb-filter-bh">
               <button class="bb-filter-pill sel" id="bb-fpill-bh-active"   onclick="bbSetFilter('bh','active')">Active</button>
               <button class="bb-filter-pill"     id="bb-fpill-bh-all"      onclick="bbSetFilter('bh','all')">All</button>
               <button class="bb-filter-pill"     id="bb-fpill-bh-inactive" onclick="bbSetFilter('bh','inactive')">Inactive</button>
             </div>
-            <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--warn);color:#fff;border-color:var(--warn);" onclick="bbShowForm('bh')">+ Add Budget Head</button>
+            <button class="btn" style="font-size:12px;padding:7px 16px;white-space:nowrap;background:var(--warn);color:#fff;border-color:var(--warn);" onclick="bbShowForm('bh')">+ Add Budget Line</button>
           </div>
           <div class="bb-add-form bh-form" id="bb-form-bh">
-            <input class="bb-inp bb-inp-lg" id="bb-bh-name" placeholder="Budget head name…" onkeydown="if(event.key==='Enter')bbSaveHead()"/>
+            <input class="bb-inp bb-inp-lg" id="bb-bh-name" placeholder="Budget line name… e.g. Salaries & Benefits" onkeydown="if(event.key==='Enter')bbSaveHead()"/>
             <select class="bb-sel" id="bb-bh-cat">
-              <option value="">Category…</option>
-              <option value="Personnel">Personnel</option>
-              <option value="Programs">Programs</option>
-              <option value="Operations">Operations</option>
-              <option value="Overheads">Overheads</option>
-              <option value="Infrastructure">Infrastructure</option>
+              <option value="">Select Budget Head…</option>
             </select>
             <input class="bb-inp bb-inp-lg" id="bb-bh-desc" placeholder="Description (optional)…"/>
             <button class="btn" style="font-size:12px;padding:7px 14px;background:var(--warn);color:#fff;border-color:var(--warn);" id="bb-bh-save-btn" onclick="bbSaveHead()">Save</button>
@@ -7867,6 +7929,46 @@ select:focus:not(:focus-visible) { outline: none; }
       .bt-grant-pct.warn{color:var(--warn);}
       .bt-grant-mini-bar{height:3px;background:var(--mist-3);border-radius:999px;margin-top:8px;overflow:hidden;}
       .bt-grant-mini-fill{height:100%;border-radius:999px;}
+      .bt-grant-health{font-size:9px;font-weight:700;padding:2px 7px;border-radius:999px;display:inline-block;margin-top:6px;text-transform:uppercase;letter-spacing:.4px;}
+      .bt-grant-health.on-track{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;}
+      .bt-grant-health.at-risk{background:#fef9c3;color:#ca8a04;border:1px solid #fef08a;}
+      .bt-grant-health.over-budget{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+      .bt-grant-health.pipeline{background:#ede9fe;color:#7c3aed;border:1px solid #ddd6fe;}
+      .bt-grant-health.completed{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd;}
+      .bt-grant-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+      .bt-grant-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+      .bt-grant-status-dot.active{background:var(--ok);}
+      .bt-grant-status-dot.pipeline{background:var(--purple, #7c3aed);}
+      .bt-grant-status-dot.completed{background:var(--blue);}
+      /* ── Grant KPI bar (shows after grant selected) ── */
+      .bt-kpi-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;}
+      @media(max-width:1100px){.bt-kpi-bar{grid-template-columns:repeat(3,1fr);}}
+      @media(max-width:700px){.bt-kpi-bar{grid-template-columns:repeat(2,1fr);}}
+      .bt-kpi-tile{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);padding:12px 14px;box-shadow:var(--shadow-xs);}
+      .bt-kpi-label{font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+      .bt-kpi-val{font-size:18px;font-weight:800;font-family:var(--mono);color:var(--ink);letter-spacing:-0.5px;line-height:1;}
+      .bt-kpi-sub{font-size:10px;color:var(--slate);margin-top:2px;}
+      .bt-kpi-tile.danger .bt-kpi-val{color:var(--danger);}
+      .bt-kpi-tile.warn .bt-kpi-val{color:var(--warn);}
+      .bt-kpi-tile.ok .bt-kpi-val{color:var(--ok);}
+      .bt-kpi-tile.alert{border-left:3px solid var(--warn);}
+      /* ── Disbursement improvements ── */
+      .bt-disb-progress{height:4px;background:var(--mist-3);border-radius:999px;overflow:hidden;margin-top:5px;}
+      .bt-disb-progress-fill{height:100%;border-radius:999px;background:var(--ok);}
+      .bt-disb-status.danger{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+      /* ── Reporting improvements ── */
+      .bt-report-row{display:grid;grid-template-columns:1fr 110px 110px 100px;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--mist-3);font-size:12px;}
+      .bt-report-days{font-size:10px;font-weight:600;margin-top:2px;}
+      .bt-report-days.ok{color:var(--ok);}
+      .bt-report-days.warn{color:var(--warn);}
+      .bt-report-days.danger{color:var(--danger);}
+      /* ── Grant Edit Modal ── */
+      .bt-edit-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+      @media(max-width:600px){.bt-edit-modal-grid{grid-template-columns:1fr;}}
+      .bt-edit-field{display:flex;flex-direction:column;gap:5px;}
+      .bt-edit-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
+      .bt-edit-field input,.bt-edit-field select{padding:8px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);font-size:13px;font-family:var(--sans);outline:none;color:var(--ink);background:var(--white);}
+      .bt-edit-field input:focus,.bt-edit-field select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.1);}
 
       /* ── Budget table ── */
       .bt-table-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-xs);}
@@ -8502,6 +8604,9 @@ select:focus:not(:focus-visible) { outline: none; }
             </div>
           </div><!-- /bt-grant-outcome-panel -->
 
+          <!-- ── Grant KPI Bar (rendered by btRenderKpiBar) ── -->
+          <div class="bt-kpi-bar" id="bt-kpi-bar" style="display:none;"></div>
+
           <!-- View toggle: Budget Lines | Monthly Burn | Disbursements | Reporting -->
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
             <div class="bt-view-toggle">
@@ -8510,7 +8615,10 @@ select:focus:not(:focus-visible) { outline: none; }
               <button class="bt-view-btn" data-bt-view="disbursements">Disbursements</button>
               <button class="bt-view-btn" data-bt-view="reporting">Reporting Schedule</button>
             </div>
-            <div id="bt-selected-grant-label" style="font-size:12px;font-weight:600;color:var(--blue);"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div id="bt-selected-grant-label" style="font-size:12px;font-weight:600;color:var(--blue);"></div>
+              <button class="btn" id="bt-edit-grant-btn" style="font-size:11px;padding:4px 10px;display:none;" onclick="btOpenEditModal()">✏️ Edit Grant</button>
+            </div>
           </div>
 
           <!-- ── View: Budget Lines ── -->
@@ -8612,6 +8720,59 @@ select:focus:not(:focus-visible) { outline: none; }
 
         </div><!-- /bt-detail -->
 
+        <!-- ── Grant Edit Modal ── -->
+        <div id="bt-edit-modal" class="modal-backdrop hidden">
+          <div class="modal" style="width:min(560px,100%);">
+            <h3>Edit Grant</h3>
+            <div class="modal-sub" id="bt-edit-modal-sub">Update grant details</div>
+            <div class="bt-edit-modal-grid">
+              <div class="bt-edit-field" style="grid-column:1/-1;">
+                <label>Donor Name</label>
+                <input id="bt-edit-donor" type="text" placeholder="Donor organisation name…"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Grant Code</label>
+                <input id="bt-edit-code" type="text" placeholder="e.g. WF-KA-2526"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Total Amount (₹)</label>
+                <input id="bt-edit-total" type="number" min="0" step="1" placeholder="0"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Start Date</label>
+                <input id="bt-edit-start" type="date"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>End Date</label>
+                <input id="bt-edit-end" type="date"/>
+              </div>
+              <div class="bt-edit-field">
+                <label>Status</label>
+                <select id="bt-edit-status">
+                  <option value="active">Active</option>
+                  <option value="pipeline">Pipeline</option>
+                  <option value="completed">Completed</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="bt-edit-field">
+                <label>Currency</label>
+                <select id="bt-edit-currency">
+                  <option value="INR">INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                </select>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button class="btn" onclick="btCloseEditModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="btSaveGrantEdit()">Save Changes</button>
+            </div>
+          </div>
+        </div>
+
         <!-- ── UC Modal ── -->
         <div id="bt-uc-modal" class="modal-backdrop hidden">
           <div class="modal" style="width:min(700px,100%);">
@@ -8633,12 +8794,23 @@ select:focus:not(:focus-visible) { outline: none; }
       <!-- GRANT MANAGEMENT - UPLOAD MONTHLY BURN (route: grant-burn-upload) -->
       <section id="page-grant-burn-upload" class="hidden">
       <style>
-      .gmb-wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;}
-      @media(max-width:1100px){.gmb-wrap{grid-template-columns:1fr;}}
-      .gmb-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-xl);padding:18px;box-shadow:var(--shadow-xs);}
-      .gmb-card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--mist-3);}
+      /* ── GMB Tab system ── */
+      .gmb-tabs{display:flex;gap:0;background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-xs);margin-bottom:18px;}
+      .gmb-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 16px;font-size:13px;font-weight:500;color:var(--slate);cursor:pointer;border:none;background:none;font-family:var(--sans);border-bottom:2px solid transparent;transition:all .15s;}
+      .gmb-tab:not(:last-child){border-right:1px solid var(--mist-2);}
+      .gmb-tab:hover{background:var(--mist-3);color:var(--ink);}
+      .gmb-tab.active{background:var(--blue-dim);color:var(--blue);font-weight:700;border-bottom:2px solid var(--blue);}
+      .gmb-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;font-size:10px;font-weight:700;background:var(--blue);color:#fff;}
+      .gmb-tab.active .gmb-tab-badge{background:var(--blue);}
+      /* ── Tab panels ── */
+      .gmb-panel{display:none;}
+      .gmb-panel.active{display:block;animation:gmbIn .18s ease;}
+      @keyframes gmbIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+      /* ── Card inside panel ── */
+      .gmb-card{background:var(--white);border:1px solid var(--mist-2);border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow-xs);}
+      .gmb-card-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--mist-3);}
       .gmb-title{font-size:14px;font-weight:800;color:var(--ink);}
-      .gmb-sub{font-size:12px;color:var(--slate);}
+      .gmb-sub{font-size:12px;color:var(--slate);margin-top:2px;}
       .gmb-grid{display:grid;gap:10px;}
       .gmb-g2{grid-template-columns:1fr 1fr;}
       @media(max-width:760px){.gmb-g2{grid-template-columns:1fr;}}
@@ -8646,43 +8818,73 @@ select:focus:not(:focus-visible) { outline: none; }
       .gmb-field label{font-size:11px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.2px;}
       .gmb-field select,.gmb-field input{padding:9px 11px;border-radius:var(--r);border:1.5px solid var(--mist-2);background:var(--white);color:var(--ink);font-size:13px;font-family:var(--sans);outline:none;box-shadow:var(--shadow-xs);}
       .gmb-field select:focus,.gmb-field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-      .gmb-drop{border:2px dashed var(--blue-border);background:var(--blue-dim);border-radius:var(--r-lg);padding:20px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;}
+      .gmb-drop{border:2px dashed var(--blue-border);background:var(--blue-dim);border-radius:var(--r-lg);padding:28px;text-align:center;cursor:pointer;transition:border-color .12s,background .12s;margin-top:14px;}
       .gmb-drop:hover{border-color:var(--blue);background:#eff6ff;}
+      .gmb-drop svg{margin-bottom:8px;color:var(--blue);}
       .gmb-drop h4{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;}
       .gmb-drop p{font-size:12px;color:var(--slate);}
       .gmb-file-row{margin-top:10px;display:none;align-items:center;justify-content:space-between;gap:8px;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r);padding:8px 10px;}
       .gmb-file-name{font-size:12px;font-weight:600;color:var(--ink);}
       .gmb-file-meta{font-size:11px;color:var(--slate);}
-      .gmb-hint{margin-top:10px;font-size:11px;color:var(--slate);}
+      .gmb-hint{margin-top:12px;padding:10px 12px;background:var(--canvas);border-radius:var(--r);font-size:11.5px;color:var(--slate);border:1px solid var(--mist-2);}
       .gmb-hint strong{color:var(--blue);}
-      .gmb-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+      .gmb-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
       .gmb-chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+      /* ── History tab ── */
+      .gmb-history-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+      .gmb-history-filters select,.gmb-history-filters input{padding:7px 10px;border-radius:var(--r);border:1.5px solid var(--mist-2);font-size:12px;font-family:var(--sans);outline:none;background:var(--white);color:var(--ink);}
+      .gmb-history-filters select:focus,.gmb-history-filters input:focus{border-color:var(--blue);}
       .gmb-table{width:100%;border-collapse:collapse;font-size:12px;}
-      .gmb-table th{padding:7px 9px;text-align:left;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;background:var(--canvas);border-bottom:1px solid var(--mist-2);}
-      .gmb-table td{padding:8px 9px;border-bottom:1px solid var(--mist-3);vertical-align:top;}
+      .gmb-table th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.4px;background:var(--canvas);border-bottom:1px solid var(--mist-2);white-space:nowrap;}
+      .gmb-table td{padding:9px 10px;border-bottom:1px solid var(--mist-3);vertical-align:middle;}
       .gmb-table tr:last-child td{border-bottom:none;}
-      .gmb-empty{text-align:center;padding:24px 12px;color:var(--slate);font-size:12px;}
-      .gmb-status{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);}
+      .gmb-table tbody tr:hover td{background:var(--blue-dim);}
+      .gmb-empty{text-align:center;padding:40px 12px;color:var(--slate);font-size:12px;}
+      .gmb-status{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;}
+      .gmb-status.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+      .gmb-status.warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border);}
+      .gmb-status.err{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+      .gmb-status.info{border:1px solid var(--blue-border);background:var(--blue-dim);color:var(--blue);}
+      .gmb-history-summary{display:flex;gap:12px;padding:10px 14px;background:var(--canvas);border:1px solid var(--mist-2);border-radius:var(--r-lg);margin-bottom:14px;flex-wrap:wrap;}
+      .gmb-history-stat{font-size:12px;color:var(--slate);}
+      .gmb-history-stat strong{color:var(--ink);font-size:14px;font-weight:800;font-family:var(--mono);margin-right:4px;}
       </style>
 
       <div class="section-hd">
         <div>
           <h2>Upload Monthly Burn</h2>
-          <div class="sub">Upload monthly fund utilization file (CSV/XLSX). Upload will auto-update Grant Portfolio for the selected program and donor.</div>
+          <div class="sub">Upload monthly fund utilization files and track upload history.</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn" style="font-size:12px;" onclick="showPage('grant-mgmt')">Back To Portfolio</button>
+          <button class="btn" style="font-size:12px;" onclick="showPage('grant-mgmt')">← Back To Portfolio</button>
         </div>
       </div>
 
-      <div class="gmb-wrap">
+      <!-- ── Tab Bar ── -->
+      <div class="gmb-tabs">
+        <button class="gmb-tab active" id="gmb-tab-upload" onclick="gmbSwitchTab('upload')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Monthly Burn Upload
+        </button>
+        <button class="gmb-tab" id="gmb-tab-history" onclick="gmbSwitchTab('history')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Upload History
+          <span class="gmb-tab-badge" id="gmb-history-badge">0</span>
+        </button>
+      </div>
+
+      <!-- ── Tab 1: Upload ── -->
+      <div class="gmb-panel active" id="gmb-panel-upload">
         <div class="gmb-card">
           <div class="gmb-card-hd">
             <div>
               <div class="gmb-title">Monthly Burn Upload</div>
-              <div class="gmb-sub">Program -> Donor -> Month -> Upload file</div>
+              <div class="gmb-sub">Select Program → Donor → Month → Upload file → Sync Portfolio</div>
             </div>
-            <span class="gmb-chip">Portfolio Sync Enabled</span>
+            <span class="gmb-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Portfolio Sync Enabled
+            </span>
           </div>
 
           <div class="gmb-grid gmb-g2">
@@ -8705,7 +8907,7 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="gmb-field">
               <label>Month</label>
               <select id="gmb-month-sel">
-                <option value="">Select month...</option>
+                <option value="">Select month…</option>
                 <option value="Apr">Apr</option><option value="May">May</option><option value="Jun">Jun</option>
                 <option value="Jul">Jul</option><option value="Aug">Aug</option><option value="Sep">Sep</option>
                 <option value="Oct">Oct</option><option value="Nov">Nov</option><option value="Dec">Dec</option>
@@ -8716,47 +8918,91 @@ select:focus:not(:focus-visible) { outline: none; }
 
           <input type="file" id="gmb-file-input" accept=".csv,.xlsx" style="display:none;" />
           <div class="gmb-drop" id="gmb-dropzone" tabindex="0" role="button" aria-label="Select monthly burn file">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             <h4>Drop CSV or XLSX here</h4>
             <p>or click to browse from your computer</p>
           </div>
 
           <div class="gmb-file-row" id="gmb-file-row">
-            <div>
-              <div class="gmb-file-name" id="gmb-file-name">No file selected</div>
-              <div class="gmb-file-meta" id="gmb-file-meta"></div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div>
+                <div class="gmb-file-name" id="gmb-file-name">No file selected</div>
+                <div class="gmb-file-meta" id="gmb-file-meta"></div>
+              </div>
             </div>
-            <button class="btn" style="font-size:11px;padding:6px 10px;" id="gmb-file-clear-btn">Clear</button>
+            <button class="btn" style="font-size:11px;padding:6px 10px;" id="gmb-file-clear-btn">✕ Clear</button>
           </div>
 
           <div class="gmb-actions">
-            <button class="btn btn-primary" id="gmb-upload-btn" style="font-size:12px;" disabled>Upload And Sync Portfolio</button>
+            <button class="btn btn-primary" id="gmb-upload-btn" style="font-size:13px;padding:9px 20px;" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload & Sync Portfolio
+            </button>
+            <button class="btn" style="font-size:12px;" onclick="gmbDownloadTemplate()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Template
+            </button>
           </div>
+
           <div class="gmb-hint">
-            Upload format should include <strong>Budget Code</strong> and <strong>Allocated Amount</strong> (or Amount). If a Month column exists, selected month is auto-filtered before syncing.
+            <strong>Required columns:</strong> Budget Code · Allocated Amount (or Amount)<br>
+            If a <strong>Month</strong> column exists, selected month is auto-filtered before syncing. Supported formats: <strong>.csv</strong> and <strong>.xlsx</strong>
           </div>
         </div>
+      </div>
 
+      <!-- ── Tab 2: Upload History ── -->
+      <div class="gmb-panel" id="gmb-panel-history">
         <div class="gmb-card">
           <div class="gmb-card-hd">
             <div>
               <div class="gmb-title">Upload History</div>
-              <div class="gmb-sub">Tracks each monthly burn file upload event</div>
+              <div class="gmb-sub">All monthly burn uploads for this portfolio — sorted by most recent</div>
             </div>
+            <button class="btn" style="font-size:11px;padding:5px 10px;" onclick="gmbClearHistory()">Clear All</button>
           </div>
+
+          <!-- Summary bar -->
+          <div class="gmb-history-summary" id="gmb-history-summary">
+            <div class="gmb-history-stat"><strong id="gmb-hist-total">0</strong>Total Uploads</div>
+            <div class="gmb-history-stat"><strong id="gmb-hist-ok" style="color:var(--ok);">0</strong>Successful</div>
+            <div class="gmb-history-stat"><strong id="gmb-hist-err" style="color:var(--danger);">0</strong>Failed</div>
+            <div class="gmb-history-stat"><strong id="gmb-hist-last">—</strong>Last Upload</div>
+          </div>
+
+          <!-- Filters -->
+          <div class="gmb-history-filters">
+            <select id="gmb-hist-prog-filter" onchange="gmbRenderHistory()">
+              <option value="">All Programs</option>
+            </select>
+            <select id="gmb-hist-status-filter" onchange="gmbRenderHistory()">
+              <option value="">All Statuses</option>
+              <option value="success">Success</option>
+              <option value="error">Failed</option>
+            </select>
+            <input type="text" id="gmb-hist-search" placeholder="Search donor, file…" oninput="gmbRenderHistory()" style="min-width:180px;"/>
+          </div>
+
           <div style="overflow-x:auto;">
             <table class="gmb-table">
               <thead>
                 <tr>
-                  <th>Date Time</th>
+                  <th>#</th>
+                  <th>Date &amp; Time</th>
                   <th>Program</th>
                   <th>Donor</th>
                   <th>FY / Month</th>
                   <th>File</th>
+                  <th>Rows</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody id="gmb-history-body">
-                <tr><td colspan="6" class="gmb-empty">No uploads yet.</td></tr>
+                <tr><td colspan="8" class="gmb-empty">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;opacity:.3;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  No uploads yet. Use the <strong>Monthly Burn Upload</strong> tab to upload your first file.
+                </td></tr>
               </tbody>
             </table>
           </div>
@@ -9527,6 +9773,7 @@ function gsSyncGrantToBudgetTracker(grantRow, donorName, fyId, progId) {
   btStore.budgetLines[grantRecord.id] = gsState.budgetLines.map((l, i) => ({
     id: `${grantRecord.id}-L${i + 1}`,
     code: l.code || `L.${i + 1}`,
+    aliases: l.aliases || [],
     cat: l.cat || 'A',
     head: l.head || 'Budget head',
     allocated: parseFloat(l.allocated) || 0,
@@ -9714,15 +9961,15 @@ async function gsLoadFromDB() {
 
     // 6. Budget Heads from Budget Book (for budget line dropdowns)
     try {
-      const heads = await gsSbFetch('budget_head', 'is_active=eq.true&select=budget_head_id,head_code,head_name,category&order=sort_order.asc,head_name.asc');
+      const heads = await gsSbFetch('budget_line', 'is_active=eq.true&select=budget_line_id,head_code,head_name,category&order=sort_order.asc,head_name.asc');
       window.gsBudgetHeads = heads;
-    } catch(e3) { console.warn('[gsLoadFromDB] budget_head load failed', e3); }
+    } catch(e3) { console.warn('[gsLoadFromDB] budget_line load failed', e3); }
 
     // 7. Budget Categories from Budget Book
     try {
-      const cats = await gsSbFetch('budget_category', 'is_active=eq.true&select=budget_category_id,cat_code,cat_label,cat_color&order=sort_order.asc');
+      const cats = await gsSbFetch('budget_head', 'is_active=eq.true&select=budget_head_id,cat_code,cat_label,cat_color&order=sort_order.asc');
       window.gsCategoryDefs = cats;
-    } catch(e4) { console.warn('[gsLoadFromDB] budget_category load failed', e4); }
+    } catch(e4) { console.warn('[gsLoadFromDB] budget_head load failed', e4); }
 
     // Re-render chips with live data
     gsRenderFYChips();
@@ -9953,7 +10200,7 @@ function gsInitBL() {
 }
 
 function gsAddBL() {
-  gsState.budgetLines.push({ id:'bl-'+gsState.blSeq++, cat:'A', code:'', head:'', intv:'', activity:'', units:'', cpu:'', allocated:0 });
+  gsState.budgetLines.push({ id:'bl-'+gsState.blSeq++, cat:'A', code:'', aliases:[], head:'', intv:'', activity:'', units:'', cpu:'', allocated:0 });
   gsRenderBL(); gsUpdateBLSummary();
 }
 
@@ -10000,11 +10247,14 @@ function gsRenderBL() {
       </select>
       <div class="gs-cat-badge ${GS_CAT_CLS[l.cat]||'gs-ca'}" id="gs-bl-cat-badge-${l.id}" style="margin-top:3px;">${GS_CAT_LABEL[l.cat]||l.cat||'—'}</div>
     </td>
-    <td><input type="text" value="${esc(l.code)}" placeholder="A-01" style="min-width:50px;text-transform:uppercase;font-family:var(--mono);" onchange="gsBlSet('${l.id}','code',this.value)" /></td>
+    <td>
+      <input type="text" value="${esc(l.code)}" placeholder="A-01" style="min-width:50px;text-transform:uppercase;font-family:var(--mono);" onchange="gsBlSet('${l.id}','code',this.value)" />
+      <input type="text" value="${esc((l.aliases||[]).join(','))}" placeholder="alt codes…" title="Alternate codes (comma-separated) recognised during burn upload" style="margin-top:3px;min-width:50px;font-size:10px;color:var(--slate);font-family:var(--mono);text-transform:uppercase;" onchange="gsBlSetAliases('${l.id}',this.value)" />
+    </td>
     <td>
       <select style="min-width:150px;" onchange="gsBlSet('${l.id}','head',this.options[this.selectedIndex]?.text||'');gsBlSet('${l.id}','headId',this.value)">
         <option value="">— Budget Head —</option>
-        ${(window.gsBudgetHeads||[]).map(h=>`<option value="${h.budget_head_id}"${l.headId===h.budget_head_id?' selected':''}>${esc(h.head_name)}</option>`).join('')}
+        ${(window.gsBudgetHeads||[]).map(h=>`<option value="${h.budget_line_id}"${l.headId===h.budget_line_id?' selected':''}>${esc(h.head_name)}</option>`).join('')}
       </select>
     </td>
     <td>
@@ -10043,6 +10293,12 @@ function gsBlSet(id, field, value) {
     }
   }
   gsUpdateBLSummary();
+}
+
+function gsBlSetAliases(id, val) {
+  const l = gsState.budgetLines.find(l => l.id === id);
+  if (!l) return;
+  l.aliases = val.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
 }
 
 function gsBlUpdateActSel(lid, intvId) {
@@ -10523,6 +10779,7 @@ async function gsActivate() {
         grant_id: grantId, financial_year_id: fyId, program_id: progId,
         intervention_id: l.intv || null, budget_category_code: l.cat,
         budget_line_code: l.code || null, budget_head_name: l.head,
+        code_aliases: l.aliases?.length ? l.aliases : [],
         unit_count: parseFloat(l.units) || null, cost_per_unit: parseFloat(l.cpu) || null,
         allocated_amount: parseFloat(l.allocated) || 0, budget_status: 'active', sort_order: i,
       });
@@ -20027,15 +20284,28 @@ function btRenderGrantStrip(progId) {
     const pctCls   = t.pct >= 90 ? 'ok' : t.pct >= 60 ? 'warn' : 'danger';
     const barColor = t.pct >= 90 ? 'var(--ok)' : t.pct >= 60 ? 'var(--warn)' : 'var(--danger)';
     const gopActive = btGopState.activeGrant === g.id && $('bt-grant-outcome-panel')?.classList.contains('open');
+    // Health badge
+    const isOverBudget = t.pct > 100;
+    const healthCls  = g.status === 'pipeline' ? 'pipeline' : g.status === 'completed' ? 'completed'
+                     : isOverBudget ? 'over-budget' : t.pct >= 85 ? 'on-track' : t.pct >= 50 ? 'at-risk' : 'at-risk';
+    const healthTxt  = g.status === 'pipeline' ? 'Pipeline' : g.status === 'completed' ? 'Completed'
+                     : isOverBudget ? 'Over Budget' : t.pct >= 85 ? 'On Track' : 'At Risk';
+    const dotCls = g.status || 'active';
     return `<div class="bt-grant-card ${g.css}${g.id===btStore.activeGrant?' selected':''}" onclick="btSelectGrant('${g.id}')">
-      <div class="bt-grant-donor">${esc(g.donor)}</div>
-      <div class="bt-grant-amount">${FMT(t.allocated)}</div>
-      <div class="bt-grant-util">${FMT(t.utilised)} utilised · ${FMT(t.variance)} var</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
-        <span class="bt-grant-pct ${pctCls}">${t.pct}%</span>
+      <div class="bt-grant-top-row">
+        <div style="display:flex;align-items:center;gap:5px;">
+          <div class="bt-grant-status-dot ${dotCls}"></div>
+          <span class="bt-grant-donor">${esc(g.donor)}</span>
+        </div>
         <span style="font-size:10px;color:var(--slate);">${g.code}</span>
       </div>
-      <div class="bt-grant-mini-bar"><div class="bt-grant-mini-fill" style="width:${t.pct}%;background:${barColor};"></div></div>
+      <div class="bt-grant-amount">${FMT(t.allocated)}</div>
+      <div class="bt-grant-util">${FMT(t.utilised)} utilised · ${FMT(t.variance)} balance</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+        <span class="bt-grant-pct ${pctCls}">${t.pct}%</span>
+        <span class="bt-grant-health ${healthCls}">${healthTxt}</span>
+      </div>
+      <div class="bt-grant-mini-bar"><div class="bt-grant-mini-fill" style="width:${Math.min(t.pct,100)}%;background:${barColor};"></div></div>
       <button class="bt-gop-btn${gopActive?' active':''}"
         onclick="event.stopPropagation();btGopOpen('${g.id}')"
         title="View outcome commitments &amp; impact for ${esc(g.donor)}">
@@ -20050,7 +20320,10 @@ function btSelectGrant(grantId) {
   const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
   if (!grant) return;
   $('bt-selected-grant-label').textContent = `${grant.donor} · ${grant.code}`;
+  const editBtn = $('bt-edit-grant-btn');
+  if (editBtn) editBtn.style.display = 'inline-flex';
   btRenderGrantStrip(btStore.activeProg);
+  btRenderKpiBar(grantId);
   btRenderCurrentView();
 }
 
@@ -20297,6 +20570,71 @@ function btRenderMonthly() {
   </table></div>`;
 }
 
+
+// ── KPI Bar ──────────────────────────────────────────────────────────
+function btRenderKpiBar(grantId) {
+  const bar   = $('bt-kpi-bar'); if (!bar) return;
+  const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
+  const t     = btGrantTotals(grantId);
+  const disbs = btGetDisb(grantId);
+  const reports = btGetReports(grantId);
+  const today = new Date();
+
+  // Next disbursement
+  const nextDisb = disbs.find(d => d.status === 'due' || d.status === 'planned');
+  const nextDisbTxt = nextDisb ? nextDisb.due : '—';
+  const nextDisbSub = nextDisb ? FMT(nextDisb.expected) : 'None pending';
+
+  // Next report
+  const nextRpt = reports.find(r => r.status === 'due' || r.status === 'planned');
+  const nextRptTxt = nextRpt ? nextRpt.due : '—';
+  const nextRptSub = nextRpt ? nextRpt.label : 'None pending';
+
+  // Days left on grant
+  const endDate   = grant?.end ? new Date(grant.end) : null;
+  const daysLeft  = endDate ? Math.ceil((endDate - today) / 86400000) : null;
+  const daysLeftTxt = daysLeft !== null ? (daysLeft > 0 ? `${daysLeft}d left` : `${Math.abs(daysLeft)}d ago`) : '—';
+  const daysLeftCls = daysLeft !== null && daysLeft < 30 ? 'warn' : '';
+
+  // Health class
+  const healthCls = t.pct > 100 ? 'danger' : t.pct >= 85 ? 'ok' : 'warn';
+
+  bar.style.display = 'grid';
+  bar.innerHTML = `
+    <div class="bt-kpi-tile">
+      <div class="bt-kpi-label">Total Granted</div>
+      <div class="bt-kpi-val">${FMT(t.allocated)}</div>
+      <div class="bt-kpi-sub">${grant?.donor || ''}</div>
+    </div>
+    <div class="bt-kpi-tile">
+      <div class="bt-kpi-label">Utilised</div>
+      <div class="bt-kpi-val">${FMT(t.utilised)}</div>
+      <div class="bt-kpi-sub">of sanctioned amount</div>
+    </div>
+    <div class="bt-kpi-tile ${t.allocated - t.utilised < 0 ? 'danger' : ''}">
+      <div class="bt-kpi-label">Remaining</div>
+      <div class="bt-kpi-val">${FMT(Math.abs(t.allocated - t.utilised))}</div>
+      <div class="bt-kpi-sub">${t.allocated - t.utilised < 0 ? '⚠ Over budget' : 'unspent balance'}</div>
+    </div>
+    <div class="bt-kpi-tile ${healthCls}">
+      <div class="bt-kpi-label">Burn Rate</div>
+      <div class="bt-kpi-val">${t.pct}%</div>
+      <div class="bt-kpi-sub">${t.pct > 100 ? 'Over budget' : t.pct >= 85 ? 'On Track' : 'At Risk'}</div>
+    </div>
+    <div class="bt-kpi-tile ${nextDisb ? 'alert' : ''}">
+      <div class="bt-kpi-label">Next Disbursement</div>
+      <div class="bt-kpi-val" style="font-size:13px;">${nextDisbTxt}</div>
+      <div class="bt-kpi-sub">${nextDisbSub}</div>
+    </div>
+    <div class="bt-kpi-tile ${nextRpt ? 'alert' : ''}">
+      <div class="bt-kpi-label">Next Report Due</div>
+      <div class="bt-kpi-val" style="font-size:13px;">${nextRptTxt}</div>
+      <div class="bt-kpi-sub">${nextRptSub}</div>
+    </div>
+  `;
+}
+
+// ── Improved Disbursements ───────────────────────────────────────────
 function btRenderDisbursements() {
   const grantId = btStore.activeGrant;
   const grant   = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
@@ -20304,25 +20642,60 @@ function btRenderDisbursements() {
   if ($('bt-disb-title')) $('bt-disb-title').textContent = `Disbursements — ${grant?.donor||''}`;
   const body = $('bt-disb-body'); if (!body) return;
   if (!disbs.length) { body.innerHTML = `<div class="bt-empty">No installments recorded yet</div>`; return; }
-  const sLabels = { received_full:'Received', received_partial:'Partial', due:'Due', planned:'Planned', delayed:'Delayed', cancelled:'Cancelled' };
-  const sCls    = s => s==='received_full'?'ok':s==='delayed'?'warn':'muted';
-  const totalE  = disbs.reduce((s,d)=>s+(d.expected||0),0);
-  const totalR  = disbs.reduce((s,d)=>s+(d.received||0),0);
-  body.innerHTML = disbs.map(d => `<div class="bt-disb-row">
-    <div class="bt-disb-num ${sCls(d.status)}">${d.no}</div>
-    <div style="flex:1;"><div style="font-weight:600;">Installment ${d.no}</div><div class="bt-disb-date">${d.notes||'No notes'}</div></div>
-    <div class="bt-disb-date">Due: ${d.due}</div>
-    <div class="bt-disb-amt">${FMT(d.expected)}</div>
-    <div class="bt-disb-date">Recd: ${d.date||'—'}</div>
-    <div class="bt-disb-amt" style="color:var(--ok);">${FMT(d.received)}</div>
-    <div><span class="bt-disb-status ${sCls(d.status)}">${sLabels[d.status]||d.status}</span></div>
-  </div>`).join('') + `<div style="display:flex;justify-content:flex-end;gap:24px;padding:12px 14px;background:var(--canvas);border-top:2px solid var(--mist-2);font-size:12px;font-weight:700;">
-    <span>Expected: <span style="font-family:var(--mono);">${FMT(totalE)}</span></span>
-    <span>Received: <span style="font-family:var(--mono);color:var(--ok);">${FMT(totalR)}</span></span>
-    <span>Pending: <span style="font-family:var(--mono);color:${totalE-totalR>0?'var(--warn)':'var(--ok)'};">${FMT(totalE-totalR)}</span></span>
-  </div>`;
+
+  const today = new Date();
+  const sLabels = { received_full:'✓ Received', received_partial:'Partial', due:'Due', planned:'Planned', delayed:'⚠ Delayed', cancelled:'Cancelled' };
+  const sCls = s => s==='received_full'?'ok':s==='delayed'||s==='due'?'warn':s==='cancelled'?'danger':'muted';
+
+  const totalE = disbs.reduce((s,d)=>s+(d.expected||0),0);
+  const totalR = disbs.reduce((s,d)=>s+(d.received||0),0);
+  const pctRecvd = totalE > 0 ? Math.round(totalR/totalE*100) : 0;
+
+  // Auto-detect overdue
+  const rows = disbs.map(d => {
+    const dueDate = d.due ? new Date(d.due) : null;
+    const isOverdue = dueDate && dueDate < today && d.status === 'due';
+    const effectiveCls = isOverdue ? 'danger' : sCls(d.status);
+    const effectiveTxt = isOverdue ? '⚠ Overdue' : sLabels[d.status]||d.status;
+    const pct = d.expected > 0 ? Math.round((d.received||0)/d.expected*100) : 0;
+    const daysOverdue = isOverdue ? Math.ceil((today - dueDate)/86400000) : null;
+
+    return `<div class="bt-disb-row">
+      <div class="bt-disb-num ${effectiveCls}">${d.no}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;">Installment ${d.no}${d.notes ? ` · <span style="font-weight:400;color:var(--slate);">${esc(d.notes)}</span>` : ''}</div>
+        <div class="bt-disb-progress"><div class="bt-disb-progress-fill" style="width:${pct}%;background:${pct>=100?'var(--ok)':'var(--warn)'};"></div></div>
+        ${daysOverdue ? `<div style="font-size:10px;color:var(--danger);margin-top:2px;">${daysOverdue} days overdue</div>` : ''}
+      </div>
+      <div>
+        <div class="bt-disb-date">Due: <strong>${d.due||'—'}</strong></div>
+        <div class="bt-disb-date">Received: ${d.date||'—'}</div>
+      </div>
+      <div>
+        <div class="bt-disb-amt">${FMT(d.expected)}</div>
+        <div class="bt-disb-amt" style="color:var(--ok);font-size:11px;">${FMT(d.received)} recd</div>
+      </div>
+      <div><span class="bt-disb-status ${effectiveCls}">${effectiveTxt}</span></div>
+    </div>`;
+  });
+
+  body.innerHTML = rows.join('') + `
+    <div style="padding:12px 14px;background:var(--canvas);border-top:2px solid var(--mist-2);">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;gap:20px;font-size:12px;font-weight:700;">
+          <span>Expected: <span style="font-family:var(--mono);">${FMT(totalE)}</span></span>
+          <span>Received: <span style="font-family:var(--mono);color:var(--ok);">${FMT(totalR)}</span></span>
+          <span>Pending: <span style="font-family:var(--mono);color:${totalE-totalR>0?'var(--warn)':'var(--ok)'};">${FMT(totalE-totalR)}</span></span>
+        </div>
+        <div style="min-width:180px;">
+          <div style="font-size:10px;color:var(--slate);font-weight:700;margin-bottom:3px;">${pctRecvd}% RECEIVED</div>
+          <div class="bt-disb-progress"><div class="bt-disb-progress-fill" style="width:${pctRecvd}%;"></div></div>
+        </div>
+      </div>
+    </div>`;
 }
 
+// ── Improved Reporting Schedule ──────────────────────────────────────
 function btRenderReporting() {
   const grantId = btStore.activeGrant;
   const grant   = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
@@ -20330,14 +20703,98 @@ function btRenderReporting() {
   if ($('bt-rep-title')) $('bt-rep-title').textContent = `Reporting Schedule — ${grant?.donor||''}`;
   const body = $('bt-reporting-body'); if (!body) return;
   if (!reports.length) { body.innerHTML = `<div class="bt-empty">No reports scheduled yet</div>`; return; }
-  const sCls  = s => s==='submitted'?'ok':s==='due'?'warn':'muted';
-  const sTxt  = s => ({submitted:'Submitted',due:'Due',planned:'Planned',overdue:'Overdue',closed:'Closed'}[s]||s);
-  body.innerHTML = reports.map(r => `<div class="bt-report-row">
-    <div><div class="bt-report-type">${esc(r.label)}</div><div class="bt-report-period">${esc(r.period)} · ${r.type}</div></div>
-    <div style="font-size:12px;">${r.due}</div>
-    <div style="font-size:12px;color:var(--ok);">${r.submitted||'—'}</div>
-    <div><span class="bt-disb-status ${sCls(r.status)}">${sTxt(r.status)}</span></div>
-  </div>`).join('');
+
+  const today = new Date();
+  const typeIcon = { utilization:'📋', narrative:'📝', annual:'📊', indicator:'📈' };
+
+  const sCls = s => s==='submitted'?'ok':s==='overdue'||s==='due'?'warn':'muted';
+  const sTxt = s => ({submitted:'✓ Submitted',due:'Due Soon',planned:'Planned',overdue:'⚠ Overdue',closed:'Closed'})[s]||s;
+
+  const rows = reports.map(r => {
+    const dueDate = r.due ? new Date(r.due) : null;
+    const isOverdue = dueDate && dueDate < today && !r.submitted && r.status !== 'submitted';
+    const daysRemaining = dueDate && !r.submitted ? Math.ceil((dueDate - today)/86400000) : null;
+    const effectiveCls = isOverdue ? 'danger' : r.status==='submitted'?'ok':'warn';
+    const effectiveTxt = isOverdue ? '⚠ Overdue' : sTxt(r.status);
+
+    let daysNote = '';
+    if (r.submitted) {
+      daysNote = `<div class="bt-report-days ok">Submitted ${r.submitted}</div>`;
+    } else if (daysRemaining !== null) {
+      const dc = daysRemaining < 0 ? 'danger' : daysRemaining <= 14 ? 'warn' : 'ok';
+      daysNote = `<div class="bt-report-days ${dc}">${daysRemaining < 0 ? Math.abs(daysRemaining)+' days overdue' : daysRemaining+' days left'}</div>`;
+    }
+
+    return `<div class="bt-report-row">
+      <div>
+        <div class="bt-report-type">${typeIcon[r.type]||'📄'} ${esc(r.label)}</div>
+        <div class="bt-report-period">${esc(r.period)} · ${r.type}</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;">${r.due||'—'}</div>
+        ${daysNote}
+      </div>
+      <div style="font-size:12px;color:${r.submitted?'var(--ok)':'var(--slate)'};">${r.submitted||'—'}</div>
+      <div><span class="bt-disb-status ${effectiveCls}">${effectiveTxt}</span></div>
+    </div>`;
+  });
+
+  // Summary count
+  const submittedCount = reports.filter(r=>r.status==='submitted').length;
+  const overdueCount = reports.filter(r => { const d=r.due?new Date(r.due):null; return d&&d<today&&!r.submitted&&r.status!=='submitted'; }).length;
+
+  body.innerHTML = `
+    <div style="display:flex;gap:12px;padding:8px 14px;background:var(--canvas);border-bottom:1px solid var(--mist-2);font-size:11px;font-weight:700;flex-wrap:wrap;">
+      <span style="color:var(--ok);">✓ ${submittedCount} Submitted</span>
+      <span style="color:${overdueCount>0?'var(--danger)':'var(--slate)'};">${overdueCount > 0 ? '⚠ '+overdueCount+' Overdue' : '0 Overdue'}</span>
+      <span style="color:var(--slate);">${reports.length - submittedCount - overdueCount} Upcoming</span>
+    </div>
+    ${rows.join('')}`;
+}
+
+// ── Grant Edit Modal ─────────────────────────────────────────────────
+function btOpenEditModal() {
+  const grantId = btStore.activeGrant; if (!grantId) return;
+  const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
+  if (!grant) return;
+  if ($('bt-edit-modal-sub')) $('bt-edit-modal-sub').textContent = `${grant.donor} · ${grant.code}`;
+  if ($('bt-edit-donor'))    $('bt-edit-donor').value    = grant.donor || '';
+  if ($('bt-edit-code'))     $('bt-edit-code').value     = grant.code  || '';
+  if ($('bt-edit-total'))    $('bt-edit-total').value    = grant.total || '';
+  if ($('bt-edit-start'))    $('bt-edit-start').value    = grant.start || '';
+  if ($('bt-edit-end'))      $('bt-edit-end').value      = grant.end   || '';
+  if ($('bt-edit-status'))   $('bt-edit-status').value   = grant.status   || 'active';
+  if ($('bt-edit-currency')) $('bt-edit-currency').value = grant.currency || 'INR';
+  $('bt-edit-modal').classList.remove('hidden');
+}
+
+function btCloseEditModal() {
+  $('bt-edit-modal').classList.add('hidden');
+}
+
+function btSaveGrantEdit() {
+  const grantId = btStore.activeGrant; if (!grantId) return;
+  const grant = btGetGrants(btStore.activeProg).find(g => g.id === grantId);
+  if (!grant) return;
+  const donor = $('bt-edit-donor')?.value.trim();
+  const code  = $('bt-edit-code')?.value.trim();
+  const total = parseFloat($('bt-edit-total')?.value);
+  if (!donor) { toast(IC.warning + ' Donor name is required'); return; }
+  if (!code)  { toast(IC.warning + ' Grant code is required'); return; }
+  if (isNaN(total) || total < 0) { toast(IC.warning + ' Enter a valid total amount'); return; }
+  grant.donor    = donor;
+  grant.code     = code;
+  grant.total    = total;
+  grant.start    = $('bt-edit-start')?.value  || grant.start;
+  grant.end      = $('bt-edit-end')?.value    || grant.end;
+  grant.status   = $('bt-edit-status')?.value || 'active';
+  grant.currency = $('bt-edit-currency')?.value || 'INR';
+  // Update budget lines totals proportionally is complex — only update grant-level fields
+  btCloseEditModal();
+  $('bt-selected-grant-label').textContent = `${grant.donor} · ${grant.code}`;
+  btRenderGrantStrip(btStore.activeProg);
+  btRenderKpiBar(grantId);
+  toast(`✓ Grant updated — ${grant.donor} · ${grant.code}`);
 }
 
 function btGenerateUC() {
@@ -21051,14 +21508,17 @@ function gmbMonthToken(v) {
   return s.slice(0, 3).replace(/[^A-Za-z]/g, '').replace(/^./, c => c.toUpperCase()).toLowerCase().replace(/^./, c => c.toUpperCase());
 }
 
-function gmbExtractBurnByCode(headers, rows, selectedMonth) {
-  const codeHeader = gmbFindHeader(headers, [
+function gmbExtractBurnByCode(headers, rows, selectedMonth, profile = {}) {
+  // If profile specifies exact column names, use them; otherwise fuzzy-match
+  const exactFind = col => col ? headers.find(h => h === col) || null : null;
+
+  const codeHeader = exactFind(profile.code_col) || gmbFindHeader(headers, [
     /^budget code$/,
     /budget.*code/,
     /line.*code/,
     /^code$/,
   ]);
-  const amountHeader = gmbFindHeader(headers, [
+  const amountHeader = exactFind(profile.amount_col) || gmbFindHeader(headers, [
     /^allocated amount$/,
     /allocated.*amount/,
     /^amount$/,
@@ -21066,20 +21526,31 @@ function gmbExtractBurnByCode(headers, rows, selectedMonth) {
     /actual.*amount/,
     /expense.*amount/,
   ]);
-  const monthHeader = gmbFindHeader(headers, [
+  const dateHeader = exactFind(profile.date_col) || gmbFindHeader(headers, [
     /^month$/,
     /reporting.*month/,
     /burn.*month/,
     /^period$/,
   ]);
+  const dateType = profile.date_type || 'month_text'; // 'date' or 'month_text'
 
-  if (!codeHeader) throw new Error('Budget Code column not found in file');
-  if (!amountHeader) throw new Error('Amount column not found in file');
+  if (!codeHeader) throw new Error('Budget Code column not found in file. Set an Upload Profile on this grant in Budget Book.');
+  if (!amountHeader) throw new Error('Amount column not found in file. Set an Upload Profile on this grant in Budget Book.');
+
+  // For 'date' type, parse month from a date value instead of text
+  const extractMonth = (val) => {
+    if (dateType === 'date') {
+      const d = val ? new Date(val) : null;
+      if (!d || isNaN(d)) return '';
+      return d.toLocaleString('en-IN', { month: 'short' }).slice(0, 3);
+    }
+    return gmbMonthToken(val);
+  };
 
   const monthsFound = new Set();
-  if (monthHeader) {
+  if (dateHeader) {
     rows.forEach(r => {
-      const token = gmbMonthToken(r?.[monthHeader]);
+      const token = extractMonth(r?.[dateHeader]);
       if (token && MONTHS_FY.includes(token)) monthsFound.add(token);
     });
   }
@@ -21092,7 +21563,7 @@ function gmbExtractBurnByCode(headers, rows, selectedMonth) {
     const amount = gmbToNumber(r?.[amountHeader]);
     if (!code || amount == null) return;
 
-    const rowMonth = monthHeader ? gmbMonthToken(r?.[monthHeader]) : '';
+    const rowMonth = dateHeader ? extractMonth(r?.[dateHeader]) : '';
     if (useMonthFilter && rowMonth !== selectedMonth) return;
 
     byCode[code] = (byCode[code] || 0) + amount;
@@ -21107,7 +21578,7 @@ function gmbExtractBurnByCode(headers, rows, selectedMonth) {
     codeCount: Object.keys(byCode).length,
     codeHeader: String(codeHeader),
     amountHeader: String(amountHeader),
-    monthHeader: monthHeader ? String(monthHeader) : '',
+    monthHeader: dateHeader ? String(dateHeader) : '',
     monthsFound: Array.from(monthsFound),
     monthFiltered: !!(selectedMonth && monthsFound.size > 0),
   };
@@ -21140,7 +21611,7 @@ function gmbParseCSV(text) {
   return { headers, rows };
 }
 
-function gmbReadUploadStats(file, selectedMonth) {
+function gmbReadUploadStats(file, selectedMonth, profile = {}) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error('Failed to read file'));
@@ -21162,7 +21633,7 @@ function gmbReadUploadStats(file, selectedMonth) {
           rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
           if (!headers.length && rows.length) headers = Object.keys(rows[0]);
         }
-        const burn = gmbExtractBurnByCode(headers, rows, selectedMonth);
+        const burn = gmbExtractBurnByCode(headers, rows, selectedMonth, profile);
         resolve({
           rows: rows.length,
           cols: headers.length,
@@ -21198,7 +21669,13 @@ function gmbApplyUploadToPortfolio(rec) {
   if (!codeEntries.length) return { ok: false, reason: 'no_burn_rows' };
 
   const lineByCode = new Map();
-  lines.forEach(line => lineByCode.set(gmbNormCode(line.code), line));
+  lines.forEach(line => {
+    lineByCode.set(gmbNormCode(line.code), line);
+    (line.aliases || []).forEach(a => {
+      const norm = gmbNormCode(a);
+      if (norm && !lineByCode.has(norm)) lineByCode.set(norm, line);
+    });
+  });
 
   const matched = [];
   const unmatched = [];
@@ -21237,26 +21714,150 @@ function gmbApplyUploadToPortfolio(rec) {
   };
 }
 
+// ── Tab switching ────────────────────────────────────────────────────
+function gmbSwitchTab(tab) {
+  ['upload','history'].forEach(t => {
+    $(`gmb-tab-${t}`)?.classList.toggle('active', t === tab);
+    $(`gmb-panel-${t}`)?.classList.toggle('active', t === tab);
+  });
+  if (tab === 'history') gmbRenderHistory();
+}
+
+// ── Template download — dynamic, uses selected grant's actual lines ──
+function gmbDownloadTemplate() {
+  const programId = $('gmb-program-sel')?.value || '';
+  const grantId   = $('gmb-donor-sel')?.value   || '';
+
+  // Try to get the grant's upload profile for column names
+  const grant = gmbDonorsForProgram(programId).find(g => g.id === grantId);
+  const lines = grantId ? btGetLines(grantId) : [];
+
+  // Column headers — respect upload profile if set on grant
+  // profile lives on grant_program (Budget Book), but we stored it in memory when loaded
+  const profile = grant?.upload_profile || {};
+  const codeCol   = profile.code_col   || 'Budget Code';
+  const amtCol    = profile.amount_col || 'Amount';
+  const dateCol   = profile.date_col   || 'Month';
+
+  const csvRows = [`"${codeCol}","Budget Line","${amtCol}","${dateCol}"`];
+
+  if (lines.length) {
+    lines.forEach(l => {
+      const aliases = (l.aliases || []).join(' / ');
+      const note = aliases ? `${l.head} [aliases: ${aliases}]` : l.head;
+      csvRows.push(`"${l.code || ''}","${note.replace(/"/g,'""')}","",""`);
+    });
+  } else {
+    // Blank example rows when no grant selected
+    csvRows.push('"A-01","Salaries & Benefits","","Apr"');
+    csvRows.push('"A-02","Consultant Fees","","Apr"');
+    csvRows.push('"B-01","Workshop Costs","","Apr"');
+  }
+
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const grantCode = grant?.code || grantId || 'template';
+  a.download = `burn-template-${grantCode}-${new Date().toISOString().slice(0,7)}.csv`;
+  a.click();
+  toast('📋 Burn template downloaded — fill amounts and upload');
+}
+
+// ── Clear history ────────────────────────────────────────────────────
+function gmbClearHistory() {
+  if (!gmbState.history.length) { toast('No history to clear'); return; }
+  if (!confirm(`Clear all ${gmbState.history.length} upload record(s)?`)) return;
+  gmbState.history = [];
+  gmbRenderHistory();
+  toast('Upload history cleared');
+}
+
+// ── Render history with filters + summary ────────────────────────────
 function gmbRenderHistory() {
   const body = $('gmb-history-body');
   if (!body) return;
+
+  // Update badge
+  const badge = $('gmb-history-badge');
+  if (badge) badge.textContent = gmbState.history.length;
+
   if (!gmbState.history.length) {
-    body.innerHTML = '<tr><td colspan="6" class="gmb-empty">No uploads yet.</td></tr>';
+    body.innerHTML = `<tr><td colspan="8" class="gmb-empty">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;opacity:.3;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      No uploads yet. Use the <strong>Monthly Burn Upload</strong> tab to upload your first file.
+    </td></tr>`;
+    gmbUpdateHistorySummary([]);
     return;
   }
-  body.innerHTML = gmbState.history.slice().reverse().map(rec => {
-    const when = new Date(rec.uploadedAt).toLocaleString('en-IN');
-    const monthBlock = `${esc(rec.fy)} / ${esc(rec.month)}`;
-    const fileMeta = `${esc(rec.fileName)}<br><span style="font-size:10px;color:var(--slate);">${gmbFormatBytes(rec.fileSize)} · ${rec.rows} rows · ${rec.cols} cols · ${rec.codeCount || 0} codes</span>`;
+
+  // Apply filters
+  const progFilter   = $('gmb-hist-prog-filter')?.value  || '';
+  const statusFilter = $('gmb-hist-status-filter')?.value || '';
+  const search       = ($('gmb-hist-search')?.value || '').toLowerCase();
+
+  let filtered = gmbState.history.slice().reverse();
+  if (progFilter)   filtered = filtered.filter(r => r.programId === progFilter);
+  if (statusFilter) filtered = filtered.filter(r => (statusFilter === 'success' ? r.status !== 'Error' : r.status === 'Error'));
+  if (search)       filtered = filtered.filter(r =>
+    r.donorName?.toLowerCase().includes(search) ||
+    r.fileName?.toLowerCase().includes(search)  ||
+    r.programName?.toLowerCase().includes(search)
+  );
+
+  // Populate program filter options
+  const progSel = $('gmb-hist-prog-filter');
+  if (progSel && progSel.options.length <= 1) {
+    const progs = [...new Set(gmbState.history.map(r => r.programId))];
+    progs.forEach(pid => {
+      const name = gmbState.history.find(r => r.programId === pid)?.programName || pid;
+      const opt = document.createElement('option');
+      opt.value = pid; opt.textContent = name;
+      progSel.appendChild(opt);
+    });
+  }
+
+  gmbUpdateHistorySummary(gmbState.history);
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="8" class="gmb-empty">No records match the current filter.</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map((rec, i) => {
+    const when = new Date(rec.uploadedAt).toLocaleString('en-IN', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const isErr = rec.status === 'Error';
+    const statusCls = isErr ? 'err' : 'ok';
+    const statusTxt = isErr ? '✕ Failed' : `✓ ${rec.matchedCount||0} matched`;
+    const unmatched = rec.unmatchedCodes?.length ? `<br><span style="font-size:10px;color:var(--warn);">⚠ ${rec.unmatchedCodes.length} unmatched code(s)</span>` : '';
     return `<tr>
-      <td>${when}</td>
-      <td>${esc(rec.programName)}</td>
+      <td style="font-size:10px;color:var(--slate);font-family:var(--mono);">${gmbState.history.length - (gmbState.history.indexOf(gmbState.history.slice().reverse()[i]) )}</td>
+      <td style="font-size:11px;color:var(--slate);white-space:nowrap;">${when}</td>
+      <td style="font-weight:600;">${esc(rec.programName)}</td>
       <td>${esc(rec.donorName)}</td>
-      <td>${monthBlock}</td>
-      <td>${fileMeta}</td>
-      <td><span class="gmb-status">${esc(rec.status)} · ${rec.matchedCount || 0} matched · ${FMT(rec.amount)}</span></td>
+      <td style="font-size:12px;">${esc(rec.fy)} <span style="color:var(--slate);">/</span> <strong>${esc(rec.month)}</strong></td>
+      <td>
+        <div style="font-weight:600;font-size:12px;">${esc(rec.fileName)}</div>
+        <div style="font-size:10px;color:var(--slate);">${gmbFormatBytes(rec.fileSize)} · ${rec.rows||0} rows · ${rec.codeCount||0} codes</div>
+      </td>
+      <td style="font-family:var(--mono);font-size:12px;text-align:right;">${rec.rows||0}</td>
+      <td>
+        <span class="gmb-status ${statusCls}">${statusTxt}</span>
+        ${rec.amount ? `<div style="font-size:10px;color:var(--slate);margin-top:2px;">${FMT(rec.amount)}</div>` : ''}
+        ${unmatched}
+      </td>
     </tr>`;
   }).join('');
+}
+
+function gmbUpdateHistorySummary(history) {
+  const total   = history.length;
+  const ok      = history.filter(r => r.status !== 'Error').length;
+  const err     = history.filter(r => r.status === 'Error').length;
+  const last    = history.length ? new Date(history[history.length-1].uploadedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) : '—';
+  if ($('gmb-hist-total')) $('gmb-hist-total').textContent = total;
+  if ($('gmb-hist-ok'))    $('gmb-hist-ok').textContent    = ok;
+  if ($('gmb-hist-err'))   $('gmb-hist-err').textContent   = err;
+  if ($('gmb-hist-last'))  $('gmb-hist-last').textContent  = last;
 }
 
 async function gmbUploadNow() {
@@ -21279,7 +21880,14 @@ async function gmbUploadNow() {
 
   try {
     if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
-    const stats = await gmbReadUploadStats(gmbState.file, month);
+    // Fetch upload profile for this grant (if configured)
+    let uploadProfile = {};
+    try {
+      const pRes = await fetch(`${GS_SB_URL}/rest/v1/grant_program?grant_program_id=eq.${grantId}&select=upload_profile&limit=1`, { headers: GS_SB_HDR });
+      const [pData] = await pRes.json();
+      uploadProfile = pData?.upload_profile || {};
+    } catch(e) { /* silent — fall back to auto-detect */ }
+    const stats = await gmbReadUploadStats(gmbState.file, month, uploadProfile);
     const rec = {
       uploadedAt: new Date().toISOString(),
       programId,
@@ -21315,12 +21923,29 @@ async function gmbUploadNow() {
     gmbState.history.push(rec);
     gmbRenderHistory();
     gmbClearFile();
+    // Update badge count
+    const badge = $('gmb-history-badge');
+    if (badge) badge.textContent = gmbState.history.length;
     const miss = rec.unmatchedCodes.length ? ` · ${rec.unmatchedCodes.length} code(s) not mapped` : '';
     toast(`${IC['check-circle']} Synced ${rec.matchedCount} budget code(s) for ${program.name} · ${grant.donor} · ${month}${miss}`);
   } catch (err) {
+    // Log failed upload to history
+    gmbState.history.push({
+      uploadedAt: new Date().toISOString(),
+      programId, programName: program?.name || programId,
+      grantId, donorName: grant?.donor || grantId,
+      fy, month,
+      fileName: gmbState.file?.name || '—',
+      fileSize: gmbState.file?.size || 0,
+      rows: 0, cols: 0, codeCount: 0,
+      status: 'Error', matchedCount: 0, amount: 0,
+    });
+    gmbRenderHistory();
+    const badge = $('gmb-history-badge');
+    if (badge) badge.textContent = gmbState.history.length;
     toast(IC.warning + ' Upload failed: ' + (err?.message || 'Unknown error'));
   } finally {
-    if (btn) { btn.textContent = 'Upload And Sync Portfolio'; gmbUpdateUploadBtn(); }
+    if (btn) { btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload & Sync Portfolio`; gmbUpdateUploadBtn(); }
   }
 }
 
@@ -21481,32 +22106,21 @@ function bbSearch(tab, q) {
   });
 }
 
-// ── Show add form ────────────────────────────────────────────────
-function bbShowForm(tab) {
-  if (tab === 'bc') { document.getElementById('bb-form-bc').style.display = ''; return; }
-  const f = document.getElementById(`bb-form-${tab}`);
-  if (f) {
-    f.style.display = 'flex';
-    // populate donor dropdown when showing grant form
-    if (tab === 'gr') bbPopulateDonorSelect('bb-gr-donor');
-    f.querySelector('input')?.focus();
-  }
-}
 
 // ── Stats ─────────────────────────────────────────────────────────
 async function bbLoadStats() {
   try {
     const hdr = { ...MEBK_HDR, 'Prefer': 'count=exact' };
     const [bcR, bhR, dnR, grR] = await Promise.all([
-      fetch(`${MEBK_URL}/rest/v1/budget_category?is_active=eq.true&select=budget_category_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/budget_head?is_active=eq.true&select=budget_head_id&limit=1`, { headers: hdr }),
+      fetch(`${MEBK_URL}/rest/v1/budget_line?is_active=eq.true&select=budget_line_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/donor?is_active=eq.true&select=donor_id&limit=1`, { headers: hdr }),
       fetch(`${MEBK_URL}/rest/v1/grant_program?is_active=eq.true&select=grant_program_id&limit=1`, { headers: hdr }),
     ]);
     const n = r => r.headers.get('Content-Range')?.split('/')[1] ?? '?';
     const s = id => document.getElementById(id);
-    if (s('bb-stat-bc')) s('bb-stat-bc').textContent = n(bcR);
-    if (s('bb-stat-bh')) s('bb-stat-bh').textContent = n(bhR);
+    if (s('bb-stat-bc')) s('bb-stat-bc').textContent = n(bcR); // Budget Heads count
+    if (s('bb-stat-bh')) s('bb-stat-bh').textContent = n(bhR); // Budget Lines count
     if (s('bb-stat-dn')) s('bb-stat-dn').textContent = n(dnR);
     if (s('bb-stat-gr')) s('bb-stat-gr').textContent = n(grR);
   } catch(e) { /* decorative */ }
@@ -21529,44 +22143,72 @@ async function bbLoadHeads() {
   const fv = window.bbFilter.bh;
   const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
   try {
-    const res  = await fetch(
-      `${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,head_code,head_name,category,description,is_active&order=sort_order.asc,head_name.asc${af}&limit=300`,
-      { headers: MEBK_HDR }
-    );
+    // Fetch budget lines joined with parent budget head
+    const [res, catRes] = await Promise.all([
+      fetch(`${MEBK_URL}/rest/v1/budget_line?select=budget_line_id,head_code,head_name,description,is_active,budget_head_id,budget_head(cat_code,cat_label,cat_color)&order=budget_head_id.asc.nullsfirst,sort_order.asc,head_name.asc${af}&limit=300`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,cat_code,cat_label,cat_color&is_active=eq.true&order=sort_order.asc`, { headers: MEBK_HDR })
+    ]);
     const data = await res.json();
+    const cats = await catRes.json();
     if (!Array.isArray(data)) throw new Error(JSON.stringify(data));
+    window.bbCatsCache = Array.isArray(cats) ? cats : [];
+
     if (!el) return;
     if (!data.length) {
-      const msg = fv === 'inactive' ? 'No inactive budget heads' : 'No budget heads yet — click "+ Add Budget Head"';
+      const msg = fv === 'inactive' ? 'No inactive budget lines.' : 'No budget lines yet — click "+ Add Budget Line"';
       el.innerHTML = `<div class="bb-empty"><div class="bb-empty-icon">${IC.chart}</div>${msg}</div>`; return;
     }
-    el.innerHTML = data.map(h => {
-      const isActive = h.is_active !== false;
-      const sw = bbSwitch(isActive, `bbSetActiveHead('${h.budget_head_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
+
+    // Group lines by parent Budget Head
+    const groups = {};
+    data.forEach(h => {
+      const key = h.budget_head_id || '__none__';
+      if (!groups[key]) groups[key] = { cat: h.budget_head, lines: [] };
+      groups[key].lines.push(h);
+    });
+
+    const catOptsFn = (selId) => window.bbCatsCache.map(c =>
+      `<option value="${c.budget_head_id}" ${selId===c.budget_head_id?'selected':''}>${c.cat_code} — ${esc(c.cat_label)}</option>`
+    ).join('');
+
+    el.innerHTML = Object.entries(groups).map(([key, grp]) => {
+      const cat = grp.cat;
+      const clr = cat?.cat_color || '#6b7280';
+      const lbl = cat ? `${cat.cat_code} — ${esc(cat.cat_label)}` : 'Uncategorised';
+      const lineCards = grp.lines.map(h => {
+        const isActive = h.is_active !== false;
+        const sw = bbSwitch(isActive, `bbSetActiveHead('${h.budget_line_id}',${!isActive})`, 'Active — click to deactivate', 'Inactive — click to reactivate');
+        return `
+        <div class="bb-card${isActive ? '' : ' inactive'}" id="bb-bh-${h.budget_line_id}">
+          <div class="bb-card-hd">
+            <span class="bb-code-chip bh">${h.head_code || '—'}</span>
+            <span class="bb-name">${esc(h.head_name)}</span>
+            ${h.description ? `<span class="bb-desc">${esc(h.description)}</span>` : ''}
+            ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
+            <span class="bb-card-actions" onclick="event.stopPropagation()">
+              ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_line_id}')">${IC.edit}</button>` : ''}
+              ${sw}
+            </span>
+          </div>
+          <div class="bb-edit-panel" id="bb-bh-ep-${h.budget_line_id}">
+            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-name-${h.budget_line_id}" value="${(h.head_name||'').replace(/"/g,'&quot;')}" placeholder="Budget line name…"/>
+            <select class="bb-sel" id="bb-bh-ei-cat-${h.budget_line_id}">
+              <option value="">Select Budget Head…</option>
+              ${catOptsFn(h.budget_head_id)}
+            </select>
+            <input class="bb-inp bb-inp-lg" id="bb-bh-ei-desc-${h.budget_line_id}" value="${(h.description||'').replace(/"/g,'&quot;')}" placeholder="Description…"/>
+            <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditHead('${h.budget_line_id}')">Save</button>
+            <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bh-ep-${h.budget_line_id}').style.display='none'">Cancel</button>
+          </div>
+        </div>`;
+      }).join('');
       return `
-      <div class="bb-card${isActive ? '' : ' inactive'}" id="bb-bh-${h.budget_head_id}">
-        <div class="bb-card-hd">
-          <span class="bb-code-chip bh">${h.head_code || '—'}</span>
-          <span class="bb-name">${esc(h.head_name)}</span>
-          ${h.category ? `<span class="bb-pill cat">${esc(h.category)}</span>` : ''}
-          ${h.description ? `<span class="bb-desc">${esc(h.description)}</span>` : ''}
-          ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
-          <span class="bb-card-actions" onclick="event.stopPropagation()">
-            ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditHead('${h.budget_head_id}')">
-              ${IC.edit}</button>` : ''}
-            ${sw}
-          </span>
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:6px 12px;background:${clr}18;border-left:3px solid ${clr};border-radius:0 6px 6px 0;">
+          <span style="font-weight:700;font-size:12px;color:${clr};">${lbl}</span>
+          <span style="font-size:11px;color:var(--slate);">${grp.lines.length} line${grp.lines.length!==1?'s':''}</span>
         </div>
-        <div class="bb-edit-panel" id="bb-bh-ep-${h.budget_head_id}">
-          <input class="bb-inp bb-inp-lg" id="bb-bh-ei-name-${h.budget_head_id}" value="${(h.head_name||'').replace(/"/g,'&quot;')}" placeholder="Budget head name…"/>
-          <select class="bb-sel" id="bb-bh-ei-cat-${h.budget_head_id}">
-            <option value="">Category…</option>
-            ${['Personnel','Programs','Operations','Overheads','Infrastructure'].map(c => `<option value="${c}" ${h.category===c?'selected':''}>${c}</option>`).join('')}
-          </select>
-          <input class="bb-inp bb-inp-lg" id="bb-bh-ei-desc-${h.budget_head_id}" value="${(h.description||'').replace(/"/g,'&quot;')}" placeholder="Description…"/>
-          <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditHead('${h.budget_head_id}')">Save</button>
-          <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bh-ep-${h.budget_head_id}').style.display='none'">Cancel</button>
-        </div>
+        ${lineCards}
       </div>`;
     }).join('');
   } catch(e) { if (el) el.innerHTML = `<div class="bb-err">${IC.warning} ${e.message}</div>`; }
@@ -21578,42 +22220,63 @@ function bbEditHead(id) {
   if (ep) { ep.style.display = 'flex'; document.getElementById(`bb-bh-ei-name-${id}`)?.focus(); }
 }
 async function bbSaveEditHead(id) {
-  const name = document.getElementById(`bb-bh-ei-name-${id}`)?.value.trim();
-  const cat  = document.getElementById(`bb-bh-ei-cat-${id}`)?.value;
-  const desc = document.getElementById(`bb-bh-ei-desc-${id}`)?.value.trim();
-  if (!name) { alert('Budget head name is required.'); return; }
+  const name  = document.getElementById(`bb-bh-ei-name-${id}`)?.value.trim();
+  const catId = document.getElementById(`bb-bh-ei-cat-${id}`)?.value;
+  const desc  = document.getElementById(`bb-bh-ei-desc-${id}`)?.value.trim();
+  if (!name) { alert('Budget line name is required.'); return; }
   try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}`, {
       method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ head_name: name, category: cat || null, description: desc || null })
+      body: JSON.stringify({ head_name: name, budget_head_id: catId || null, description: desc || null })
     });
     if (!res.ok) throw new Error(await res.text());
-    await bbLoadHeads(); bbToast('Budget head updated ✓');
+    await bbLoadHeads(); bbToast('Budget line updated ✓');
   } catch(e) { alert('Error: ' + e.message); }
 }
 async function bbSetActiveHead(id, newActive) {
-  if (!confirm(`${newActive ? 'Reactivate' : 'Deactivate'} this budget head?`)) return;
+  if (!confirm(`${newActive ? 'Reactivate' : 'Deactivate'} this budget line?`)) return;
   try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line?budget_line_id=eq.${id}`, {
       method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
       body: JSON.stringify({ is_active: newActive })
     });
     if (!res.ok) throw new Error(await res.text());
     await Promise.all([bbLoadHeads(), bbLoadStats()]);
-    bbToast(newActive ? 'Budget head reactivated ✓' : 'Budget head deactivated ✓');
+    bbToast(newActive ? 'Budget line reactivated ✓' : 'Budget line deactivated ✓');
   } catch(e) { alert('Error: ' + e.message); }
+}
+async function bbShowForm(tab) {
+  if (tab === 'bh') {
+    // Populate Budget Head dropdown dynamically from budget_head cache
+    const sel = document.getElementById('bb-bh-cat');
+    if (sel) {
+      const cats = window.bbCatsCache || [];
+      sel.innerHTML = `<option value="">Select Budget Head…</option>` +
+        cats.map(c => `<option value="${c.budget_head_id}">${c.cat_code} — ${esc(c.cat_label)}</option>`).join('');
+    }
+    document.getElementById('bb-form-bh').style.display = 'flex';
+    document.getElementById('bb-bh-name')?.focus();
+    return;
+  }
+  if (tab === 'bc') { document.getElementById('bb-form-bc').style.display = ''; return; }
+  const f = document.getElementById(`bb-form-${tab}`);
+  if (f) {
+    f.style.display = 'flex';
+    if (tab === 'gr') bbPopulateDonorSelect('bb-gr-donor');
+    f.querySelector('input')?.focus();
+  }
 }
 async function bbSaveHead() {
   const name  = document.getElementById('bb-bh-name')?.value.trim();
-  const cat   = document.getElementById('bb-bh-cat')?.value;
+  const catId = document.getElementById('bb-bh-cat')?.value;
   const desc  = document.getElementById('bb-bh-desc')?.value.trim();
-  if (!name) { alert('Please enter a budget head name.'); return; }
+  if (!name) { alert('Please enter a budget line name.'); return; }
   const btn = document.getElementById('bb-bh-save-btn');
   if (btn) btn.disabled = true;
   try {
-    const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
+    const res = await fetch(`${MEBK_URL}/rest/v1/budget_line`, {
       method: 'POST', headers: { ...MEBK_HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify({ head_name: name, category: cat || null, description: desc || null, is_active: true })
+      body: JSON.stringify({ head_name: name, budget_head_id: catId || null, description: desc || null, is_active: true })
     });
     if (!res.ok) throw new Error(await res.text());
     document.getElementById('bb-bh-name').value = '';
@@ -21621,7 +22284,7 @@ async function bbSaveHead() {
     document.getElementById('bb-bh-desc').value = '';
     document.getElementById('bb-form-bh').style.display = 'none';
     await Promise.all([bbLoadHeads(), bbLoadStats()]);
-    bbToast('Budget head added ✓');
+    bbToast('Budget line added ✓');
   } catch(e) { alert('Error: ' + e.message); }
   if (btn) btn.disabled = false;
 }
@@ -21756,7 +22419,7 @@ async function bbLoadGrants() {
   const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
   try {
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/grant_program?select=grant_program_id,grant_code,grant_name,grant_type,currency,total_amount,start_date,end_date,is_active,donor(donor_id,donor_name)&order=grant_name.asc${af}&limit=300`,
+      `${MEBK_URL}/rest/v1/grant_program?select=grant_program_id,grant_code,grant_name,grant_type,currency,total_amount,start_date,end_date,is_active,upload_profile,donor(donor_id,donor_name)&order=grant_name.asc${af}&limit=300`,
       { headers: MEBK_HDR }
     );
     const data = await res.json();
@@ -21807,6 +22470,8 @@ async function bbLoadGrants() {
           <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditGrant('${g.grant_program_id}')">Save</button>
           <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-gr-ep-${g.grant_program_id}').style.display='none'">Cancel</button>
         </div>
+        <!-- Upload Profile -->
+        ${bbRenderUploadProfile(g)}
       </div>`;
     }).join('');
   } catch(e) { if (el) el.innerHTML = `<div class="bb-err">${IC.warning} ${e.message}</div>`; }
@@ -21877,6 +22542,249 @@ async function bbSaveGrant() {
   if (btn) btn.disabled = false;
 }
 
+// ══════════════════════════════════════════════════════
+//  UPLOAD PROFILE (per grant)
+// ══════════════════════════════════════════════════════
+function bbRenderUploadProfile(g) {
+  const p = g.upload_profile || {};
+  const isSet = p.code_col || p.amount_col || p.date_col;
+  const badge = isSet
+    ? `<span class="bb-up-set">✓ Profile set</span>`
+    : `<span style="font-size:11px;color:var(--slate);font-style:italic;">Not configured — uses auto-detection</span>`;
+  return `
+  <div class="bb-up-profile">
+    <button class="bb-up-toggle" onclick="bbToggleProfile('${g.grant_program_id}')">
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Upload Profile
+    </button>
+    ${badge}
+    <div class="bb-up-form" id="bb-up-form-${g.grant_program_id}" style="display:none;">
+      <div class="bb-up-field">
+        <label>Budget Code Column</label>
+        <input id="bb-up-code-${g.grant_program_id}" value="${esc(p.code_col||'')}" placeholder="e.g. Budget Code"/>
+      </div>
+      <div class="bb-up-field">
+        <label>Amount Column</label>
+        <input id="bb-up-amt-${g.grant_program_id}" value="${esc(p.amount_col||'')}" placeholder="e.g. Allocated Amount"/>
+      </div>
+      <div class="bb-up-field">
+        <label>Date / Month Column</label>
+        <input id="bb-up-date-${g.grant_program_id}" value="${esc(p.date_col||'')}" placeholder="e.g. Ref Date or Month"/>
+      </div>
+      <div class="bb-up-field">
+        <label>Date Type</label>
+        <select id="bb-up-dtype-${g.grant_program_id}">
+          <option value="month_text" ${(p.date_type||'month_text')==='month_text'?'selected':''}>Month Name (Apr, May…)</option>
+          <option value="date"       ${p.date_type==='date'?'selected':''}>Full Date (parse month)</option>
+        </select>
+      </div>
+      <button class="btn btn-ok" style="font-size:11px;padding:5px 12px;white-space:nowrap;" onclick="bbSaveProfile('${g.grant_program_id}')">Save Profile</button>
+      <button class="btn"        style="font-size:11px;padding:5px 10px;" onclick="document.getElementById('bb-up-form-${g.grant_program_id}').style.display='none'">✕</button>
+    </div>
+  </div>`;
+}
+
+function bbToggleProfile(id) {
+  const form = document.getElementById(`bb-up-form-${id}`);
+  if (form) form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+}
+
+async function bbSaveProfile(id) {
+  const code  = document.getElementById(`bb-up-code-${id}`)?.value.trim();
+  const amt   = document.getElementById(`bb-up-amt-${id}`)?.value.trim();
+  const date  = document.getElementById(`bb-up-date-${id}`)?.value.trim();
+  const dtype = document.getElementById(`bb-up-dtype-${id}`)?.value || 'month_text';
+  const profile = {};
+  if (code)  profile.code_col   = code;
+  if (amt)   profile.amount_col = amt;
+  if (date)  profile.date_col   = date;
+  if (dtype) profile.date_type  = dtype;
+  try {
+    const res = await fetch(`${MEBK_URL}/rest/v1/grant_program?grant_program_id=eq.${id}`, {
+      method: 'PATCH', headers: { ...MEBK_HDR, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ upload_profile: Object.keys(profile).length ? profile : null })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    document.getElementById(`bb-up-form-${id}`).style.display = 'none';
+    await bbLoadGrants();
+    bbToast('Upload profile saved ✓');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ══════════════════════════════════════════════════════
+//  BUDGET BOOK — EXPORT / IMPORT
+// ══════════════════════════════════════════════════════
+
+function bbCsvRow(cols) {
+  return cols.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',');
+}
+
+function bbTriggerImport() {
+  document.getElementById('bb-import-file')?.click();
+}
+
+// ── Export all Budget Heads + Budget Lines as CSV ───────────────
+async function bbExportCSV() {
+  try {
+    const [hRes, lRes] = await Promise.all([
+      fetch(`${MEBK_URL}/rest/v1/budget_head?select=cat_code,cat_label,cat_color,sort_order,is_active&order=sort_order.asc`, { headers: MEBK_HDR }),
+      fetch(`${MEBK_URL}/rest/v1/budget_line?select=head_code,head_name,description,sort_order,is_active,budget_head(cat_code)&order=budget_head_id.asc,sort_order.asc&limit=500`, { headers: MEBK_HDR })
+    ]);
+    if (!hRes.ok || !lRes.ok) throw new Error('Fetch failed');
+    const heads = await hRes.json();
+    const lines = await lRes.json();
+
+    const header = bbCsvRow(['Type','Head Code','Head Label','Head Color','Line Code','Line Name','Description','Sort Order','Is Active']);
+    const rows = [header];
+
+    // Group lines by parent head cat_code
+    const linesByHead = {};
+    lines.forEach(l => {
+      const hc = l.budget_head?.cat_code || '';
+      (linesByHead[hc] = linesByHead[hc] || []).push(l);
+    });
+
+    heads.forEach(h => {
+      rows.push(bbCsvRow(['HEAD', h.cat_code, h.cat_label, h.cat_color || '', '', '', '', h.sort_order ?? '', h.is_active ? 'TRUE' : 'FALSE']));
+      (linesByHead[h.cat_code] || []).forEach(l => {
+        rows.push(bbCsvRow(['LINE', h.cat_code, '', '', l.head_code || '', l.head_name, l.description || '', l.sort_order ?? '', l.is_active ? 'TRUE' : 'FALSE']));
+      });
+    });
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `budget-book-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    bbToast('Budget Book exported ↓');
+  } catch(e) { alert('Export error: ' + e.message); }
+}
+
+// ── Download blank import template ──────────────────────────────
+function bbDownloadTemplate() {
+  const rows = [
+    bbCsvRow(['Type','Head Code','Head Label','Head Color','Line Code','Line Name','Description','Sort Order','Is Active']),
+    bbCsvRow(['HEAD','A','Personnel & HR','#3b82f6','','','',10,'TRUE']),
+    bbCsvRow(['LINE','A','','','A-01','Salaries & Benefits (Senior Staff)','Full-time staff salaries PF gratuity',10,'TRUE']),
+    bbCsvRow(['LINE','A','','','A-02','Consultant / Expert Fees','Short-term consultants subject matter experts',20,'TRUE']),
+    bbCsvRow(['HEAD','B','Training & Capacity Building','#8b5cf6','','','',20,'TRUE']),
+    bbCsvRow(['LINE','B','','','B-01','Workshop & Training Costs','Venue facilitation and logistics for training events',10,'TRUE']),
+  ];
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'budget-book-template.csv';
+  a.click();
+  bbToast('Template downloaded — fill and upload ↓');
+}
+
+// ── Import CSV file ──────────────────────────────────────────────
+async function bbImportFile(file) {
+  // Reset input so same file can be re-selected
+  const inp = document.getElementById('bb-import-file');
+  if (inp) inp.value = '';
+  if (!file) return;
+
+  let text;
+  try { text = await file.text(); } catch(e) { alert('Cannot read file: ' + e.message); return; }
+
+  const allLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (allLines.length < 2) { alert('File is empty or has only headers.'); return; }
+
+  // CSV parser (handles quoted fields)
+  const parseRow = line => {
+    const cols = []; let cur = ''; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur);
+    return cols.map(v => v.trim());
+  };
+
+  const header = parseRow(allLines[0]).map(h => h.toLowerCase().replace(/[\s/]+/g,'_'));
+  const ci = name => header.indexOf(name); // column index helper
+
+  const dataRows = allLines.slice(1).map(parseRow);
+  const headRows = dataRows.filter(r => r[ci('type')]?.toUpperCase() === 'HEAD');
+  const lineRows = dataRows.filter(r => r[ci('type')]?.toUpperCase() === 'LINE');
+
+  if (!headRows.length && !lineRows.length) {
+    alert('No HEAD or LINE rows found. Check the Type column.');
+    return;
+  }
+
+  const summary = `Found:\n  ${headRows.length} Budget Head row(s)\n  ${lineRows.length} Budget Line row(s)\n\nProceed with import? Existing records with the same code will be skipped (use Export to edit, then re-import).`;
+  if (!confirm(summary)) return;
+
+  bbToast('Importing…');
+  let headOk = 0, lineOk = 0, errors = 0;
+
+  // 1. Upsert Budget Heads
+  for (const r of headRows) {
+    const code  = r[ci('head_code')]?.trim().toUpperCase();
+    const label = r[ci('head_label')]?.trim();
+    if (!code || !label) { errors++; continue; }
+    const payload = {
+      cat_code:   code,
+      cat_label:  label,
+      cat_color:  r[ci('head_color')]?.trim() || null,
+      sort_order: parseInt(r[ci('sort_order')]) || null,
+      is_active:  r[ci('is_active')]?.toUpperCase() !== 'FALSE',
+    };
+    try {
+      const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
+        method: 'POST',
+        headers: { ...MEBK_HDR, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) headOk++; else errors++;
+    } catch { errors++; }
+  }
+
+  // 2. Fetch all budget_heads to resolve cat_code → budget_head_id
+  let headMap = {};
+  try {
+    const r = await fetch(`${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,cat_code`, { headers: MEBK_HDR });
+    const data = await r.json();
+    data.forEach(h => { headMap[h.cat_code] = h.budget_head_id; });
+  } catch(e) { alert('Could not resolve Budget Head IDs: ' + e.message); return; }
+
+  // 3. Upsert Budget Lines
+  for (const r of lineRows) {
+    const parentCode = r[ci('head_code')]?.trim().toUpperCase();
+    const name       = r[ci('line_name')]?.trim();
+    if (!parentCode || !name) { errors++; continue; }
+    const parentId = headMap[parentCode];
+    if (!parentId) { errors++; continue; } // parent head not found
+    const payload = {
+      head_name:       name,
+      budget_head_id:  parentId,
+      head_code:       r[ci('line_code')]?.trim().toUpperCase() || null,
+      description:     r[ci('description')]?.trim() || null,
+      sort_order:      parseInt(r[ci('sort_order')]) || null,
+      is_active:       r[ci('is_active')]?.toUpperCase() !== 'FALSE',
+      category:        'General',
+    };
+    try {
+      const res = await fetch(`${MEBK_URL}/rest/v1/budget_line`, {
+        method: 'POST',
+        headers: { ...MEBK_HDR, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) lineOk++; else errors++;
+    } catch { errors++; }
+  }
+
+  // Reload
+  await Promise.all([bbLoadStats(), bbLoadCats(), bbLoadHeads()]);
+  bbToast(`Import done — ${headOk} heads, ${lineOk} lines added${errors ? `, ${errors} skipped/errors` : ''} ✓`);
+}
+
+// ── Budget Heads (CRUD) — formerly "Budget Categories" ───────────
+
 // ── Budget Categories (CRUD) ──────────────────────────────────────
 async function bbLoadCats() {
   const el = document.getElementById('bb-cats-list'); if (!el) return;
@@ -21885,14 +22793,14 @@ async function bbLoadCats() {
     const af = fv === 'active' ? '&is_active=eq.true' : fv === 'inactive' ? '&is_active=eq.false' : '';
     const q  = (document.getElementById('bb-search-bc')?.value||'').toLowerCase();
     const res = await fetch(
-      `${MEBK_URL}/rest/v1/budget_category?select=budget_category_id,cat_code,cat_label,cat_color,sort_order,is_active&order=sort_order.asc,cat_code.asc${af}&limit=100`,
+      `${MEBK_URL}/rest/v1/budget_head?select=budget_head_id,cat_code,cat_label,cat_color,sort_order,is_active&order=sort_order.asc,cat_code.asc${af}&limit=100`,
       { headers: MEBK_HDR }
     );
     let data = await res.json();
     if (!res.ok) throw new Error(data?.message || 'Failed to load categories');
     if (q) data = data.filter(c => c.cat_code?.toLowerCase().includes(q) || c.cat_label?.toLowerCase().includes(q));
     if (!data.length) {
-      const msg = fv === 'inactive' ? 'No inactive categories' : 'No categories yet — click "+ Add Category"';
+      const msg = fv === 'inactive' ? 'No inactive budget heads.' : 'No budget heads yet — click "+ Add Budget Head"';
       el.innerHTML = `<div class="bb-empty"><div class="bb-empty-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg></div>${msg}</div>`; return;
     }
     // Store for Grant Setup to use
@@ -21900,8 +22808,8 @@ async function bbLoadCats() {
     el.innerHTML = data.map(c => {
       const isActive = c.is_active !== false;
       const color = c.cat_color || '#6b7280';
-      const sw = bbSwitch(isActive, `bbSetActiveCat('${c.budget_category_id}',${!isActive})`, 'Active', 'Inactive');
-      return `<div class="bb-card${isActive?'':' inactive'}" id="bb-bc-${c.budget_category_id}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;">
+      const sw = bbSwitch(isActive, `bbSetActiveCat('${c.budget_head_id}',${!isActive})`, 'Active', 'Inactive');
+      return `<div class="bb-card${isActive?'':' inactive'}" id="bb-bc-${c.budget_head_id}" style="display:flex;align-items:center;gap:12px;padding:10px 14px;">
         <span style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:${color}20;border:2px solid ${color};font-weight:800;font-size:15px;font-family:var(--mono);color:${color};flex-shrink:0;">${esc(c.cat_code)}</span>
         <div style="flex:1;min-width:0;">
           <div style="font-weight:600;font-size:13px;">${esc(c.cat_label)}</div>
@@ -21909,16 +22817,16 @@ async function bbLoadCats() {
         </div>
         ${isActive ? '' : '<span class="bb-badge-inactive">Inactive</span>'}
         <span class="bb-card-actions" onclick="event.stopPropagation()">
-          ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditCat('${c.budget_category_id}')">${IC.edit}</button>` : ''}
+          ${isActive ? `<button class="bb-action-btn" title="Edit" onclick="bbEditCat('${c.budget_head_id}')">${IC.edit}</button>` : ''}
           ${sw}
         </span>
-        <div class="bb-edit-panel" id="bb-bc-ep-${c.budget_category_id}" style="display:none;width:100%;flex-wrap:wrap;gap:8px;margin-top:8px;">
-          <input class="bb-inp" id="bb-bc-ei-code-${c.budget_category_id}" value="${esc(c.cat_code)}" placeholder="Code" style="width:70px;text-transform:uppercase;" maxlength="10"/>
-          <input class="bb-inp bb-inp-lg" id="bb-bc-ei-label-${c.budget_category_id}" value="${esc(c.cat_label)}" placeholder="Label…"/>
-          <input class="bb-inp" id="bb-bc-ei-color-${c.budget_category_id}" type="color" value="${c.cat_color||'#3b82f6'}" style="width:44px;padding:2px 4px;height:34px;cursor:pointer;"/>
-          <input class="bb-inp" id="bb-bc-ei-sort-${c.budget_category_id}" type="number" value="${c.sort_order||0}" style="width:64px;" min="0"/>
-          <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditCat('${c.budget_category_id}')">Save</button>
-          <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bc-ep-${c.budget_category_id}').style.display='none'">Cancel</button>
+        <div class="bb-edit-panel" id="bb-bc-ep-${c.budget_head_id}" style="display:none;width:100%;flex-wrap:wrap;gap:8px;margin-top:8px;">
+          <input class="bb-inp" id="bb-bc-ei-code-${c.budget_head_id}" value="${esc(c.cat_code)}" placeholder="Code" style="width:70px;text-transform:uppercase;" maxlength="10"/>
+          <input class="bb-inp bb-inp-lg" id="bb-bc-ei-label-${c.budget_head_id}" value="${esc(c.cat_label)}" placeholder="Label…"/>
+          <input class="bb-inp" id="bb-bc-ei-color-${c.budget_head_id}" type="color" value="${c.cat_color||'#3b82f6'}" style="width:44px;padding:2px 4px;height:34px;cursor:pointer;"/>
+          <input class="bb-inp" id="bb-bc-ei-sort-${c.budget_head_id}" type="number" value="${c.sort_order||0}" style="width:64px;" min="0"/>
+          <button class="btn btn-ok" style="font-size:12px;padding:6px 12px;" onclick="bbSaveEditCat('${c.budget_head_id}')">Save</button>
+          <button class="btn" style="font-size:12px;padding:6px 10px;" onclick="document.getElementById('bb-bc-ep-${c.budget_head_id}').style.display='none'">Cancel</button>
         </div>
       </div>`;
     }).join('');
@@ -21937,21 +22845,21 @@ async function bbSaveEditCat(id) {
   const color = document.getElementById(`bb-bc-ei-color-${id}`)?.value;
   const sort  = parseInt(document.getElementById(`bb-bc-ei-sort-${id}`)?.value) || 0;
   if (!code || !label) { bbToast('Code and label are required'); return; }
-  const res = await fetch(`${MEBK_URL}/rest/v1/budget_category?budget_category_id=eq.${id}`, {
+  const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
     method: 'PATCH', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ cat_code: code, cat_label: label, cat_color: color, sort_order: sort })
   });
   if (!res.ok) { bbToast('Save failed'); return; }
-  bbToast('Category updated'); bbLoadCats();
+  bbToast('Budget head updated ✓'); bbLoadCats();
 }
 
 async function bbSetActiveCat(id, newActive) {
-  const res = await fetch(`${MEBK_URL}/rest/v1/budget_category?budget_category_id=eq.${id}`, {
+  const res = await fetch(`${MEBK_URL}/rest/v1/budget_head?budget_head_id=eq.${id}`, {
     method: 'PATCH', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
     body: JSON.stringify({ is_active: newActive })
   });
   if (!res.ok) { bbToast('Update failed'); return; }
-  bbToast(newActive ? 'Category activated' : 'Category deactivated'); bbLoadCats();
+  bbToast(newActive ? 'Budget head activated ✓' : 'Budget head deactivated ✓'); bbLoadCats();
 }
 
 async function bbSaveCat() {
@@ -21959,15 +22867,15 @@ async function bbSaveCat() {
   const label = document.getElementById('bb-bc-label')?.value?.trim();
   const color = document.getElementById('bb-bc-color')?.value || '#3b82f6';
   const sort  = parseInt(document.getElementById('bb-bc-sort')?.value) || 0;
-  if (!code) { bbToast('Category code is required'); return; }
-  if (!label) { bbToast('Category label is required'); return; }
-  const res = await fetch(`${MEBK_URL}/rest/v1/budget_category`, {
+  if (!code) { bbToast('Budget head code is required'); return; }
+  if (!label) { bbToast('Budget head name is required'); return; }
+  const res = await fetch(`${MEBK_URL}/rest/v1/budget_head`, {
     method: 'POST', headers: { ...MEBK_HDR, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
     body: JSON.stringify({ cat_code: code, cat_label: label, cat_color: color, sort_order: sort, is_active: true })
   });
   const data = await res.json();
   if (!res.ok) { bbToast('Save failed: ' + (data?.message||'unknown error')); return; }
-  bbToast('Category ' + code + ' added');
+  bbToast('Budget head ' + code + ' added ✓');
   document.getElementById('bb-form-bc').style.display = 'none';
   ['bb-bc-code','bb-bc-label'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   bbLoadCats();
