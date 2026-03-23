@@ -8750,19 +8750,12 @@ select:focus:not(:focus-visible) { outline: none; }
                 <label>Status</label>
                 <select id="bt-edit-status">
                   <option value="active">Active</option>
-                  <option value="pipeline">Pipeline</option>
-                  <option value="completed">Completed</option>
-                  <option value="on_hold">On Hold</option>
-                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
               <div class="bt-edit-field">
                 <label>Currency</label>
                 <select id="bt-edit-currency">
                   <option value="INR">INR (₹)</option>
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
                 </select>
               </div>
             </div>
@@ -9279,13 +9272,6 @@ select:focus:not(:focus-visible) { outline: none; }
                   <label>Donor Type <span class="req">*</span></label>
                   <select id="gs-d-type">
                     <option value="">— Select type —</option>
-                    <option value="Bilateral">Bilateral</option>
-                    <option value="Multilateral">Multilateral</option>
-                    <option value="Private Foundation">Private Foundation</option>
-                    <option value="CSR">CSR (Corporate)</option>
-                    <option value="Government">Government</option>
-                    <option value="Individual">Individual</option>
-                    <option value="Other">Other</option>
                   </select>
                 </div>
                 <div class="gs-field gs-span2">
@@ -9358,10 +9344,6 @@ select:focus:not(:focus-visible) { outline: none; }
               <label>Financial Year <span class="req">*</span></label>
               <select id="gs-g-fy" onchange="gsUpdateFYChips()">
                 <option value="">— Select FY —</option>
-                <option value="FY2324">FY 2023-24</option>
-                <option value="FY2425">FY 2024-25</option>
-                <option value="FY2526" selected>FY 2025-26</option>
-                <option value="FY2627">FY 2026-27</option>
               </select>
             </div>
             <div class="gs-field">
@@ -9661,6 +9643,83 @@ const GS_SB_URL = 'https://mqdcdkecvzekjsbdeobs.supabase.co';
 const GS_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZGNka2Vjdnpla2pzYmRlb2JzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDY0ODAsImV4cCI6MjA4ODM4MjQ4MH0.ys-Nx9GU0D4wyP9xkXMqDnkitHOgpOGWWOe-uP-NMOw';
 const GS_SB_HDR = { 'apikey': GS_SB_KEY, 'Authorization': 'Bearer ' + GS_SB_KEY, 'Content-Type': 'application/json' };
 
+// ── Global Lookup Cache ──────────────────────────────────────────
+// Loaded once from lookup_values table on first visit to any
+// grant management page. Access via gmLookup(type).
+window.GM_LOOKUP       = {};   // { grant_status:[{code,label,css_class}], … }
+window.GM_LOOKUP_READY = false;
+window.GM_LOOKUP_LOADING = false;
+
+async function gmLoadLookups() {
+  if (window.GM_LOOKUP_READY || window.GM_LOOKUP_LOADING) return;
+  window.GM_LOOKUP_LOADING = true;
+  try {
+    const res = await fetch(
+      `${GS_SB_URL}/rest/v1/lookup_values?is_active=eq.true&select=lookup_type,code,label,css_class,sort_order&order=lookup_type.asc,sort_order.asc&limit=500`,
+      { headers: GS_SB_HDR }
+    );
+    if (!res.ok) throw new Error('lookup fetch failed');
+    const rows = await res.json();
+    const map  = {};
+    rows.forEach(r => {
+      if (!map[r.lookup_type]) map[r.lookup_type] = [];
+      map[r.lookup_type].push({ code: r.code, label: r.label, css: r.css_class || '' });
+    });
+    window.GM_LOOKUP       = map;
+    window.GM_LOOKUP_READY = true;
+    // Repopulate any already-rendered selects
+    gmPopulateAllLookupSelects();
+  } catch (e) {
+    console.warn('[gmLoadLookups]', e);
+    // Use hardcoded fallbacks so the UI still works offline
+    window.GM_LOOKUP = {
+      grant_status:       [{code:'active',label:'Active'},{code:'pipeline',label:'Pipeline'},{code:'proposal',label:'Proposal'},{code:'on_hold',label:'On Hold'},{code:'completed',label:'Completed'},{code:'cancelled',label:'Cancelled'}],
+      donor_type:         [{code:'Bilateral',label:'Bilateral'},{code:'Multilateral',label:'Multilateral'},{code:'Private Foundation',label:'Private Foundation'},{code:'CSR',label:'CSR (Corporate)'},{code:'Government',label:'Government'},{code:'Individual',label:'Individual'},{code:'NGO',label:'NGO / INGO'},{code:'Other',label:'Other'}],
+      grant_type:         [{code:'Restricted Project',label:'Restricted Project'},{code:'Unrestricted Core',label:'Unrestricted Core'},{code:'Emergency Relief',label:'Emergency Relief'},{code:'Research Grant',label:'Research Grant'},{code:'Capacity Building',label:'Capacity Building'},{code:'Other',label:'Other'}],
+      disbursement_status:[{code:'planned',label:'Planned'},{code:'due',label:'Due'},{code:'received_partial',label:'Partial'},{code:'received_full',label:'Received (Full)'},{code:'delayed',label:'Delayed'}],
+      report_type:        [{code:'narrative',label:'Narrative'},{code:'financial',label:'Financial'},{code:'utilization',label:'Utilisation UC'},{code:'indicator',label:'Indicator'},{code:'quarterly',label:'Quarterly'},{code:'annual',label:'Annual'},{code:'mid_term',label:'Mid-Term Review'},{code:'end_term',label:'End-Term Report'},{code:'other',label:'Other'}],
+      frequency:          [{code:'monthly',label:'Monthly'},{code:'quarterly',label:'Quarterly'},{code:'bi_annual',label:'Bi-Annual'},{code:'annual',label:'Annual'},{code:'one_time',label:'One-Time'}],
+      currency:           [{code:'INR',label:'INR (₹)'},{code:'USD',label:'USD ($)'},{code:'EUR',label:'EUR (€)'},{code:'GBP',label:'GBP (£)'}],
+    };
+    window.GM_LOOKUP_READY = true;
+    gmPopulateAllLookupSelects();
+  } finally {
+    window.GM_LOOKUP_LOADING = false;
+  }
+}
+
+// Helper: get lookup array by type
+function gmLookup(type) { return window.GM_LOOKUP[type] || []; }
+
+// Helper: build <option> HTML for a lookup type
+function gmLookupOptions(type, selectedCode = '') {
+  return gmLookup(type)
+    .map(o => `<option value="${esc(o.code)}"${o.code === selectedCode ? ' selected' : ''}>${esc(o.label)}</option>`)
+    .join('');
+}
+
+// Populate all static lookup selects that are already in the DOM
+function gmPopulateAllLookupSelects() {
+  // Grant Setup — donor type
+  const dType = $('gs-d-type');
+  if (dType) {
+    const cur = dType.value;
+    dType.innerHTML = `<option value="">— Select type —</option>` + gmLookupOptions('donor_type', cur);
+  }
+  // Portfolio edit modal — grant status
+  const btStatus = $('bt-edit-status');
+  if (btStatus) {
+    const cur = btStatus.value;
+    btStatus.innerHTML = gmLookupOptions('grant_status', cur);
+  }
+  // Portfolio edit modal — currency
+  const btCur = $('bt-edit-currency');
+  if (btCur) {
+    const cur = btCur.value || 'INR';
+    btCur.innerHTML = gmLookupOptions('currency', cur);
+  }
+}
+
 // ── Supabase helpers ────────────────────────────────────────────
 const gsSbFetch = async (table, params = '') => {
   try {
@@ -9698,12 +9757,15 @@ const gsSbDelete = async (table, params = '') => {
   }
 };
 
-function gsGrantCssByDonor(donorName) {
+// Derive card CSS class from donor record.
+// Prefers donor.css_class from DB; falls back to name-based guess for unlabelled donors.
+function gsGrantCssByDonor(donorName, cssClassFromDB) {
+  if (cssClassFromDB) return cssClassFromDB;
   const n = String(donorName || '').toLowerCase();
-  if (n.includes('wells')) return 'wf';
-  if (n.includes('salesforce')) return 'sf';
-  if (n.includes('bosch')) return 'bosch';
-  if (n.includes('ltts')) return 'ltts';
+  if (n.includes('wells'))       return 'wf';
+  if (n.includes('salesforce'))  return 'sf';
+  if (n.includes('bosch'))       return 'bosch';
+  if (n.includes('ltts'))        return 'ltts';
   return 'generic';
 }
 
@@ -9759,7 +9821,7 @@ function gsSyncGrantToBudgetTracker(grantRow, donorName, fyId, progId) {
     code: grantRow.grant_code || String(grantRow.grant_id),
     status: grantRow.grant_status || gsV('gs-g-status') || 'active',
     total: grantRow.total_committed_amount ?? (parseFloat(gsV('gs-g-amount')) || 0),
-    css: gsGrantCssByDonor(donorName),
+    css: gsGrantCssByDonor(donorName, (window.gsDbDonors||[]).find(d=>d.donor_name===donorName)?.css_class),
     start: grantRow.start_date || gsV('gs-g-start') || '',
     end: grantRow.end_date || gsV('gs-g-end') || '',
     currency: grantRow.currency || gsV('gs-g-currency') || 'INR'
@@ -9944,7 +10006,7 @@ async function gsLoadFromDB() {
 
     // 5. Donors from Budget Book
     try {
-      const donors = await gsSbFetch('donor', 'is_active=eq.true&select=donor_id,donor_code,donor_name,donor_type,country,website&order=donor_name.asc');
+      const donors = await gsSbFetch('donor', 'is_active=eq.true&select=donor_id,donor_code,donor_name,donor_type,country,website,css_class&order=donor_name.asc');
       window.gsDbDonors = donors;
       const dsel = document.getElementById('gs-d-sel');
       if (dsel) {
@@ -10224,8 +10286,28 @@ function gsActOpts(intvId, selAct) {
   }).join('');
 }
 
+// Budget category helpers — prefer DB-loaded gsCategoryDefs (budget_head.cat_code/cat_label/cat_color)
+// These static maps are kept as last-resort fallbacks only.
 const GS_CAT_LABEL = {A:'Activity',B:'Program',C:'Logistics',D:'Infrastructure',E:'Admin',F:'Volunteer'};
-const GS_CAT_CLS   = {A:'gs-ca',B:'gs-cb',C:'gs-cc',D:'gs-cd',E:'gs-ce',F:'gs-cf'};
+
+// Resolve human-readable label for a category code
+function gsCatLabel(code) {
+  const def = (window.gsCategoryDefs || []).find(c => c.cat_code === code);
+  return def ? def.cat_label : (GS_CAT_LABEL[code] || code || '—');
+}
+
+// Resolve the cat_color hex for a category code
+function gsCatColor(code) {
+  const def = (window.gsCategoryDefs || []).find(c => c.cat_code === code);
+  const fallbackColors = {A:'#3b82f6',B:'#8b5cf6',C:'#f59e0b',D:'#10b981',E:'#6b7280',F:'#ec4899'};
+  return (def?.cat_color) || fallbackColors[code] || '#6b7280';
+}
+
+// Return inline style string for a category badge (replaces hardcoded CSS class approach)
+function gsCatBadgeStyle(code) {
+  const c = gsCatColor(code);
+  return `background:${c}18;border:1.5px solid ${c}50;color:${c};`;
+}
 
 function gsRenderBL() {
   const tbody = $('gs-bl-tbody'); if (!tbody) return;
@@ -10240,10 +10322,10 @@ function gsRenderBL() {
         <option value="">— Cat —</option>
         ${(window.gsCategoryDefs||[]).length
           ? (window.gsCategoryDefs).map(c=>`<option value="${c.cat_code}"${l.cat===c.cat_code?' selected':''}>${c.cat_code} · ${esc(c.cat_label)}</option>`).join('')
-          : ['A','B','C','D','E','F'].map(c=>`<option value="${c}"${l.cat===c?' selected':''}>${c} · ${GS_CAT_LABEL[c]||c}</option>`).join('')
+          : ['A','B','C','D','E','F'].map(c=>`<option value="${c}"${l.cat===c?' selected':''}>${c} · ${gsCatLabel(c)}</option>`).join('')
         }
       </select>
-      <div class="gs-cat-badge ${GS_CAT_CLS[l.cat]||'gs-ca'}" id="gs-bl-cat-badge-${l.id}" style="margin-top:3px;">${GS_CAT_LABEL[l.cat]||l.cat||'—'}</div>
+      <div class="gs-cat-badge" id="gs-bl-cat-badge-${l.id}" style="margin-top:3px;${gsCatBadgeStyle(l.cat)}">${gsCatLabel(l.cat)||l.cat||'—'}</div>
     </td>
     <td>
       <input type="text" value="${esc(l.code)}" placeholder="A-01" style="min-width:50px;text-transform:uppercase;font-family:var(--mono);" onchange="gsBlSet('${l.id}','code',this.value)" />
@@ -10280,14 +10362,9 @@ function gsBlSet(id, field, value) {
     const badge = document.getElementById(`gs-bl-cat-badge-${id}`);
     if (badge) {
       const catDef = (window.gsCategoryDefs||[]).find(c => c.cat_code === value);
-      const label = catDef ? catDef.cat_label : (GS_CAT_LABEL[value] || value || '—');
-      badge.className = `gs-cat-badge ${GS_CAT_CLS[value]||'gs-ca'}`;
-      badge.textContent = label;
-      if (catDef?.cat_color) {
-        badge.style.background = catDef.cat_color + '20';
-        badge.style.color = catDef.cat_color;
-        badge.style.borderColor = catDef.cat_color + '60';
-      }
+      badge.className   = 'gs-cat-badge';
+      badge.textContent = gsCatLabel(value);
+      badge.style.cssText = `margin-top:3px;${gsCatBadgeStyle(value)}`;
     }
   }
   gsUpdateBLSummary();
@@ -10308,16 +10385,8 @@ function gsBlUpdateActSel(lid, intvId) {
 function gsBlUpdateCatBadge(id, sel) {
   const badge = document.getElementById('gs-bl-cat-badge-' + id);
   if (!badge) return;
-  const code = sel.value;
-  const catDef = (window.gsCategoryDefs||[]).find(c => c.cat_code === code);
-  const label = catDef ? catDef.cat_label : (GS_CAT_LABEL[code] || code || '—');
-  badge.textContent = label;
-  // update color from cat_color if available
-  if (catDef?.cat_color) {
-    badge.style.background = catDef.cat_color + '20';
-    badge.style.color = catDef.cat_color;
-    badge.style.borderColor = catDef.cat_color + '60';
-  }
+  badge.textContent  = gsCatLabel(sel.value);
+  badge.style.cssText = `margin-top:3px;${gsCatBadgeStyle(sel.value)}`;
 }
 
 function gsBlRecalc(lid) {
@@ -10373,11 +10442,7 @@ function gsRenderDisb() {
       <div class="gs-field"><label>Expected Amount (₹)</label><input type="number" value="${r.expected}" placeholder="0" min="0" style="font-family:var(--mono);" onchange="gsDisbSet('${r.id}','expected',this.value);gsDisbSummary()" /></div>
       <div class="gs-field"><label>Status</label>
         <select onchange="gsDisbSet('${r.id}','status',this.value)">
-          <option value="planned" ${r.status==='planned'?'selected':''}>Planned</option>
-          <option value="due"     ${r.status==='due'?'selected':''}>Due</option>
-          <option value="received_partial" ${r.status==='received_partial'?'selected':''}>Partial</option>
-          <option value="received_full"    ${r.status==='received_full'?'selected':''}>Received</option>
-          <option value="delayed" ${r.status==='delayed'?'selected':''}>Delayed</option>
+          ${gmLookupOptions('disbursement_status', r.status || 'planned')}
         </select>
       </div>
       <div class="gs-field"><label>Notes</label><input type="text" value="${esc(r.notes)}" placeholder="e.g. Q1 tranche upon UC submission" onchange="gsDisbSet('${r.id}','notes',this.value)" /></div>
@@ -10421,7 +10486,9 @@ function gsRemoveRep(id) { gsState.reportRows = gsState.reportRows.filter(r=>r.i
 
 function gsRenderRep() {
   const list = $('gs-rep-list'); if (!list) return;
-  const TYPE_OPTS = [['narrative','Narrative'],['financial','Financial'],['indicator','Indicator'],['utilization','Utilisation UC'],['quarterly','Quarterly'],['annual','Annual'],['other','Other']];
+  const TYPE_OPTS = gmLookup('report_type').length
+    ? gmLookup('report_type').map(o => [o.code, o.label])
+    : [['narrative','Narrative'],['financial','Financial'],['indicator','Indicator'],['utilization','Utilisation UC'],['quarterly','Quarterly'],['annual','Annual'],['other','Other']];
   if (!gsState.reportRows.length) { list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--slate);font-size:13px;">No reports yet — use Quick Templates or Add Report</div>`; return; }
   list.innerHTML = gsState.reportRows.map(r => `
     <div class="gs-rep-row" id="gs-rep-${r.id}">
@@ -12720,11 +12787,13 @@ function showPage(route) {
     $('page-budget-book').classList.remove('hidden');
     $('crumb-path').textContent = 'Grant Management';
     $('crumb-title').textContent = 'Budget Book — Heads, Donors & Grants';
+    gmLoadLookups();
     bbInit();
   } else if (route === 'grant-mgmt') {
     $('page-budget-tracker').classList.remove('hidden');
     $('crumb-path').textContent = 'Grant Management';
     $('crumb-title').textContent = 'Portfolio Overview';
+    gmLoadLookups();
     if (!btStore._loaded && !btStore._loading) {
       btLoadFromDB();           // full DB hydration; re-renders when done
     } else {
@@ -12734,12 +12803,14 @@ function showPage(route) {
     $('page-grant-burn-upload')?.classList.remove('hidden');
     $('crumb-path').textContent = 'Grant Management';
     $('crumb-title').textContent = 'Upload Monthly Burn';
+    gmLoadLookups();
     if (!btStore._loaded && !btStore._loading) btLoadFromDB();
     if (typeof gmbInit === 'function') gmbInit();
   } else if (route === 'grant-setup') {
     $('page-grant-setup')?.classList.remove('hidden');
     $('crumb-path').textContent  = 'Grant Management';
     $('crumb-title').textContent = 'New Grant Setup';
+    gmLoadLookups();
     // Initialise the component (delayed one tick so DOM is visible)
     setTimeout(() => { if (typeof gsInit === 'function') gsInit(); }, 0);
   }
@@ -20072,7 +20143,7 @@ async function btLoadFromDB() {
     const grantRes = await fetch(
       `${GS_SB_URL}/rest/v1/grants?is_active=eq.true` +
       `&select=grant_id,grant_name,grant_code,grant_status,total_committed_amount,currency,start_date,end_date,upload_profile` +
-      `,donor:donor_id(donor_id,donor_name)` +
+      `,donor:donor_id(donor_id,donor_name,css_class)` +
       `,grant_program_scope(program_id)` +
       `&order=grant_name.asc&limit=500`,
       { headers: GS_SB_HDR }
@@ -20190,7 +20261,7 @@ async function btLoadFromDB() {
             code:           g.grant_code || g.grant_name,
             status:         g.grant_status || 'active',
             total:          Number(g.total_committed_amount) || 0,
-            css:            gsGrantCssByDonor(donorName),
+            css:            gsGrantCssByDonor(donorName, g.donor?.css_class),
             start:          g.start_date  || '',
             end:            g.end_date    || '',
             currency:       g.currency    || 'INR',
@@ -20368,12 +20439,16 @@ function btRenderGrantStrip(progId) {
     const pctCls   = t.pct >= 90 ? 'ok' : t.pct >= 60 ? 'warn' : 'danger';
     const barColor = t.pct >= 90 ? 'var(--ok)' : t.pct >= 60 ? 'var(--warn)' : 'var(--danger)';
     const gopActive = btGopState.activeGrant === g.id && $('bt-grant-outcome-panel')?.classList.contains('open');
-    // Health badge
+    // Health badge — label comes from lookup_values if loaded, else computed
     const isOverBudget = t.pct > 100;
-    const healthCls  = g.status === 'pipeline' ? 'pipeline' : g.status === 'completed' ? 'completed'
-                     : isOverBudget ? 'over-budget' : t.pct >= 85 ? 'on-track' : t.pct >= 50 ? 'at-risk' : 'at-risk';
-    const healthTxt  = g.status === 'pipeline' ? 'Pipeline' : g.status === 'completed' ? 'Completed'
-                     : isOverBudget ? 'Over Budget' : t.pct >= 85 ? 'On Track' : 'At Risk';
+    const statusEntry  = gmLookup('grant_status').find(s => s.code === g.status);
+    const isTerminal   = ['completed','cancelled','closed'].includes(g.status);
+    const isPipeline   = g.status === 'pipeline' || g.status === 'proposal';
+    const healthCls    = isPipeline ? 'pipeline' : isTerminal ? 'completed'
+                       : isOverBudget ? 'over-budget' : t.pct >= 85 ? 'on-track' : 'at-risk';
+    const healthTxt    = isPipeline   ? (statusEntry?.label || 'Pipeline')
+                       : isTerminal   ? (statusEntry?.label || 'Completed')
+                       : isOverBudget ? 'Over Budget' : t.pct >= 85 ? 'On Track' : 'At Risk';
     const dotCls = g.status || 'active';
     return `<div class="bt-grant-card ${g.css}${g.id===btStore.activeGrant?' selected':''}" onclick="btSelectGrant('${g.id}')">
       <div class="bt-grant-top-row">
@@ -20847,8 +20922,11 @@ function btOpenEditModal() {
   if ($('bt-edit-total'))    $('bt-edit-total').value    = grant.total || '';
   if ($('bt-edit-start'))    $('bt-edit-start').value    = grant.start || '';
   if ($('bt-edit-end'))      $('bt-edit-end').value      = grant.end   || '';
-  if ($('bt-edit-status'))   $('bt-edit-status').value   = grant.status   || 'active';
-  if ($('bt-edit-currency')) $('bt-edit-currency').value = grant.currency || 'INR';
+  // Populate status + currency from lookup cache, then set saved value
+  const stSel = $('bt-edit-status');
+  if (stSel) { stSel.innerHTML = gmLookupOptions('grant_status', grant.status || 'active'); }
+  const curSel = $('bt-edit-currency');
+  if (curSel) { curSel.innerHTML = gmLookupOptions('currency', grant.currency || 'INR'); }
   $('bt-edit-modal').classList.remove('hidden');
 }
 
@@ -22564,7 +22642,7 @@ async function bbLoadDonors() {
           <input class="bb-inp bb-inp-lg" id="bb-dn-ei-name-${d.donor_id}"    value="${(d.donor_name||'').replace(/"/g,'&quot;')}"    placeholder="Donor name…"/>
           <select class="bb-sel"          id="bb-dn-ei-type-${d.donor_id}">
             <option value="">Donor type…</option>
-            ${['Bilateral','Multilateral','Private Foundation','CSR','Government','Individual'].map(t => `<option value="${t}" ${d.donor_type===t?'selected':''}>${t}</option>`).join('')}
+            ${(gmLookup('donor_type').length ? gmLookup('donor_type') : [{code:'Bilateral',label:'Bilateral'},{code:'Multilateral',label:'Multilateral'},{code:'Private Foundation',label:'Private Foundation'},{code:'CSR',label:'CSR (Corporate)'},{code:'Government',label:'Government'},{code:'Individual',label:'Individual'},{code:'NGO',label:'NGO / INGO'},{code:'Other',label:'Other'}]).map(o => `<option value="${o.code||o}" ${d.donor_type===(o.code||o)?'selected':''}>${o.label||o}</option>`).join('')}
           </select>
           <input class="bb-inp bb-inp-md" id="bb-dn-ei-country-${d.donor_id}" value="${(d.country||'').replace(/"/g,'&quot;')}"       placeholder="Country…"/>
           <input class="bb-inp bb-inp-lg" id="bb-dn-ei-web-${d.donor_id}"     value="${(d.website||'').replace(/"/g,'&quot;')}"       placeholder="Website…"/>
@@ -22692,7 +22770,7 @@ async function bbLoadGrants() {
           <select class="bb-sel"          id="bb-gr-ei-donor-${g.grant_program_id}"><option value="${g.donor?.donor_id||''}">Loading…</option></select>
           <select class="bb-sel"          id="bb-gr-ei-type-${g.grant_program_id}">
             <option value="">Grant type…</option>
-            ${['Restricted Project','Unrestricted Core','Emergency Relief','Research Grant','Capacity Building'].map(t => `<option value="${t}" ${g.grant_type===t?'selected':''}>${t}</option>`).join('')}
+            ${(gmLookup('grant_type').length ? gmLookup('grant_type') : [{code:'Restricted Project',label:'Restricted Project'},{code:'Unrestricted Core',label:'Unrestricted Core'},{code:'Emergency Relief',label:'Emergency Relief'},{code:'Research Grant',label:'Research Grant'},{code:'Capacity Building',label:'Capacity Building'},{code:'Other',label:'Other'}]).map(o => `<option value="${o.code||o}" ${g.grant_type===(o.code||o)?'selected':''}>${o.label||o}</option>`).join('')}
           </select>
           <select class="bb-sel" id="bb-gr-ei-cur-${g.grant_program_id}" style="flex:0 0 80px;min-width:80px;">
             ${['INR','USD','EUR','GBP','JPY'].map(c => `<option value="${c}" ${(g.currency||'INR')===c?'selected':''}>${c}</option>`).join('')}
