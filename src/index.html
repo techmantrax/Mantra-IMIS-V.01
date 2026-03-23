@@ -9206,17 +9206,44 @@ select:focus:not(:focus-visible) { outline: none; }
         </div>
       </div>
 
+      <!-- Import modal -->
+      <div id="gs-import-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:14px;padding:28px;width:min(820px,96vw);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--ink);">Import Grants Preview</div>
+              <div style="font-size:12px;color:var(--slate);margin-top:2px;">Review before importing — existing donors matched by name</div>
+            </div>
+            <button class="gs-del-btn" onclick="gsImportClose()" title="Close"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          </div>
+          <div id="gs-import-preview" style="overflow-x:auto;margin-bottom:16px;"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn" onclick="gsImportClose()">Cancel</button>
+            <button class="btn" id="gs-import-run-btn" style="background:var(--blue);color:#fff;border-color:var(--blue);" onclick="gsImportRun()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import All Valid Rows
+            </button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="gs-import-file" accept=".csv" style="display:none;" onchange="gsImportParse(this)"/>
+
       <!-- Page header -->
       <div class="section-hd" style="margin-bottom:16px;">
         <div>
           <h2>New Grant Setup</h2>
           <div class="sub" id="gs-breadcrumb-sub">Step 1 of 6 — Donor Profile</div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <div style="width:140px;height:5px;background:var(--mist-2);border-radius:999px;overflow:hidden;">
             <div id="gs-prog-bar" style="height:100%;background:var(--blue);border-radius:999px;transition:width .4s cubic-bezier(.22,1,.36,1);width:0%;"></div>
           </div>
           <span id="gs-prog-pct" style="font-size:11px;font-weight:700;color:var(--blue);font-family:var(--mono);">0%</span>
+          <button class="btn" style="font-size:12px;" onclick="gsExportTemplate()" title="Download blank CSV template">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Template
+          </button>
+          <button class="btn" style="font-size:12px;background:var(--blue);color:#fff;border-color:var(--blue);" onclick="document.getElementById('gs-import-file').click()" title="Bulk-import grants from CSV">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import Grants
+          </button>
           <button class="btn" style="font-size:12px;" onclick="gsCancel()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m19 12-14 0"/><path d="m12 5-7 7 7 7"/></svg> Portfolio</button>
         </div>
       </div>
@@ -9528,28 +9555,27 @@ select:focus:not(:focus-visible) { outline: none; }
           </div>
         </div>
 
-        <!-- MOU Upload card -->
+        <!-- MOU Drive Link card -->
         <div class="gs-card">
           <div class="gs-card-hd">
             <div class="gs-card-icon teal"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div>
-            <div><div class="gs-card-title">MOU / Grant Agreement</div><div class="gs-card-sub">Upload the signed Memorandum of Understanding (recommended)</div></div>
+            <div><div class="gs-card-title">MOU / Grant Agreement</div><div class="gs-card-sub">Paste the Google Drive / SharePoint link to the signed MOU (recommended)</div></div>
           </div>
-          <div class="gs-mou-box" id="gs-mou-box" onclick="document.getElementById('gs-mou-file').click()"
-               ondragover="event.preventDefault();this.style.borderColor='var(--blue)'"
-               ondragleave="this.style.borderColor=''"
-               ondrop="event.preventDefault();gsMouFileDrop(event)">
-            <div class="gs-mou-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg></div>
-            <div class="gs-mou-lbl" id="gs-mou-lbl">Drop MOU / grant agreement here, or click to browse</div>
-            <div class="gs-mou-hint">PDF, DOCX, JPG · max 10 MB</div>
-            <input type="file" id="gs-mou-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none;" onchange="gsMouFileSelect(this)" />
+          <div style="display:flex;gap:8px;align-items:center;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <input id="gs-mou-url" type="url" class="gs-inp" placeholder="https://drive.google.com/file/d/… or SharePoint link"
+              style="flex:1;" oninput="gsMouUrlChange(this.value)" />
+            <button class="btn" id="gs-mou-open-btn" style="display:none;font-size:12px;" onclick="window.open(document.getElementById('gs-mou-url').value,'_blank')" title="Open link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open
+            </button>
+            <button class="gs-del-btn" id="gs-mou-clear-btn" style="display:none;" onclick="gsMouClear()" title="Clear link"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
           </div>
-          <div class="gs-mou-file-row" id="gs-mou-file-row" style="display:none;">
-            <span style="font-size:18px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>
-            <span class="gs-mou-file-name" id="gs-mou-file-name">—</span>
-            <button class="gs-del-btn" onclick="gsMouClear()" title="Remove file"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+          <div id="gs-mou-url-badge" style="display:none;margin-top:10px;padding:8px 12px;background:var(--ok-bg);border:1px solid var(--ok-border);border-radius:var(--r);font-size:12.5px;color:var(--ok);font-weight:600;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:5px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>MOU link saved — will be stored on activation
           </div>
-          <div class="gs-locked-note" style="margin-top:12px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> By uploading and proceeding, you confirm both parties have agreed to the terms in this MOU.
+          <div class="gs-hint" style="margin-top:8px;">Store your MOU in Google Drive or SharePoint and paste the sharing link here. Avoids file size limits and keeps documents centrally managed.</div>
+          <div class="gs-locked-note" style="margin-top:10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> By proceeding, you confirm both parties have agreed to the terms in this MOU.
           </div>
         </div>
       </div>
@@ -9874,8 +9900,9 @@ const gsState = {
   reportRows:    [],
   blSeq: 1, disbSeq: 1, repSeq: 1,
   committedOutcomes: [],  // [{ indicatorId, name, targetValue, frequency, isKeyOutcome }]
-  mouFile:     null,      // File object
-  mouFileName: '',        // display name
+  mouFile:     null,      // kept for backward compat (unused)
+  mouFileName: '',        // kept for backward compat (unused)
+  mouUrl:      '',        // Drive / SharePoint link
   dbIndicators:[],        // full indicator list from DB/builder
   // DB-loaded reference data
   dbPrograms:      [],
@@ -10546,7 +10573,7 @@ function gsBuildReview() {
   setKV('gs-rv-outcomes',
     kv('Indicators Committed', gsState.committedOutcomes.length) +
     kv('Key Outcome Indicators', keyCount) +
-    kv('MOU Attached', gsState.mouFileName ? IC['check-circle'] + ' ' + gsState.mouFileName : '— Not uploaded'));
+    kv('MOU Link', gsState.mouUrl ? IC['check-circle'] + ' <a href="'+gsState.mouUrl+'" target="_blank" rel="noopener" style="color:var(--blue);font-size:11.5px;">Open Drive Link</a>' : '— Not provided'));
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -10741,32 +10768,166 @@ function gsOcCurrentList() {
 function gsOcFilter() { gsOcRender(gsOcCurrentList()); }
 
 // ── MOU Upload ───────────────────────────────────────────────
-function gsMouFileSelect(input) {
-  const file = input.files?.[0];
-  if (!file) return;
-  if (file.size > 10 * 1024 * 1024) { toast(IC.warning + ' File exceeds 10 MB limit'); input.value = ''; return; }
-  gsState.mouFile     = file;
-  gsState.mouFileName = file.name;
-  $('gs-mou-file-row').style.display = 'flex';
-  $('gs-mou-file-name').textContent  = file.name;
-  $('gs-mou-box').classList.add('has-file');
-  $('gs-mou-lbl').innerHTML = IC['check-circle'] + ' MOU attached — click to replace';
-}
-
-function gsMouFileDrop(e) {
-  const file = e.dataTransfer.files?.[0];
-  if (file) { const dt = new DataTransfer(); dt.items.add(file); $('gs-mou-file').files = dt.files; gsMouFileSelect($('gs-mou-file')); }
+function gsMouUrlChange(url) {
+  gsState.mouUrl = url.trim();
+  const hasUrl   = !!gsState.mouUrl;
+  const badge    = $('gs-mou-url-badge');
+  const openBtn  = $('gs-mou-open-btn');
+  const clearBtn = $('gs-mou-clear-btn');
+  if (badge)    badge.style.display    = hasUrl ? 'block' : 'none';
+  if (openBtn)  openBtn.style.display  = hasUrl ? '' : 'none';
+  if (clearBtn) clearBtn.style.display = hasUrl ? '' : 'none';
 }
 
 function gsMouClear() {
-  gsState.mouFile = null; gsState.mouFileName = '';
-  $('gs-mou-file').value = '';
-  $('gs-mou-file-row').style.display = 'none';
-  $('gs-mou-box').classList.remove('has-file');
-  $('gs-mou-lbl').textContent = 'Drop MOU / grant agreement here, or click to browse';
+  gsState.mouUrl = '';
+  const inp = $('gs-mou-url'); if (inp) inp.value = '';
+  gsMouUrlChange('');
 }
 
+// legacy stubs — no-op (file upload replaced by Drive link)
+function gsMouFileSelect() {}
+function gsMouFileDrop() {}
+
 // ── Activate (Supabase save) ──────────────────────────────────
+// ── Import / Export ──────────────────────────────────────────────
+
+function gsExportTemplate() {
+  const headers = ['donor_name','grant_name','grant_type','currency','total_amount','start_date','end_date','description'];
+  const sample  = ['Ford Foundation','Education Support Grant 2025','Restricted Project','INR','5000000','2025-04-01','2026-03-31','Annual grant for primary education program'];
+  const csv = [headers.join(','), sample.map(v => `"${v}"`).join(',')].join('\r\n');
+  const a   = document.createElement('a');
+  a.href    = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download= 'grant_import_template.csv';
+  a.click();
+}
+
+window._gsImportRows = [];
+
+function gsImportParse(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  input.value = '';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { toast(IC.warning + ' CSV has no data rows'); return; }
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g,'').trim().toLowerCase());
+    const col = k => headers.indexOf(k);
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$|^(?=,))/g) || [];
+      const v    = j => (vals[j]||'').replace(/^"|"$/g,'').trim();
+      const donor = v(col('donor_name'));
+      const name  = v(col('grant_name'));
+      if (!donor || !name) continue;
+      rows.push({
+        donor_name:  donor,
+        grant_name:  name,
+        grant_type:  v(col('grant_type'))  || '',
+        currency:    v(col('currency'))    || 'INR',
+        total_amount:v(col('total_amount'))|| '',
+        start_date:  v(col('start_date'))  || '',
+        end_date:    v(col('end_date'))    || '',
+        description: v(col('description')) || '',
+        _donorMatch: !!(window._bbDonorTypeMap && window._bbDonorTypeMap.hasOwnProperty(donor)),
+      });
+    }
+    if (!rows.length) { toast(IC.warning + ' No valid rows found'); return; }
+    window._gsImportRows = rows;
+    // Render preview table
+    const colours = {true:'var(--ok)', false:'var(--warn)'};
+    const preview = document.getElementById('gs-import-preview');
+    if (preview) {
+      preview.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+        <thead><tr style="background:var(--canvas);">
+          <th style="padding:7px 10px;text-align:left;border-bottom:2px solid var(--mist-2);">Donor Name</th>
+          <th style="padding:7px 10px;text-align:left;border-bottom:2px solid var(--mist-2);">Grant Name</th>
+          <th style="padding:7px 10px;text-align:left;border-bottom:2px solid var(--mist-2);">Type</th>
+          <th style="padding:7px 10px;text-align:left;border-bottom:2px solid var(--mist-2);">Currency</th>
+          <th style="padding:7px 10px;text-align:right;border-bottom:2px solid var(--mist-2);">Amount</th>
+          <th style="padding:7px 10px;text-align:center;border-bottom:2px solid var(--mist-2);">Donor in DB</th>
+        </tr></thead>
+        <tbody>${rows.map((r,i) => `<tr style="border-bottom:1px solid var(--mist-2);background:${i%2?'#fafafa':'#fff'}">
+          <td style="padding:6px 10px;">${esc(r.donor_name)}</td>
+          <td style="padding:6px 10px;">${esc(r.grant_name)}</td>
+          <td style="padding:6px 10px;">${esc(r.grant_type)||'—'}</td>
+          <td style="padding:6px 10px;">${esc(r.currency)}</td>
+          <td style="padding:6px 10px;text-align:right;font-family:var(--mono);">${r.total_amount?Number(r.total_amount).toLocaleString('en-IN'):'—'}</td>
+          <td style="padding:6px 10px;text-align:center;font-weight:600;color:${colours[r._donorMatch]};">${r._donorMatch?'✓ Matched':'⚠ New'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <div style="margin-top:10px;font-size:12px;color:var(--slate);">
+        ${IC.info} <strong>${rows.length}</strong> grant${rows.length!==1?'s':''} ·
+        <span style="color:var(--ok);">✓ ${rows.filter(r=>r._donorMatch).length} matched donors</span> ·
+        <span style="color:var(--warn);">⚠ ${rows.filter(r=>!r._donorMatch).length} new donors (will be created)</span>
+      </div>`;
+    }
+    const modal = document.getElementById('gs-import-modal');
+    if (modal) { modal.style.display = 'flex'; }
+  };
+  reader.readAsText(file);
+}
+
+function gsImportClose() {
+  const modal = document.getElementById('gs-import-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function gsImportRun() {
+  const rows = window._gsImportRows;
+  if (!rows.length) return;
+  const btn = document.getElementById('gs-import-run-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Importing…'; }
+  const GS_URL = (typeof GS_SB_URL !== 'undefined' ? GS_SB_URL : MEBK_URL);
+  const GS_HDR = (typeof GS_SB_HDR !== 'undefined' ? GS_SB_HDR : MEBK_HDR);
+  let ok = 0, fail = 0;
+
+  // Build donor name→id map from DB
+  let donorMap = {};
+  try {
+    const dr = await fetch(`${GS_URL}/rest/v1/donor?is_active=eq.true&select=donor_id,donor_name,donor_type&limit=500`, { headers: GS_HDR });
+    const dd = await dr.json();
+    if (Array.isArray(dd)) dd.forEach(d => { donorMap[d.donor_name] = { id: d.donor_id, type: d.donor_type }; });
+  } catch(e) {}
+
+  for (const row of rows) {
+    try {
+      let donorId = donorMap[row.donor_name]?.id;
+      if (!donorId) {
+        // Create new donor
+        const dr = await fetch(`${GS_URL}/rest/v1/donor`, {
+          method: 'POST', headers: { ...GS_HDR, 'Prefer': 'return=representation' },
+          body: JSON.stringify({ donor_name: row.donor_name, is_active: true })
+        });
+        const dd = await dr.json();
+        donorId = Array.isArray(dd) ? dd[0]?.donor_id : dd?.donor_id;
+      }
+      // Create grant_program
+      const body = { grant_name: row.grant_name, donor_id: donorId, is_active: true };
+      if (row.grant_type)   body.grant_type   = row.grant_type;
+      if (row.currency)     body.currency     = row.currency;
+      if (row.total_amount) body.total_amount = parseFloat(row.total_amount) || null;
+      if (row.start_date)   body.start_date   = row.start_date;
+      if (row.end_date)     body.end_date     = row.end_date;
+      const gr = await fetch(`${GS_URL}/rest/v1/grant_program`, {
+        method: 'POST', headers: { ...GS_HDR, 'Prefer': 'return=representation' },
+        body: JSON.stringify(body)
+      });
+      if (!gr.ok) throw new Error(await gr.text());
+      ok++;
+    } catch(e) { console.warn('Import row failed:', row.grant_name, e.message); fail++; }
+  }
+
+  gsImportClose();
+  window._gsImportRows = [];
+  if (btn) { btn.disabled = false; btn.textContent = 'Import All Valid Rows'; }
+  toast((ok ? IC['check-circle'] + ` ${ok} grant${ok!==1?'s':''} imported` : '') + (fail ? ` · ${IC.warning} ${fail} failed` : ''));
+  // Refresh datalists and Portfolio
+  if (typeof bbPopulateDonorNamelist === 'function') bbPopulateDonorNamelist();
+  btStore._loaded = false; btStore._loading = false;
+}
+
 async function gsActivate() {
   // Show loading
   const lo = $('gs-loading'); if(lo) lo.classList.add('show');
@@ -10872,10 +11033,10 @@ async function gsActivate() {
         is_key_outcome_indicator: !!oc.isKeyOutcome, remarks: null,
       });
     }
-    if (gsState.mouFileName) {
+    if (gsState.mouUrl) {
       await gsSbInsert('grant_document', {
-        grant_id: grantId, document_type: 'mou', document_name: gsState.mouFileName,
-        document_url: null, version_number: 1, notes: 'Uploaded during grant setup',
+        grant_id: grantId, document_type: 'mou', document_name: 'MOU / Grant Agreement',
+        document_url: gsState.mouUrl, version_number: 1, notes: 'Drive link added during grant setup',
       });
     }
 
@@ -10929,6 +11090,8 @@ function gsReset() {
   gsState.committedOutcomes= [];
   gsState.mouFile          = null;
   gsState.mouFileName      = '';
+  gsState.mouUrl           = '';
+  gsMouClear();
   gsState.dbIndicators     = [];
   gsState.selectedIntvs    = new Set();
   gsState.selectedFYs      = new Set();
