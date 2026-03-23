@@ -7817,7 +7817,7 @@ select:focus:not(:focus-visible) { outline: none; }
           </div>
           <datalist id="bb-dn-namelist"></datalist>
           <div class="bb-add-form dn-form" id="bb-form-dn">
-            <input class="bb-inp bb-inp-lg" id="bb-dn-name" list="bb-dn-namelist" placeholder="Donor / organisation name…" autocomplete="off" onkeydown="if(event.key==='Enter')bbSaveDonor()"/>
+            <input class="bb-inp bb-inp-lg" id="bb-dn-name" list="bb-dn-namelist" placeholder="Donor / organisation name…" autocomplete="off" oninput="bbDonorNameAutoFill(this,'bb-dn-type')" onkeydown="if(event.key==='Enter')bbSaveDonor()"/>
             <select class="bb-sel"          id="bb-dn-type">
               <option value="">Donor type…</option>
               ${(gmLookup('donor_type').length ? gmLookup('donor_type') : [{code:'CSR',label:'CSR'},{code:'Foundation',label:'Foundation'},{code:'HNI',label:'HNI (High Net-Worth)'},{code:'Bilateral',label:'Bilateral'},{code:'Multilateral',label:'Multilateral'},{code:'Private Foundation',label:'Private Foundation'},{code:'Government',label:'Government'},{code:'Individual',label:'Individual'},{code:'NGO',label:'NGO / INGO'},{code:'Other',label:'Other'}]).map(o=>`<option value="${o.code||o}">${o.label||o}</option>`).join('')}
@@ -9256,7 +9256,7 @@ select:focus:not(:focus-visible) { outline: none; }
               <div class="gs-grid gs-g2" style="padding:14px;background:var(--canvas);border:1.5px dashed var(--mist-2);border-radius:var(--r);gap:12px;">
                 <div class="gs-field gs-span2">
                   <label>Donor / Funder Name <span class="req">*</span></label>
-                  <input id="gs-d-name" type="text" list="gs-d-name-list" autocomplete="off" placeholder="Type to search or add a new donor…" />
+                  <input id="gs-d-name" type="text" list="gs-d-name-list" autocomplete="off" placeholder="Type to search or add a new donor…" oninput="bbDonorNameAutoFill(this,'gs-d-type')" />
                   <div class="gs-hint">Start typing to see existing donors · or enter a new name to create one</div>
                 </div>
                 <div class="gs-field">
@@ -22717,17 +22717,32 @@ async function bbPopulateDonorSelect(selId) {
 }
 
 // Populate <datalist> elements used by donor name comboboxes
+// Map of donor_name → donor_type for auto-fill
+window._bbDonorTypeMap = {};
+
 async function bbPopulateDonorNamelist() {
   const dlIds = ['bb-dn-namelist', 'gs-d-name-list'];
   const hasDl = dlIds.some(id => document.getElementById(id));
   if (!hasDl) return;
   try {
-    const res  = await fetch(`${MEBK_URL}/rest/v1/donor?is_active=eq.true&select=donor_name&order=donor_name.asc&limit=500`, { headers: MEBK_HDR });
+    const res  = await fetch(`${MEBK_URL}/rest/v1/donor?is_active=eq.true&select=donor_name,donor_type&order=donor_name.asc&limit=500`, { headers: MEBK_HDR });
     const data = await res.json();
     if (!Array.isArray(data)) return;
+    // Build lookup map name → type
+    window._bbDonorTypeMap = {};
+    data.forEach(d => { if (d.donor_name) window._bbDonorTypeMap[d.donor_name] = d.donor_type || ''; });
     const opts = data.map(d => `<option value="${(d.donor_name||'').replace(/"/g,'&quot;')}"></option>`).join('');
     dlIds.forEach(id => { const dl = document.getElementById(id); if (dl) dl.innerHTML = opts; });
   } catch(e) { /* ignore — combobox still works as free text */ }
+}
+
+// Auto-fill donor type when a known donor name is selected from datalist
+function bbDonorNameAutoFill(inputEl, typeSelId) {
+  const name = inputEl.value.trim();
+  const type = window._bbDonorTypeMap[name];
+  if (!type) return;
+  const sel = document.getElementById(typeSelId);
+  if (sel) sel.value = type;
 }
 
 async function bbLoadGrants() {
