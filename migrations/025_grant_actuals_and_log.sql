@@ -208,15 +208,21 @@ END $$;
 
 -- grant_budget_monthly_actuals
 ALTER TABLE public.grant_budget_monthly_actuals ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "gma_read_all"   ON public.grant_budget_monthly_actuals FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "gma_anon_write" ON public.grant_budget_monthly_actuals FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "gma_auth_write" ON public.grant_budget_monthly_actuals FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "gma_read_all"   ON public.grant_budget_monthly_actuals;
+DROP POLICY IF EXISTS "gma_anon_write" ON public.grant_budget_monthly_actuals;
+DROP POLICY IF EXISTS "gma_auth_write" ON public.grant_budget_monthly_actuals;
+CREATE POLICY "gma_read_all"   ON public.grant_budget_monthly_actuals FOR SELECT USING (true);
+CREATE POLICY "gma_anon_write" ON public.grant_budget_monthly_actuals FOR ALL TO anon         USING (true) WITH CHECK (true);
+CREATE POLICY "gma_auth_write" ON public.grant_budget_monthly_actuals FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- grant_burn_upload_log
 ALTER TABLE public.grant_burn_upload_log ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "bul_read_all"   ON public.grant_burn_upload_log FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "bul_anon_write" ON public.grant_burn_upload_log FOR ALL TO anon USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "bul_auth_write" ON public.grant_burn_upload_log FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "bul_read_all"   ON public.grant_burn_upload_log;
+DROP POLICY IF EXISTS "bul_anon_write" ON public.grant_burn_upload_log;
+DROP POLICY IF EXISTS "bul_auth_write" ON public.grant_burn_upload_log;
+CREATE POLICY "bul_read_all"   ON public.grant_burn_upload_log FOR SELECT USING (true);
+CREATE POLICY "bul_anon_write" ON public.grant_burn_upload_log FOR ALL TO anon         USING (true) WITH CHECK (true);
+CREATE POLICY "bul_auth_write" ON public.grant_burn_upload_log FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ── 5. Verify ─────────────────────────────────────────────────────────────
 SELECT tablename, (SELECT COUNT(*) FROM information_schema.columns WHERE table_name=tablename AND table_schema='public') AS col_count

@@ -24,9 +24,12 @@ CREATE TABLE IF NOT EXISTS public.lookup_values (
 );
 
 ALTER TABLE public.lookup_values ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "lv_read_all"   ON public.lookup_values FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "lv_anon_write" ON public.lookup_values FOR ALL TO anon         USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "lv_auth_write" ON public.lookup_values FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "lv_read_all"   ON public.lookup_values;
+DROP POLICY IF EXISTS "lv_anon_write" ON public.lookup_values;
+DROP POLICY IF EXISTS "lv_auth_write" ON public.lookup_values;
+CREATE POLICY "lv_read_all"   ON public.lookup_values FOR SELECT USING (true);
+CREATE POLICY "lv_anon_write" ON public.lookup_values FOR ALL TO anon         USING (true) WITH CHECK (true);
+CREATE POLICY "lv_auth_write" ON public.lookup_values FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ── 2. Seed — grant_status ────────────────────────────────────────
 INSERT INTO public.lookup_values (lookup_type, code, label, css_class, sort_order) VALUES
