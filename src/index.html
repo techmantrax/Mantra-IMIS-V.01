@@ -12779,8 +12779,8 @@ function applyRoleUI() {
   // New Grant Setup sub-nav — manager only, never admin/viewer/finance
   $('nav-sub-newgrant')?.classList.toggle('hidden', !isManager);
 
-  // Auto-expand Grant Management sub-nav for finance (their primary area)
-  if (isFinance) $('nav-gm-sub')?.classList.add('open');
+  // Auto-expand Grant Management sub-nav for finance; collapse for all other roles
+  $('nav-gm-sub')?.classList.toggle('open', isFinance);
 
   // Budget Tracker — hide edit controls for viewer (read-only portfolio); finance can edit
   const btEditEls = ['bt-th-update-util','bt-save-lines-btn','bt-entry-type-sel','bt-save-monthly-btn','bt-monthly-type-sel','bt-add-disb-btn','bt-add-report-btn'];
