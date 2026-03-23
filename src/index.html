@@ -15057,7 +15057,7 @@ qsa('.nav-btn').forEach(b => {
       toast(IC.warning + ' Grant Management is for Program Managers'); return;
     }
     // Finance Team — restricted to Portfolio and Upload Monthly Burn only
-    if (state.role === 'finance' && !['home','grant-mgmt','grant-burn-upload'].includes(route)) {
+    if (state.role === 'finance' && !['grant-mgmt','grant-burn-upload'].includes(route)) {
       toast(IC.warning + ' Finance Team access is limited to Grant Portfolio and Monthly Burn'); return;
     }
     showPage(route);
@@ -15074,7 +15074,7 @@ qsa('[data-goto]').forEach(el => {
     if (['grant-mgmt','grant-setup','budget-book'].includes(route) && state.role === 'admin') {
       toast(IC.warning + ' Grant Management is for Program Managers'); return;
     }
-    if (state.role === 'finance' && !['home','grant-mgmt','grant-burn-upload'].includes(route)) {
+    if (state.role === 'finance' && !['grant-mgmt','grant-burn-upload'].includes(route)) {
       toast(IC.warning + ' Finance Team access is limited to Grant Portfolio and Monthly Burn'); return;
     }
     showPage(route);
