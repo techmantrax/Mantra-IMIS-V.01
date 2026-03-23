@@ -6,6 +6,10 @@
 -- Skips any donor whose name already exists in the table
 -- ════════════════════════════════════════════════════════════════
 
+-- ── 0. Drop the hard-coded ck_donor_type check constraint ────────
+-- donor_type is now managed via lookup_values — the CHECK list is obsolete
+ALTER TABLE public.donor DROP CONSTRAINT IF EXISTS ck_donor_type;
+
 -- ── 1. Add new donor_type lookup codes ───────────────────────────
 INSERT INTO public.lookup_values (lookup_type, code, label, sort_order)
 VALUES
