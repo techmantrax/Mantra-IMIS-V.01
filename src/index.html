@@ -1526,6 +1526,7 @@ select:focus:not(:focus-visible) { outline: none; }
           <option value="manager">Program Manager</option>
           <option value="leader">Leadership</option>
           <option value="donor">Donor / Funder</option>
+          <option value="finance">Finance Team</option>
         </select>
       </div>
       <div class="btn-row">
@@ -12751,13 +12752,14 @@ function showPage(route) {
 // ROLE UI
 // ═══════════════════════════════════════════════════
 function applyRoleUI() {
-  const labels = { poc:'Program POC', admin:'M&E Administrator', manager:'Program Manager', leader:'Leadership', donor:'Donor/Funder' };
+  const labels = { poc:'Program POC', admin:'M&E Administrator', manager:'Program Manager', leader:'Leadership', donor:'Donor/Funder', finance:'Finance Team' };
   $('role-badge-text').textContent = labels[state.role] || state.role;
 
   const isAdmin   = state.role === 'admin';
   const isManager = state.role === 'manager';
   const isPOC     = state.role === 'poc';
   const isViewer  = ['leader','donor'].includes(state.role);
+  const isFinance = state.role === 'finance';
 
   // ── Sidebar nav visibility ─────────────────────────────────────
   // M&E Book — admin only (M&E Administration role)
@@ -12766,18 +12768,21 @@ function applyRoleUI() {
   $('nav-me-builder')?.classList.toggle('hidden', !isAdmin);
   // LFA Setup — admin + program manager
   $('nav-lfa')?.classList.toggle('hidden', !(isAdmin || isManager));
-  // Monthly Reporting — admin + POC only (not manager, not viewer)
-  $('nav-data-entry')?.classList.toggle('hidden', isManager || isViewer);
-  // Data Upload — admin + POC (not manager, not viewer)
-  $('nav-data-upload')?.classList.toggle('hidden', isManager || isViewer);
-  // Grant Management — program manager + viewer (portfolio view) · NOT admin (M&E role)
-  $('nav-budget')?.classList.toggle('hidden', !(isManager || isViewer));
-  // Budget Book sub-nav — manager only (admin hidden)
+  // Monthly Reporting — admin + POC only (not manager, not viewer, not finance)
+  $('nav-data-entry')?.classList.toggle('hidden', isManager || isViewer || isFinance);
+  // Data Upload — admin + POC (not manager, not viewer, not finance)
+  $('nav-data-upload')?.classList.toggle('hidden', isManager || isViewer || isFinance);
+  // Grant Management — program manager + viewer + finance · NOT admin (M&E role)
+  $('nav-budget')?.classList.toggle('hidden', !(isManager || isViewer || isFinance));
+  // Budget Book sub-nav — manager only (admin/finance hidden)
   $('nav-sub-budgetbook')?.classList.toggle('hidden', !isManager);
-  // New Grant Setup sub-nav — manager only, never admin/viewer
+  // New Grant Setup sub-nav — manager only, never admin/viewer/finance
   $('nav-sub-newgrant')?.classList.toggle('hidden', !isManager);
 
-  // Budget Tracker — hide edit controls for viewer (read-only portfolio)
+  // Auto-expand Grant Management sub-nav for finance; collapse for all other roles
+  $('nav-gm-sub')?.classList.toggle('open', isFinance);
+
+  // Budget Tracker — hide edit controls for viewer (read-only portfolio); finance can edit
   const btEditEls = ['bt-th-update-util','bt-save-lines-btn','bt-entry-type-sel','bt-save-monthly-btn','bt-monthly-type-sel','bt-add-disb-btn','bt-add-report-btn'];
   btEditEls.forEach(id => $(id)?.classList.toggle('hidden', isViewer));
   // UDISE setup tab inside Data Upload — admin only
@@ -12787,10 +12792,10 @@ function applyRoleUI() {
   // M&E Builder quick card — admin only
   $('home-builder-card')?.classList.toggle('hidden', !isAdmin);
   // Monthly Reporting quick card + Open Reporting button — admin + POC only
-  $('home-reporting-card')?.classList.toggle('hidden', isManager || isViewer);
-  $('home-open-reporting-btn')?.classList.toggle('hidden', isManager || isViewer);
-  // Grant Management quick card — manager + leader/donor · NOT admin
-  $('home-grant-card')?.classList.toggle('hidden', !(isManager || isViewer));
+  $('home-reporting-card')?.classList.toggle('hidden', isManager || isViewer || isFinance);
+  $('home-open-reporting-btn')?.classList.toggle('hidden', isManager || isViewer || isFinance);
+  // Grant Management quick card — manager + leader/donor + finance · NOT admin
+  $('home-grant-card')?.classList.toggle('hidden', !(isManager || isViewer || isFinance));
   // "+ New Grant" button on home card — manager only
   $('home-new-grant-btn')?.classList.toggle('hidden', !isManager);
   // LFA quick card — admin + manager
@@ -12799,7 +12804,8 @@ function applyRoleUI() {
   // Home greeting sub-text — contextual per role
   const subEl = $('home-sub-text');
   if (subEl) {
-    if (isManager) subEl.textContent = 'Grant portfolio and program design overview';
+    if (isFinance) subEl.textContent = 'Grant portfolio and monthly burn uploads';
+    else if (isManager) subEl.textContent = 'Grant portfolio and program design overview';
     else if (isAdmin) subEl.textContent = 'System-wide overview · All programs · Feb 2026';
     else subEl.textContent = 'Program reporting status for February 2026';
   }
@@ -15024,7 +15030,8 @@ $('btn-login').addEventListener('click', () => {
   $('screen-auth').classList.add('hidden');
   $('screen-app').classList.remove('hidden');
   applyRoleUI();
-  showPage('home');
+  // Finance Team lands directly on Portfolio (their primary workspace)
+  showPage(state.role === 'finance' ? 'grant-mgmt' : 'home');
 });
 $('btn-otp').addEventListener('click', () => toast('OTP sent to registered mobile (prototype)'));
 $('login-email').addEventListener('keydown', e => { if(e.key==='Enter') $('btn-login').click(); });
@@ -15049,6 +15056,10 @@ qsa('.nav-btn').forEach(b => {
     if (['grant-mgmt','grant-setup','budget-book'].includes(route) && state.role === 'admin') {
       toast(IC.warning + ' Grant Management is for Program Managers'); return;
     }
+    // Finance Team — restricted to Portfolio and Upload Monthly Burn only
+    if (state.role === 'finance' && !['grant-mgmt','grant-burn-upload'].includes(route)) {
+      toast(IC.warning + ' Finance Team access is limited to Grant Portfolio and Monthly Burn'); return;
+    }
     showPage(route);
   });
 });
@@ -15062,6 +15073,9 @@ qsa('[data-goto]').forEach(el => {
     }
     if (['grant-mgmt','grant-setup','budget-book'].includes(route) && state.role === 'admin') {
       toast(IC.warning + ' Grant Management is for Program Managers'); return;
+    }
+    if (state.role === 'finance' && !['grant-mgmt','grant-burn-upload'].includes(route)) {
+      toast(IC.warning + ' Finance Team access is limited to Grant Portfolio and Monthly Burn'); return;
     }
     showPage(route);
   });
