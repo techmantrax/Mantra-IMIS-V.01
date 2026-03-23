@@ -14,10 +14,9 @@
 ALTER TABLE public.grants ADD COLUMN IF NOT EXISTS upload_profile JSONB;
 
 -- ── 2. grant_budget_monthly_actuals ─────────────────────────────
--- Stores per-line actual spend by month, upserted on every burn upload.
--- FK to grants and grant_framework_budget added conditionally so the
--- migration runs even if those tables have different PK column names.
-CREATE TABLE IF NOT EXISTS public.grant_budget_monthly_actuals (
+-- Drop first to clear any partial table from a previous failed run.
+DROP TABLE IF EXISTS public.grant_budget_monthly_actuals CASCADE;
+CREATE TABLE public.grant_budget_monthly_actuals (
   actual_id             UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   grant_id              UUID        NOT NULL,
   framework_budget_id   UUID        NOT NULL,
@@ -34,7 +33,9 @@ CREATE INDEX IF NOT EXISTS idx_gma_grant_id ON public.grant_budget_monthly_actua
 CREATE INDEX IF NOT EXISTS idx_gma_fy       ON public.grant_budget_monthly_actuals (financial_year);
 
 -- ── 3. grant_burn_upload_log ─────────────────────────────────────
-CREATE TABLE IF NOT EXISTS public.grant_burn_upload_log (
+-- Drop first to clear any partial table from a previous failed run.
+DROP TABLE IF EXISTS public.grant_burn_upload_log CASCADE;
+CREATE TABLE public.grant_burn_upload_log (
   log_id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   grant_id          UUID,
   program_id        UUID,
