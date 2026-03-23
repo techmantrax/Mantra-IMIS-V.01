@@ -8899,9 +8899,7 @@ select:focus:not(:focus-visible) { outline: none; }
             <div class="gmb-field">
               <label>Financial Year</label>
               <select id="gmb-fy-sel">
-                <option value="2025-26">FY 2025-26</option>
-                <option value="2024-25">FY 2024-25</option>
-                <option value="2026-27">FY 2026-27</option>
+                <option value="">Loading…</option>
               </select>
             </div>
             <div class="gmb-field">
@@ -10826,6 +10824,10 @@ async function gsActivate() {
       || (document.getElementById('gs-d-name')?.value?.trim() || '');
     gsSyncGrantToBudgetTracker(grant, donorName, fyId, progId);
 
+    // Force-reload Portfolio from DB so the new grant appears immediately
+    btStore._loaded  = false;
+    btStore._loading = false;
+
     if(lo) lo.classList.remove('show');
     gsShowSuccess();
   } catch(err) {
@@ -12723,11 +12725,16 @@ function showPage(route) {
     $('page-budget-tracker').classList.remove('hidden');
     $('crumb-path').textContent = 'Grant Management';
     $('crumb-title').textContent = 'Portfolio Overview';
-    btShowProgSelector();
+    if (!btStore._loaded && !btStore._loading) {
+      btLoadFromDB();           // full DB hydration; re-renders when done
+    } else {
+      btShowProgSelector();     // already loaded — just refresh view
+    }
   } else if (route === 'grant-burn-upload') {
     $('page-grant-burn-upload')?.classList.remove('hidden');
     $('crumb-path').textContent = 'Grant Management';
     $('crumb-title').textContent = 'Upload Monthly Burn';
+    if (!btStore._loaded && !btStore._loading) btLoadFromDB();
     if (typeof gmbInit === 'function') gmbInit();
   } else if (route === 'grant-setup') {
     $('page-grant-setup')?.classList.remove('hidden');
@@ -20030,167 +20037,244 @@ const FMT = n => {
 const MONTHS_FY = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
 
 const btStore = {
-  activeProg:  null,
-  activeGrant: null,
-  activeView:  'lines',
+  activeProg:   null,
+  activeGrant:  null,
+  activeView:   'lines',
+  _loaded:      false,
+  _loading:     false,
 
-  programs: [
-    { id:'KA',  name:'Karnataka',      fy:'2025-26', state:'Karnataka' },
-    { id:'BR',  name:'Bihar',          fy:'2025-26', state:'Bihar' },
-    { id:'UP',  name:'Uttar Pradesh',  fy:'2025-26', state:'Uttar Pradesh' },
-    { id:'OD',  name:'Odisha',         fy:'2025-26', state:'Odisha' },
-    { id:'MH',  name:'Maharashtra',    fy:'2025-26', state:'Maharashtra' },
-    { id:'PB',  name:'Punjab',         fy:'2025-26', state:'Punjab' },
-    { id:'RJ',  name:'Rajasthan',      fy:'2025-26', state:'Rajasthan' },
-    { id:'MP',  name:'Madhya Pradesh', fy:'2025-26', state:'Madhya Pradesh' },
-    { id:'JH',  name:'Jharkhand',      fy:'2025-26', state:'Jharkhand' },
-    { id:'AS',  name:'Assam',          fy:'2025-26', state:'Assam' },
-  ],
-
-  grants: {
-    'KA': [
-      { id:'G-KA-WF',    donor:'Wells Fargo',  code:'WF-KA-2526',  status:'active',  total:4336000,  css:'wf',
-        start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-      { id:'G-KA-SF',    donor:'Salesforce',   code:'SF-KA-2526',  status:'active',  total:8194000,  css:'sf',
-        start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-      { id:'G-KA-BOSCH', donor:'BOSCH',        code:'BSH-KA-2526', status:'active',  total:7182950,  css:'bosch',
-        start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-      { id:'G-KA-LTTS',  donor:'LTTS',         code:'LTTS-KA-26',  status:'active',  total:5690000,  css:'ltts',
-        start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-    ],
-    'BR': [
-      { id:'G-BR-CSR1', donor:'India CSR Fund', code:'CSR-BR-2527', status:'pipeline', total:15000000, css:'generic',
-        start:'2026-04-01', end:'2027-03-31', currency:'INR' },
-    ],
-    'OD': [
-      { id:'G-OD-GOV1', donor:'Government Grant', code:'GOV-OD-2526', status:'active', total:6200000, css:'generic',
-        start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-    ],
-    'MH': [
-      { id:'G-MH-SF',   donor:'Salesforce',  code:'SF-MH-2526',  status:'active', total:4500000, css:'sf',    start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-      { id:'G-MH-TATA', donor:'Tata Trust',  code:'TT-MH-2526',  status:'active', total:3800000, css:'generic', start:'2025-04-01', end:'2026-03-31', currency:'INR' },
-    ],
-  },
-
-  budgetLines: {
-    'G-KA-WF': [
-      { id:'WF-B1',  code:'B.1',  cat:'B', head:'Content, Printing & Stationaries and other program support materials', allocated:960000,  revised:null, utilised:958821 },
-      { id:'WF-B2',  code:'B.2',  cat:'B', head:'HM Capacity Building Workshop',              allocated:800000,  revised:null, utilised:799908 },
-      { id:'WF-B3',  code:'B.3',  cat:'B', head:'CRP Capacity Building Workshop',             allocated:500000,  revised:null, utilised:442727 },
-      { id:'WF-B4',  code:'B.4',  cat:'B', head:'DRT Capacity Building Workshop',             allocated:100000,  revised:null, utilised:67359  },
-      { id:'WF-B5',  code:'B.5',  cat:'B', head:'DIET & Block Leaders Planning Workshop',     allocated:250000,  revised:null, utilised:248959 },
-      { id:'WF-B6',  code:'B.6',  cat:'B', head:'Diet Review Meeting',                        allocated:10000,   revised:null, utilised:9687   },
-      { id:'WF-B7',  code:'B.7',  cat:'B', head:'Block Review Meeting',                       allocated:10000,   revised:null, utilised:0      },
-      { id:'WF-B8',  code:'B.8',  cat:'B', head:'District Level Celebration',                 allocated:1000000, revised:null, utilised:1009674},
-      { id:'WF-B9',  code:'B.9',  cat:'B', head:'BRC Revival',                                allocated:500000,  revised:null, utilised:470702 },
-      { id:'WF-B10', code:'B.10', cat:'B', head:'Travel',                                     allocated:216000,  revised:null, utilised:164126 },
-    ],
-    'G-KA-SF': [
-      { id:'SF-B1',  code:'B.1', cat:'B', head:'State Program - Capacity Building Workshops - Officials',              allocated:1200000, revised:null, utilised:1202293 },
-      { id:'SF-B2',  code:'B.2', cat:'B', head:'Kalaburagi & Yadgir - Capacity Building at District Level',            allocated:350000,  revised:null, utilised:242435  },
-      { id:'SF-B3',  code:'B.3', cat:'B', head:'Kalaburagi & Yadgir - School Leadership Workshop (Block Level)',       allocated:440000,  revised:null, utilised:419816  },
-      { id:'SF-B4',  code:'B.4', cat:'B', head:'Kalaburagi & Yadgir - Planning and Review Meeting',                   allocated:24000,   revised:null, utilised:0       },
-      { id:'SF-B5',  code:'B.5', cat:'B', head:'State Program - Content towards Capacity Building',                   allocated:1320000, revised:null, utilised:1336820 },
-      { id:'SF-B6',  code:'B.6', cat:'B', head:'Printing and Stationary',                                              allocated:200000,  revised:null, utilised:190127  },
-      { id:'SF-B7',  code:'B.7', cat:'B', head:'Kalaburagi & Yadgir - Program Support Materials',                     allocated:200000,  revised:null, utilised:194227  },
-      { id:'SF-B8',  code:'B.8', cat:'B', head:'State Program - Education Conclave (Pragatiya Hejje)',                allocated:600000,  revised:null, utilised:201466  },
-      { id:'SF-B9',  code:'B.9', cat:'B', head:'Kalaburagi & Yadgir - Showcase and Celebration',                      allocated:700000,  revised:null, utilised:710261  },
-      { id:'SF-C1',  code:'C.1', cat:'C', head:'State Program - Travel Conveyance',                                   allocated:480000,  revised:null, utilised:485954  },
-      { id:'SF-C2',  code:'C.2', cat:'C', head:'Kalaburagi & Yadgir - Travel Conveyance',                             allocated:480000,  revised:null, utilised:467388  },
-      { id:'SF-C3',  code:'C.3', cat:'C', head:'Communication and Impact Coverage',                                   allocated:200000,  revised:null, utilised:200600  },
-      { id:'SF-C4',  code:'C.4', cat:'C', head:'Impact Assessment (M&E)',                                             allocated:1500000, revised:null, utilised:0       },
-      { id:'SF-C5',  code:'C.5', cat:'C', head:'Team Capacity Building',                                              allocated:200000,  revised:null, utilised:159955  },
-      { id:'SF-D1',  code:'D.1', cat:'D', head:'Restocking of STEM Lab',                                              allocated:300000,  revised:null, utilised:299720  },
-      { id:'SF-D2',  code:'D.2', cat:'D', head:'Infrastructure',                                                      allocated:1500000, revised:null, utilised:750000  },
-    ],
-    'G-KA-BOSCH': [
-      { id:'BSH-B1', code:'B.1', cat:'B', head:'State Program - Capacity Building Workshops for Leaders',             allocated:1700000, revised:null, utilised:1724306 },
-      { id:'BSH-B2', code:'B.2', cat:'B', head:'State Program - Content towards Capacity Building (Calendar/HB)',     allocated:2394000, revised:null, utilised:2319733 },
-      { id:'BSH-B3', code:'B.3', cat:'B', head:'State Program - Education Conclave (Pragatiya Hejje)',                allocated:1000000, revised:null, utilised:1045991 },
-      { id:'BSH-C1', code:'C.1', cat:'C', head:'State Program - Travel Conveyance',                                   allocated:420000,  revised:null, utilised:441931  },
-      { id:'BSH-C2', code:'C.2', cat:'C', head:'Communication and Impact Coverage',                                   allocated:250000,  revised:null, utilised:247800  },
-      { id:'BSH-C3', code:'C.3', cat:'C', head:'Impact Assessment',                                                   allocated:0,       revised:null, utilised:0       },
-      { id:'BSH-C4', code:'C.4', cat:'C', head:'Team Capacity Building',                                              allocated:100000,  revised:null, utilised:100600  },
-      { id:'BSH-C5', code:'C.5', cat:'C', head:'Vision Setting Workshop',                                             allocated:1000000, revised:null, utilised:449664  },
-      { id:'BSH-D1', code:'D.1', cat:'D', head:'Restocking of STEM Lab (Bengaluru Urban)',                            allocated:250000,  revised:null, utilised:250000  },
-      { id:'BSH-E1', code:'E.1', cat:'E', head:'Admin and Accounting',                                                allocated:68950,   revised:null, utilised:68988   },
-    ],
-    'G-KA-LTTS': [
-      { id:'LT-A1', code:'A.1', cat:'A', head:'Revival of Training Centres',                                          allocated:1150000, revised:null, utilised:1172327, units:2,    cpu:575000 },
-      { id:'LT-A2', code:'A.2', cat:'A', head:'STEM Kits',                                                            allocated:1625000, revised:null, utilised:1625228, units:650,  cpu:2500   },
-      { id:'LT-A3', code:'A.3', cat:'A', head:'STEM Lab Restocking',                                                  allocated:500000,  revised:null, utilised:501293,  units:10,   cpu:50000  },
-      { id:'LT-A4', code:'A.4', cat:'A', head:'Handbook and Resource Printing',                                       allocated:550000,  revised:null, utilised:543771,  units:2000, cpu:275    },
-      { id:'LT-A5', code:'A.5', cat:'A', head:'STEM Curriculum / Handbook Development',                              allocated:100000,  revised:null, utilised:100000  },
-      { id:'LT-A6', code:'A.6', cat:'A', head:'Capacity Building - School Heads & Education Functionaries',           allocated:500000,  revised:null, utilised:295293  },
-      { id:'LT-A7', code:'A.7', cat:'A', head:'Capacity Building - Science Teachers',                                allocated:162500,  revised:null, utilised:161438  },
-      { id:'LT-A8', code:'A.8', cat:'A', head:'Exhibition of STEM Projects by Students and Teachers',                allocated:500000,  revised:null, utilised:282265  },
-      { id:'LT-A9', code:'A.9', cat:'A', head:'Student Assessment',                                                   allocated:250000,  revised:null, utilised:250000  },
-      { id:'LT-C1', code:'C.1', cat:'C', head:'Travel',                                                               allocated:202500,  revised:null, utilised:220929  },
-      { id:'LT-C2', code:'C.2', cat:'C', head:'Team Capacity Building',                                               allocated:150000,  revised:null, utilised:132876  },
-    ],
-  },
-
-  monthlyActuals: {
-    'WF-B1':  { '0_actual':252,'2_actual':181310,'3_actual':26004,'4_actual':1240,'5_actual':418412,'6_actual':38238,'7_actual':592,'8_actual':3746,'9_actual':165811 },
-    'WF-B2':  { '2_actual':632854,'3_actual':11583,'4_actual':5492,'9_actual':35141 },
-    'WF-B3':  { '4_actual':163606,'5_actual':41594,'6_actual':5231,'7_actual':730,'8_actual':7317,'9_actual':137477 },
-    'WF-B4':  { '5_actual':6300,'6_actual':3960,'7_actual':159 },
-    'WF-B5':  { '4_actual':6372,'5_actual':135347,'6_actual':107240 },
-    'WF-B6':  { '2_actual':4500 },
-    'WF-B8':  { '9_actual':632023 },
-    'WF-B9':  { '5_actual':44800,'7_actual':278480,'9_actual':123138 },
-    'WF-B10': { '0_actual':7916,'1_actual':1792,'3_actual':12725,'4_actual':8754,'5_actual':10133,'6_actual':10633,'7_actual':7010,'8_actual':12560,'9_actual':13543 },
-    'LT-A1':  { '3_actual':350000,'5_actual':76045,'6_actual':349259,'7_actual':26081,'8_actual':298273,'9_actual':72669 },
-    'LT-A2':  { '3_actual':1590000,'5_actual':35228 },
-    'LT-A3':  { '3_actual':450000,'5_actual':51293 },
-    'LT-A4':  { '3_actual':223404,'5_actual':124241,'8_actual':8094,'9_actual':128032 },
-    'LT-A6':  { '3_actual':14280,'4_actual':23895,'8_actual':47729,'9_actual':209389 },
-    'LT-A7':  { '5_actual':47723,'7_actual':21945,'8_actual':91770 },
-    'LT-C1':  { '3_actual':14452,'5_actual':57258,'6_actual':22798,'7_actual':12320,'8_actual':68865,'9_actual':43436 },
-    'LT-C2':  { '5_actual':2694,'6_actual':53078,'7_actual':9474,'8_actual':3417,'9_actual':48463 },
-  },
-
-  disbursements: {
-    'G-KA-WF': [
-      { no:1, due:'2025-05-01', expected:2168000, received:2168000, date:'2025-05-03', status:'received_full', notes:'First tranche received on time' },
-      { no:2, due:'2025-10-01', expected:2168000, received:2168000, date:'2025-10-15', status:'received_full', notes:'Second tranche — Sep UC attached' },
-    ],
-    'G-KA-SF': [
-      { no:1, due:'2025-04-15', expected:4097000, received:4097000, date:'2025-04-18', status:'received_full', notes:'' },
-      { no:2, due:'2025-10-15', expected:4097000, received:4097000, date:'2025-11-02', status:'received_full', notes:'Delayed 18 days' },
-    ],
-    'G-KA-BOSCH': [
-      { no:1, due:'2025-05-01', expected:3591475, received:3591475, date:'2025-05-12', status:'received_full', notes:'' },
-      { no:2, due:'2025-11-01', expected:3591475, received:3591475, date:'2025-11-08', status:'received_full', notes:'' },
-    ],
-    'G-KA-LTTS': [
-      { no:1, due:'2025-04-01', expected:2845000, received:2845000, date:'2025-04-05', status:'received_full', notes:'Full FY advance' },
-      { no:2, due:'2025-10-01', expected:2845000, received:2845000, date:'2025-10-20', status:'received_full', notes:'' },
-    ],
-  },
-
-  reportingSchedule: {
-    'G-KA-WF': [
-      { type:'utilization', label:'Sep UC (H1)',       period:'Apr–Sep 2025', due:'2025-10-15', submitted:'2025-10-12', status:'submitted' },
-      { type:'narrative',   label:'Interim Report',    period:'Apr–Sep 2025', due:'2025-11-30', submitted:'2025-11-28', status:'submitted' },
-      { type:'utilization', label:'Final UC (FY End)', period:'Apr–Mar 2026', due:'2026-04-30', submitted:null,         status:'planned'   },
-      { type:'annual',      label:'Annual Impact Report', period:'FY 2025-26', due:'2026-05-31', submitted:null,        status:'planned'   },
-    ],
-    'G-KA-SF': [
-      { type:'utilization', label:'Sep UC (Q2)',        period:'Apr–Sep 2025', due:'2025-10-31', submitted:'2025-10-29', status:'submitted' },
-      { type:'utilization', label:'Final UC',           period:'Apr–Mar 2026', due:'2026-04-30', submitted:null,         status:'due'       },
-    ],
-    'G-KA-BOSCH': [
-      { type:'utilization', label:'Sep UC',             period:'Apr–Sep 2025', due:'2025-10-31', submitted:'2025-11-02', status:'submitted' },
-      { type:'indicator',   label:'Indicator Report',   period:'Apr–Dec 2025', due:'2026-01-31', submitted:null,         status:'planned'   },
-      { type:'utilization', label:'Final UC',           period:'Apr–Mar 2026', due:'2026-04-30', submitted:null,         status:'planned'   },
-    ],
-    'G-KA-LTTS': [
-      { type:'utilization', label:'Sep UC (Annexure)',  period:'Apr–Sep 2025', due:'2025-10-15', submitted:'2025-10-14', status:'submitted' },
-      { type:'utilization', label:'Final UC',           period:'Apr–Mar 2026', due:'2026-04-30', submitted:null,         status:'planned'   },
-    ],
-  },
+  programs:         [],   // { id, name, code, fy, state }
+  grants:           {},   // { [progId]: [ grantObj, … ] }
+  budgetLines:      {},   // { [grantId]: [ lineObj, … ] }
+  monthlyActuals:   {},   // { [lineId]: { '0_actual': n, … } }
+  disbursements:    {},   // { [grantId]: [ disbObj, … ] }
+  reportingSchedule:{},   // { [grantId]: [ repObj, … ] }
 };
+
+// ── DB Hydration ─────────────────────────────────────────────────────────
+async function btLoadFromDB() {
+  if (btStore._loading) return;
+  btStore._loading = true;
+
+  // Show a subtle loading state on the portfolio selector
+  const progGrid = $('bt-prog-grid');
+  if (progGrid) progGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 0;opacity:.5;font-size:13px;">Loading portfolio from database…</div>`;
+
+  try {
+    // 1. Programs (non-frozen)
+    const progRes = await fetch(
+      `${GS_SB_URL}/rest/v1/program?is_frozen=eq.false&select=program_id,program_name,program_code,program_level&order=program_name.asc&limit=200`,
+      { headers: GS_SB_HDR }
+    );
+    const programs = progRes.ok ? await progRes.json() : [];
+
+    // 2. Active grants with donor + program scope + upload_profile
+    const grantRes = await fetch(
+      `${GS_SB_URL}/rest/v1/grants?is_active=eq.true` +
+      `&select=grant_id,grant_name,grant_code,grant_status,total_committed_amount,currency,start_date,end_date,upload_profile` +
+      `,donor:donor_id(donor_id,donor_name)` +
+      `,grant_program_scope(program_id)` +
+      `&order=grant_name.asc&limit=500`,
+      { headers: GS_SB_HDR }
+    );
+    const grants = grantRes.ok ? await grantRes.json() : [];
+
+    if (!grants.length) {
+      // No grants yet — render empty state
+      btStore.programs = programs.map(p => ({
+        id: p.program_id, name: p.program_name,
+        code: p.program_code || p.program_id,
+        fy: '—', state: p.program_name,
+      }));
+      btStore.grants = {}; btStore.budgetLines = {};
+      btStore.monthlyActuals = {}; btStore.disbursements = {}; btStore.reportingSchedule = {};
+      btStore._loaded = true; btStore._loading = false;
+      btShowProgSelector(); return;
+    }
+
+    const grantIds = grants.map(g => g.grant_id);
+    const idList   = grantIds.join(',');
+
+    // 3. Budget lines
+    const blRes = await fetch(
+      `${GS_SB_URL}/rest/v1/grant_framework_budget?grant_id=in.(${idList})` +
+      `&select=framework_budget_id,grant_id,budget_category_code,budget_line_code,budget_head_name,code_aliases,allocated_amount,sort_order` +
+      `&order=sort_order.asc&limit=5000`,
+      { headers: GS_SB_HDR }
+    );
+    const budgetLines = blRes.ok ? await blRes.json() : [];
+
+    // 4. Monthly actuals
+    const maRes = await fetch(
+      `${GS_SB_URL}/rest/v1/grant_budget_monthly_actuals?grant_id=in.(${idList})` +
+      `&select=framework_budget_id,month_index,actual_amount,financial_year&limit=20000`,
+      { headers: GS_SB_HDR }
+    );
+    const actuals = maRes.ok ? await maRes.json() : [];
+
+    // 5. Disbursements
+    const disbRes = await fetch(
+      `${GS_SB_URL}/rest/v1/grant_disbursement_schedule?grant_id=in.(${idList})` +
+      `&select=grant_id,installment_no,due_date,expected_amount,received_amount,received_date,status,notes` +
+      `&order=installment_no.asc&limit=2000`,
+      { headers: GS_SB_HDR }
+    );
+    const disbs = disbRes.ok ? await disbRes.json() : [];
+
+    // 6. Reporting schedule
+    const repRes = await fetch(
+      `${GS_SB_URL}/rest/v1/grant_reporting_schedule?grant_id=in.(${idList})` +
+      `&select=grant_id,report_type,reporting_period_end,due_date,submitted_at,status,notes` +
+      `&order=due_date.asc&limit=2000`,
+      { headers: GS_SB_HDR }
+    );
+    const reports = repRes.ok ? await repRes.json() : [];
+
+    // ── Hydrate btStore ──────────────────────────────────────────────
+    btStore.programs = programs.map(p => ({
+      id:    p.program_id,
+      name:  p.program_name,
+      code:  p.program_code || p.program_id,
+      fy:    '—',
+      state: p.program_name,
+    }));
+
+    btStore.grants           = {};
+    btStore.budgetLines      = {};
+    btStore.monthlyActuals   = {};
+    btStore.disbursements    = {};
+    btStore.reportingSchedule= {};
+
+    // Determine current FY label
+    const currentFYRes = await fetch(
+      `${GS_SB_URL}/rest/v1/financial_year?is_current=eq.true&select=fy_name&limit=1`,
+      { headers: GS_SB_HDR }
+    );
+    const [currentFY] = currentFYRes.ok ? await currentFYRes.json() : [];
+    const currentFYLabel = currentFY?.fy_name || '—';
+
+    // Build grant lines index for actuals lookup
+    const lineIndex = new Map(); // framework_budget_id → lineId (same value, for clarity)
+    budgetLines.forEach(bl => lineIndex.set(bl.framework_budget_id, bl.framework_budget_id));
+
+    // Build actuals map: frameId → { '0_actual': n, … }
+    const actualsMap = {};
+    actuals.forEach(a => {
+      if (!actualsMap[a.framework_budget_id]) actualsMap[a.framework_budget_id] = {};
+      actualsMap[a.framework_budget_id][`${a.month_index}_actual`] = Number(a.actual_amount) || 0;
+    });
+
+    // Process each grant
+    grants.forEach(g => {
+      const progScopes = Array.isArray(g.grant_program_scope) ? g.grant_program_scope : [];
+      if (!progScopes.length) return; // grant not linked to any program — skip for portfolio
+
+      const donorName = g.donor?.donor_name || 'Unknown Donor';
+
+      progScopes.forEach(scope => {
+        const progId = scope.program_id;
+        if (!progId) return;
+
+        // Add program to store if not already (handles grants whose program isn't in `program` table)
+        if (!btStore.programs.find(p => p.id === progId)) {
+          btStore.programs.push({ id: progId, name: progId, code: progId, fy: currentFYLabel, state: progId });
+        }
+
+        if (!btStore.grants[progId]) btStore.grants[progId] = [];
+
+        // Avoid duplicate grant entries for same progId
+        if (!btStore.grants[progId].find(x => x.id === g.grant_id)) {
+          btStore.grants[progId].push({
+            id:             g.grant_id,
+            donor:          donorName,
+            code:           g.grant_code || g.grant_name,
+            status:         g.grant_status || 'active',
+            total:          Number(g.total_committed_amount) || 0,
+            css:            gsGrantCssByDonor(donorName),
+            start:          g.start_date  || '',
+            end:            g.end_date    || '',
+            currency:       g.currency    || 'INR',
+            upload_profile: g.upload_profile || {},
+          });
+        }
+      });
+
+      // Budget lines for this grant
+      const gLines = budgetLines.filter(bl => bl.grant_id === g.grant_id).map(bl => {
+        const lineActuals = actualsMap[bl.framework_budget_id] || {};
+        const utilised = MONTHS_FY.reduce((sum, _, mi) => sum + (lineActuals[`${mi}_actual`] || 0), 0);
+        return {
+          id:        bl.framework_budget_id,
+          code:      bl.budget_line_code  || '',
+          aliases:   Array.isArray(bl.code_aliases) ? bl.code_aliases : [],
+          cat:       bl.budget_category_code || 'A',
+          head:      bl.budget_head_name  || '',
+          allocated: Number(bl.allocated_amount) || 0,
+          revised:   null,
+          utilised,
+        };
+      });
+      btStore.budgetLines[g.grant_id] = gLines;
+
+      // Monthly actuals keyed by line id
+      gLines.forEach(line => {
+        btStore.monthlyActuals[line.id] = actualsMap[line.id] || {};
+      });
+
+      // Disbursements
+      btStore.disbursements[g.grant_id] = disbs
+        .filter(d => d.grant_id === g.grant_id)
+        .map(d => ({
+          no:       d.installment_no,
+          due:      d.due_date      || '',
+          expected: Number(d.expected_amount)  || 0,
+          received: Number(d.received_amount)  || 0,
+          date:     d.received_date || null,
+          status:   d.status        || 'planned',
+          notes:    d.notes         || '',
+        }));
+
+      // Reporting schedule
+      const repLabels = {
+        narrative:'Narrative Report', financial:'Financial Report',
+        indicator:'Indicator Report', utilization:'Utilisation Certificate',
+        quarterly:'Quarterly Report', annual:'Annual Report', other:'Report',
+      };
+      btStore.reportingSchedule[g.grant_id] = reports
+        .filter(r => r.grant_id === g.grant_id)
+        .map(r => ({
+          type:      r.report_type         || 'other',
+          label:     repLabels[r.report_type] || 'Report',
+          period:    r.reporting_period_end || '—',
+          due:       r.due_date             || '—',
+          submitted: r.submitted_at         || null,
+          status:    r.status               || 'planned',
+        }));
+    });
+
+    // Stamp FY label on programs that have grants
+    btStore.programs.forEach(p => {
+      if (p.fy === '—') p.fy = currentFYLabel;
+    });
+
+    btStore._loaded  = true;
+    btStore._loading = false;
+
+    // Refresh portfolio and monthly burn selectors
+    btShowProgSelector();
+    if ($('page-grant-burn-upload') && !$('page-grant-burn-upload').classList.contains('hidden')) {
+      gmbRenderPrograms();
+      gmbRenderDonors();
+    }
+
+  } catch (err) {
+    console.error('[btLoadFromDB]', err);
+    btStore._loading = false;
+    btStore._loaded  = false;
+    if (progGrid) progGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--warn);font-size:13px;">⚠ Failed to load portfolio — check connection and refresh</div>`;
+    toast(IC.warning + ' Portfolio load failed: ' + (err.message || 'unknown error'));
+  }
+}
 
 function btGetGrants(progId)  { return btStore.grants[progId] || []; }
 function btGetLines(grantId)  { return btStore.budgetLines[grantId] || []; }
@@ -21391,10 +21475,17 @@ function gmbRenderPrograms() {
   const sel = $('gmb-program-sel');
   if (!sel) return;
   const prev = sel.value || btStore.activeProg || '';
-  const opts = ['<option value="">Select program...</option>']
-    .concat(gmbPrograms().map(p => `<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.id)})</option>`));
+  // Only show programs that have at least one grant
+  const withGrants = gmbPrograms().filter(p => (btStore.grants[p.id] || []).length > 0);
+  const opts = ['<option value="">Select program…</option>']
+    .concat(withGrants.map(p => {
+      const label = p.code && p.code !== p.id
+        ? `${esc(p.code)} · ${esc(p.name)}`
+        : esc(p.name);
+      return `<option value="${esc(p.id)}">${label}</option>`;
+    }));
   sel.innerHTML = opts.join('');
-  if (prev && gmbPrograms().some(p => p.id === prev)) sel.value = prev;
+  if (prev && withGrants.some(p => p.id === prev)) sel.value = prev;
 }
 
 function gmbRenderDonors() {
@@ -21860,6 +21951,59 @@ function gmbUpdateHistorySummary(history) {
   if ($('gmb-hist-last'))  $('gmb-hist-last').textContent  = last;
 }
 
+// ── Save monthly actuals to grant_budget_monthly_actuals ─────────────────
+async function gmbSaveActualsToDB(grantId, monthIdx, financialYear, sourceFile, lineIds) {
+  const lines = btGetLines(grantId);
+  const payload = lineIds
+    .map(lid => {
+      const line   = lines.find(l => l.id === lid);
+      if (!line) return null;
+      const amount = btMonthVal(lid, monthIdx, 'actual');
+      if (amount == null) return null;
+      return {
+        grant_id:           grantId,
+        framework_budget_id:lid,
+        financial_year:     financialYear,
+        month_index:        monthIdx,
+        actual_amount:      Number(amount) || 0,
+        source_file:        sourceFile || null,
+        updated_at:         new Date().toISOString(),
+      };
+    })
+    .filter(Boolean);
+
+  if (!payload.length) return;
+
+  // Upsert — on conflict (framework_budget_id, financial_year, month_index) update amount
+  await fetch(`${GS_SB_URL}/rest/v1/grant_budget_monthly_actuals`, {
+    method:  'POST',
+    headers: { ...GS_SB_HDR, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+    body:    JSON.stringify(payload),
+  });
+}
+
+// ── Log every upload attempt to grant_burn_upload_log ───────────────────
+async function gmbLogUploadToDB({ grantId, programId, fy, month, fileName,
+  rowsProcessed, rowsMatched, rowsUnmatched, totalAmount, unmatchedCodes, status }) {
+  await fetch(`${GS_SB_URL}/rest/v1/grant_burn_upload_log`, {
+    method:  'POST',
+    headers: { ...GS_SB_HDR, 'Prefer': 'return=minimal' },
+    body:    JSON.stringify({
+      grant_id:        grantId   || null,
+      program_id:      programId || null,
+      financial_year:  fy        || null,
+      upload_month:    month     || null,
+      file_name:       fileName  || null,
+      rows_processed:  rowsProcessed  || 0,
+      rows_matched:    rowsMatched    || 0,
+      rows_unmatched:  rowsUnmatched  || 0,
+      total_amount:    Number(totalAmount) || 0,
+      unmatched_codes: Array.isArray(unmatchedCodes) ? unmatchedCodes : [],
+      upload_status:   status    || 'success',
+    }),
+  });
+}
+
 async function gmbUploadNow() {
   if (!gmbCanUpload()) {
     toast(IC.warning + ' Select program, donor, financial year, month and file');
@@ -21880,57 +22024,72 @@ async function gmbUploadNow() {
 
   try {
     if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
-    // Fetch upload profile for this grant (if configured)
-    let uploadProfile = {};
-    try {
-      const pRes = await fetch(`${GS_SB_URL}/rest/v1/grant_program?grant_program_id=eq.${grantId}&select=upload_profile&limit=1`, { headers: GS_SB_HDR });
-      const [pData] = await pRes.json();
-      uploadProfile = pData?.upload_profile || {};
-    } catch(e) { /* silent — fall back to auto-detect */ }
+
+    // Upload profile: read from btStore (loaded from grants.upload_profile)
+    const uploadProfile = grant?.upload_profile || {};
+
     const stats = await gmbReadUploadStats(gmbState.file, month, uploadProfile);
     const rec = {
-      uploadedAt: new Date().toISOString(),
+      uploadedAt:    new Date().toISOString(),
       programId,
-      programName: program.name,
+      programName:   program.name,
       grantId,
-      donorName: grant.donor,
+      donorName:     grant.donor,
       fy,
       month,
-      fileName: gmbState.file.name,
-      fileSize: gmbState.file.size || 0,
-      rows: stats.rows || 0,
-      cols: stats.cols || 0,
-      amount: Number(stats.amount || 0),
-      byCode: stats.byCode || {},
-      codeCount: stats.codeCount || 0,
-      rowsUsed: stats.rowsUsed || 0,
+      fileName:      gmbState.file.name,
+      fileSize:      gmbState.file.size || 0,
+      rows:          stats.rows     || 0,
+      cols:          stats.cols     || 0,
+      amount:        Number(stats.amount || 0),
+      byCode:        stats.byCode   || {},
+      codeCount:     stats.codeCount|| 0,
+      rowsUsed:      stats.rowsUsed || 0,
       monthFiltered: !!stats.monthFiltered,
-      status: 'Synced',
+      status:        'Synced',
     };
 
     const sync = gmbApplyUploadToPortfolio(rec);
     if (!sync.ok) {
       if (sync.reason === 'no_budget_lines') throw new Error('Selected donor grant has no budget lines in portfolio');
-      if (sync.reason === 'invalid_month') throw new Error('Please select a valid month');
-      if (sync.reason === 'no_burn_rows') throw new Error('No burn rows found in file for selected month');
-      if (sync.reason === 'no_code_match') throw new Error('No matching Budget Code found for selected donor grant');
+      if (sync.reason === 'invalid_month')   throw new Error('Please select a valid month');
+      if (sync.reason === 'no_burn_rows')    throw new Error('No burn rows found in file for selected month');
+      if (sync.reason === 'no_code_match')   throw new Error('No matching Budget Code found for selected donor grant');
       throw new Error('Portfolio sync failed');
     }
-    rec.matchedCount = sync.matchedCount || 0;
-    rec.unmatchedCodes = sync.unmatched || [];
-    rec.amount = Number(sync.matchedAmount || rec.amount || 0);
+    rec.matchedCount   = sync.matchedCount || 0;
+    rec.unmatchedCodes = sync.unmatched    || [];
+    rec.amount         = Number(sync.matchedAmount || rec.amount || 0);
+
+    // ── Persist actuals to DB ───────────────────────────────────────
+    const monthIdx = MONTHS_FY.indexOf(month);
+    if (monthIdx >= 0 && sync.updatedLineIds?.length) {
+      gmbSaveActualsToDB(grantId, monthIdx, fy, gmbState.file.name, sync.updatedLineIds).catch(e =>
+        console.warn('[gmbSaveActualsToDB]', e)
+      );
+    }
+    // ── Log upload to DB ────────────────────────────────────────────
+    gmbLogUploadToDB({
+      grantId, programId, fy, month,
+      fileName:      rec.fileName,
+      rowsProcessed: rec.rows,
+      rowsMatched:   rec.matchedCount,
+      rowsUnmatched: rec.unmatchedCodes.length,
+      totalAmount:   rec.amount,
+      unmatchedCodes:rec.unmatchedCodes,
+      status:        'success',
+    }).catch(e => console.warn('[gmbLogUploadToDB]', e));
 
     gmbState.history.push(rec);
     gmbRenderHistory();
     gmbClearFile();
-    // Update badge count
     const badge = $('gmb-history-badge');
     if (badge) badge.textContent = gmbState.history.length;
     const miss = rec.unmatchedCodes.length ? ` · ${rec.unmatchedCodes.length} code(s) not mapped` : '';
     toast(`${IC['check-circle']} Synced ${rec.matchedCount} budget code(s) for ${program.name} · ${grant.donor} · ${month}${miss}`);
   } catch (err) {
-    // Log failed upload to history
-    gmbState.history.push({
+    // Log failed upload to history and DB
+    const failRec = {
       uploadedAt: new Date().toISOString(),
       programId, programName: program?.name || programId,
       grantId, donorName: grant?.donor || grantId,
@@ -21938,8 +22097,15 @@ async function gmbUploadNow() {
       fileName: gmbState.file?.name || '—',
       fileSize: gmbState.file?.size || 0,
       rows: 0, cols: 0, codeCount: 0,
-      status: 'Error', matchedCount: 0, amount: 0,
-    });
+      status: 'Error', matchedCount: 0, amount: 0, unmatchedCodes: [],
+    };
+    gmbState.history.push(failRec);
+    gmbLogUploadToDB({
+      grantId, programId, fy, month,
+      fileName:      failRec.fileName,
+      rowsProcessed: 0, rowsMatched: 0, rowsUnmatched: 0,
+      totalAmount:   0, unmatchedCodes: [], status: 'failed',
+    }).catch(() => {});
     gmbRenderHistory();
     const badge = $('gmb-history-badge');
     if (badge) badge.textContent = gmbState.history.length;
@@ -21982,6 +22148,70 @@ function gmbBindEvents() {
   $('gmb-upload-btn')?.addEventListener('click', gmbUploadNow);
 }
 
+async function gmbLoadFYFromDB() {
+  try {
+    const res = await fetch(
+      `${GS_SB_URL}/rest/v1/financial_year?select=fy_name,is_current&order=start_date.desc&limit=10`,
+      { headers: GS_SB_HDR }
+    );
+    if (!res.ok) return;
+    const fys = await res.json();
+    const sel = $('gmb-fy-sel');
+    if (!sel || !fys.length) return;
+    sel.innerHTML = fys.map(f =>
+      `<option value="${esc(f.fy_name)}"${f.is_current ? ' selected' : ''}>${esc(f.fy_name)}</option>`
+    ).join('');
+    gmbUpdateUploadBtn();
+  } catch (e) { /* silent — leave placeholder */ }
+}
+
+async function gmbLoadHistoryFromDB() {
+  try {
+    const res = await fetch(
+      `${GS_SB_URL}/rest/v1/grant_burn_upload_log` +
+      `?select=log_id,uploaded_at,grant_id,program_id,financial_year,upload_month,file_name` +
+      `,rows_processed,rows_matched,rows_unmatched,total_amount,unmatched_codes,upload_status` +
+      `,grants(grant_name,grant_code,donor:donor_id(donor_name))` +
+      `,program:program_id(program_name)` +
+      `&order=uploaded_at.desc&limit=100`,
+      { headers: GS_SB_HDR }
+    );
+    if (!res.ok) return;
+    const logs = await res.json();
+    if (!logs.length) return;
+
+    // Map DB records to gmbState.history shape
+    const dbRecs = logs.map(l => ({
+      uploadedAt:    l.uploaded_at,
+      programId:     l.program_id   || '',
+      programName:   l.program?.program_name || l.program_id || '—',
+      grantId:       l.grant_id     || '',
+      donorName:     l.grants?.donor?.donor_name || '—',
+      fy:            l.financial_year || '—',
+      month:         l.upload_month  || '—',
+      fileName:      l.file_name     || '—',
+      fileSize:      0,
+      rows:          l.rows_processed || 0,
+      cols:          0,
+      codeCount:     l.rows_matched || 0,
+      matchedCount:  l.rows_matched || 0,
+      amount:        Number(l.total_amount) || 0,
+      unmatchedCodes:Array.isArray(l.unmatched_codes) ? l.unmatched_codes : [],
+      status:        l.upload_status === 'failed' ? 'Error' : 'Synced',
+      _fromDB:       true,
+    }));
+
+    // Merge: prepend DB records that aren't already in session history
+    const sessionIds = new Set(gmbState.history.filter(r => r._logId).map(r => r._logId));
+    dbRecs.forEach(r => {
+      if (!gmbState.history.find(h => h.uploadedAt === r.uploadedAt && h.grantId === r.grantId && h.month === r.month)) {
+        gmbState.history.unshift(r);
+      }
+    });
+    gmbRenderHistory();
+  } catch (e) { /* silent */ }
+}
+
 function gmbInit() {
   gmbRenderPrograms();
   gmbRenderDonors();
@@ -21990,6 +22220,9 @@ function gmbInit() {
   gmbUpdateUploadBtn();
   gmbBindEvents();
   gmbState.inited = true;
+  // Load FY options and history from DB (async, non-blocking)
+  gmbLoadFYFromDB();
+  gmbLoadHistoryFromDB();
 }
 
 // ── Budget Tracker INIT wiring ────────────────────────────────────
